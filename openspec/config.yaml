@@ -1,0 +1,113 @@
+# SDD OpenSpec Configuration
+# Project: api-mybandnow
+# Generated: 2026-06-12
+# DO NOT edit manually — managed by sdd-init / sdd-archive phases
+
+project: mybandnow-api
+version: "0.10.0"
+
+stack:
+  runtime: "Node.js 24 / TypeScript 5.4"
+  framework: "Express 5 + openapi-backend"
+  database: "MongoDB 7"
+  messaging: "RabbitMQ (amqplib)"
+  auth: "Keycloak JWT (BearerAuth)"
+  di_container: "node-dependency-injection"
+  build: "ESBuild"
+  language: TypeScript
+  module_system: ESM
+
+architecture:
+  style: hexagonal
+  strict: true
+  layers:
+    - apps         # Entry points; imports application layer only
+    - application  # Use cases (commands, queries, handlers); imports domain only
+    - domain       # Aggregates, value objects, domain events, repo interfaces
+    - infrastructure # Concrete implementations (MongoDB, RabbitMQ, HTTP providers)
+  context_root: "src/Contexts"
+  apps_root: "src/apps"
+  test_root: "test"
+
+testing:
+  strict_tdd: true
+  strict_tdd_source: "tsconfig.json strict:true + test runner detected"
+  runners:
+    unit:
+      tool: vitest
+      version: "3.2.4"
+      config: vitest.config.ts
+      pattern: "**/*.unit.test.ts"
+      command: "make unit-tests"
+      npm_script: "npm run tests:unit"
+      requires_infra: false
+      coverage:
+        provider: v8
+        dir: reports/coverage/unit
+    integration:
+      tool: vitest
+      version: "3.2.4"
+      config: vitest.integration.config.ts
+      pattern: "**/*.integration.test.ts"
+      command: "make integration-tests"
+      npm_script: "npm run tests:integration"
+      requires_infra: true
+      infra: [mongodb, rabbitmq, keycloak]
+      timeout_ms: 30000
+      flags: ["--no-file-parallelism"]
+      coverage:
+        provider: v8
+        dir: reports/coverage/integration
+    acceptance:
+      tool: cucumber-js
+      version: "13.0.0"
+      config: cucumber.js
+      features_path: "test/acceptance/features/**/*.feature"
+      steps_path: "test/acceptance/step_definitions/**/*.ts"
+      command: "make acceptance-tests"
+      npm_script: "npm run tests:acceptance"
+      requires_infra: true
+      infra: [mongodb, rabbitmq, keycloak]
+      loader: "ts-node/esm"
+      http_client: supertest
+  run_all: "make tests"
+  coverage_merge: "npm run coverage:merge && npm run coverage:report"
+
+quality:
+  linter: eslint
+  linter_config: eslint.config.js
+  formatter: prettier
+  formatter_config: prettier.config.js
+  type_checker: typescript
+  ts_strict: true
+  sonarjs: true
+  pre_commit_hook: ".husky/pre-commit"
+  pre_commit_steps:
+    - "npm run format:fix"
+    - "gga run"
+
+persistence_mode: hybrid
+sdd_init_date: "2026-06-12"
+
+# ─── Jira ───────────────────────────────────────────────────────────────────
+# Placeholder — replace with the real project keys when this mybandnow is
+# used to generate a new project (sdd-init or manual setup).
+jira:
+  projects:
+    product:
+      key: PHDU
+      name: "Producto - Historias de Usuario"
+      issue_types:
+        epic: Epic
+        story: Story
+    backend:
+      key: "<replace-with-jira-key>"
+      name: "<replace-with-project-name>"
+      issue_types:
+        task: Task
+
+# ─── Confluence ─────────────────────────────────────────────────────────────
+confluence:
+  living_blueprint_page: "<replace-with-project-name> — Living Blueprint"
+  space_key: "<replace-with-jira-key>"
+  home_page_id: "<replace-with-home-page-id>"

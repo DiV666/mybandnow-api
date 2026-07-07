@@ -1,0 +1,88 @@
+services:
+  mybandnow-database:
+    container_name: kloding-mybandnow-database
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: devDB
+      POSTGRES_USER: devUser
+      POSTGRES_PASSWORD: devPass
+    networks:
+      - kloding
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U devUser -d devDB" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  mybandnow-rabbitmq:
+    container_name: kloding-mybandnow-rabbitmq
+    image: 'rabbitmq:${RABBITMQ_VERSION}'
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+      - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_VHOST}
+    hostname: mybandnow-rabbitmq
+    networks:
+      - kloding
+    healthcheck:
+      test: [ 'CMD', 'rabbitmq-diagnostics', '-q', 'ping' ]
+      interval: 10s
+      timeout: 30s
+      retries: 15
+      start_period: 90s
+
+  mybandnow-api:
+    tty: true
+    container_name: kloding-mybandnow-api
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./:/opt/mybandnow
+    environment:
+      - NODE_ENV=${ENVIRONMENT}
+      - PORT=${PORT}
+      - E2E_MODE=local
+      - CORS_ORIGIN=${CORS_ORIGIN}
+      - DATABASE_URL=${DATABASE_URL}
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - RABBITMQ_VHOST=${RABBITMQ_VHOST}
+      - RABBITMQ_SECURE=${RABBITMQ_SECURE}
+      - RABBITMQ_HOSTNAME=${RABBITMQ_HOSTNAME}
+      - RABBITMQ_PORT=${RABBITMQ_PORT}
+      - RABBITMQ_EXCHANGE_NAME=${RABBITMQ_EXCHANGE_NAME}
+      - RABBITMQ_MAX_RETRIES=${RABBITMQ_MAX_RETRIES}
+      - RABBITMQ_RETRY_TTL=${RABBITMQ_RETRY_TTL}
+      - JWT_SECRET=${JWT_SECRET}
+    hostname: mybandnow-api
+    networks:
+      - kloding
+    depends_on:
+      mybandnow-database:
+        condition: service_healthy
+      mybandnow-rabbitmq:
+        condition: service_healthy
+      mybandnow-swagger-ui:
+        condition: service_started
+    command: npm run development:watch
+
+  mybandnow-swagger-ui:
+    tty: true
+    container_name: kloding-mybandnow-swagger-ui
+    image: swaggerapi/swagger-ui:v5.27.0
+    volumes:
+      - ./src/apps/mybandnow/backend/config/swagger/definition.json:/usr/share/nginx/html/definition.json
+    environment:
+      - API_URL=/definition.json
+    hostname: mybandnow-swagger-ui
+    networks:
+      - kloding
+
+networks:
+  kloding:
+    name: kloding
+    external: true

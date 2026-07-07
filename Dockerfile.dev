@@ -1,0 +1,44 @@
+FROM node:24.16.0-slim
+LABEL maintainer=developers@kloding.com
+
+# Update packages.
+RUN apt update && apt upgrade -y
+
+# Install git to initialize husky and devcontainer
+RUN apt install -y git wget curl procps bash-completion make jq
+
+# Install nodemon globally
+RUN npm install -g nodemon
+
+# ---------------------------------- USUARIO DESARROLLO ----------------------------------
+# Crea un usuario para desarrollo y que coincida con el UID y GID del usuario que 
+# ejecuta el dockerfile.
+ARG USERNAME=kloding-developer
+ARG USER_UID=1000
+ARG USER_GID=1000
+
+RUN set -e && \
+    apt-get update && apt-get install -y sudo && \
+    if getent group ${USER_GID} > /dev/null; then \
+    echo "El grupo con GID ${USER_GID} ya existe. No se creará."; \
+    else \
+    groupadd --gid ${USER_GID} ${USERNAME}; \
+    fi && \
+    if getent passwd ${USER_UID} > /dev/null; then \
+    echo "El usuario con UID ${USER_UID} ya existe. Modificándolo." && \
+    EXISTING_USER=$(getent passwd ${USER_UID} | cut -d: -f1) && \
+    usermod -l ${USERNAME} -d /home/${USERNAME} -m ${EXISTING_USER} && \
+    usermod -g ${USER_GID} ${USERNAME}; \
+    else \
+    echo "El usuario con UID ${USER_UID} no existe. Creándolo." && \
+    useradd --uid ${USER_UID} --gid ${USER_GID} -m ${USERNAME}; \
+    fi && \
+    echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} && \
+    chmod 0440 /etc/sudoers.d/${USERNAME}
+# ----------------------------------- FIN USUARIO DESARROLLO ------------------------------------
+
+# El usuario final siempre será el que hemos definido en USERNAME (vscode)
+USER ${USERNAME}
+
+# Create app directory
+WORKDIR /opt/mybandnow

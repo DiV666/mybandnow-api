@@ -1,0 +1,6 @@
+ignore-scripts=true
+audit=true
+audit-level=high
+save-exact=true
+registry=https://devtools.kloding.net/nexus/repository/npm-group/
+//devtools.kloding.net/nexus/repository/npm-group/:_auth="<base64-username-colon-password>"

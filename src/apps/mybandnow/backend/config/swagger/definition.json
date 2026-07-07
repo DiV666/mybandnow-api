@@ -1,0 +1,151 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "description": "Collaborative platform for the automated creation of music videos for music groups.",
+        "version": "1.4.0",
+        "title": "Mybandnow API",
+        "termsOfService": "https://kloding.com",
+        "contact": {
+            "email": "developers@kloding.com"
+        },
+        "license": {
+            "name": "No license",
+            "url": "https://choosealicense.com/no-permission/"
+        }
+    },
+    "tags": [
+        {
+            "name": "Mybandnow",
+            "description": "REST API that allows you to do a mybandnow"
+        }
+    ],
+    "servers": [
+        {
+            "url": "{protocol}://{host}:{port}",
+            "description": "Dynamic server to multiples environments",
+            "variables": {
+                "protocol": {
+                    "default": "http",
+                    "enum": [
+                        "http",
+                        "https"
+                    ],
+                    "description": "The protocol to use"
+                },
+                "host": {
+                    "default": "localhost",
+                    "description": "The host to use"
+                },
+                "port": {
+                    "default": "4008",
+                    "description": "The port to use"
+                }
+            }
+        }
+    ],
+    "paths": {},
+    "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            },
+            "InternalAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-internal-auth"
+            }
+        },
+        "responses": {
+            "BadRequest": {
+                "description": "Bad request. Invalid data received.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "NotFound": {
+                "description": "The specified resource was not found.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "Conflict": {
+                "description": "The specified resource has a conflict.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "Forbidden": {
+                "description": "Forbidden.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "Unknown": {
+                "description": "Unknown error",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "requestBodies": {},
+        "parameters": {
+            "Criteria": {
+                "name": "criteria",
+                "in": "query",
+                "schema": {
+                    "type": "string",
+                    "example": "{\"filters\":[{\"field\":\"name\",\"operator\":\"CONTAINS\",\"type\":\"array\",\"value\":[\"John\"]}],\"orderBy\":\"role\",\"order\":\"asc\",\"limit\":3}"
+                }
+            },
+            "Id": {
+                "name": "id",
+                "in": "path",
+                "required": true,
+                "description": "The UUID id",
+                "schema": {
+                    "$ref": "#/components/schemas/UUID"
+                }
+            }
+        },
+        "schemas": {
+            "UUID": {
+                "type": "string",
+                "format": "uuid",
+                "example": "30437b49-faac-4ab1-9809-037ce93cb6d0"
+            },
+            "Error": {
+                "title": "The error object",
+                "required": [
+                    "message"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

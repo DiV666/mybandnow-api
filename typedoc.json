@@ -1,0 +1,11 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "entryPointStrategy": "expand",
+    "entryPoints": [
+        "./src/"
+    ],
+    "out": "docs/typedoc",
+    "tsconfig": "./tsconfig.json",
+    "name": "Mybandnow API",
+    "disableSources": true
+}
