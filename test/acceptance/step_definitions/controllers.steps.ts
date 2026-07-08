@@ -9,10 +9,46 @@ import { UuidMother } from '../../unit-integration/Contexts/Shared/domain/value-
 
 setDefaultTimeout(20000);
 
+import { v5 as uuidv5 } from 'uuid';
+import { PasswordEncryptor } from '@Contexts/Mybandnow/User/domain/service/PasswordEncryptor.js';
+import { UserPersistenceRepository } from '@Contexts/Mybandnow/User/domain/repository/UserPersistenceRepository.js';
+import { MusicianRepository } from '@Contexts/Moat/Musician/domain/repository/MusicianRepository.js';
+import { User } from '@Contexts/Mybandnow/User/domain/User.js';
+import { UserId } from '@Contexts/Mybandnow/User/domain/value-object/UserId.js';
+import { UserEmail } from '@Contexts/Mybandnow/User/domain/value-object/UserEmail.js';
+import { UserPassword } from '@Contexts/Mybandnow/User/domain/value-object/UserPassword.js';
+import { Musician } from '@Contexts/Moat/Musician/domain/Musician.js';
+import { MusicianId } from '@Contexts/Moat/Musician/domain/value-object/MusicianId.js';
+import { MusicianUserId } from '@Contexts/Moat/Musician/domain/value-object/MusicianUserId.js';
+import { MusicianName } from '@Contexts/Moat/Musician/domain/value-object/MusicianName.js';
+import { MusicianUsername } from '@Contexts/Moat/Musician/domain/value-object/MusicianUsername.js';
+
 Given(
   'An authenticated user {string} with password {string}',
   async function (this: MybandnowWorld, username: string, password: string) {
-    const access_token = await getToken(username, password);
+    const NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341';
+    const userIdValue = uuidv5(username, NAMESPACE);
+    const encryptor = container.get<PasswordEncryptor>('Mybandnow.User.PasswordEncryptor');
+    const userRepository = container.get<UserPersistenceRepository>('Mybandnow.User.UserRepository');
+    const musicianRepository = container.get<MusicianRepository>('Moat.Musician.MusicianRepository');
+
+    const hashedPassword = await encryptor.hash(password);
+    const user = User.create(
+      new UserId(userIdValue),
+      new UserEmail(`${username}@example.com`),
+      new UserPassword(hashedPassword)
+    );
+    await userRepository.save(user);
+
+    const musician = new Musician(
+      new MusicianId(MusicianId.random()),
+      new MusicianUsername(username),
+      new MusicianName(username),
+      new MusicianUserId(userIdValue)
+    );
+    await musicianRepository.save(musician);
+
+    const access_token = await getToken(username, password, userIdValue);
     this.setAuthToken(access_token);
   }
 );
@@ -150,10 +186,9 @@ async function getToken(username: string, _password?: string, userIdValue?: stri
   const subId = userIdValue || uuidv5(username, '1b671a64-40d5-491e-99b0-da01ff1f3341');
   const payload = {
     sub: subId,
+    userId: subId,
     email: `${username}@example.com`,
-    realm_access: {
-      roles: ['admin', 'user:create', 'user:read', 'user:update', 'user:delete']
-    },
+    roles: ['admin', 'user:create', 'user:read', 'user:update', 'user:delete'],
     preferred_username: username
   };
 
