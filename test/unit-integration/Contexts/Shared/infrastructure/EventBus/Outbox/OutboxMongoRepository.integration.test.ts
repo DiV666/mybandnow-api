@@ -43,7 +43,7 @@ describe('OutboxMongoRepository - Integration', () => {
 
   beforeAll(async () => {
     // Use environment variables for MongoDB connection (same as production code)
-    const mongoUri = format(env.MONGO_URI, env.MONGO_USER, env.MONGO_PASS);
+    const mongoUri = format(process.env.MONGO_URI, process.env.MONGO_USER, process.env.MONGO_PASS);
 
     client = new MongoClient(mongoUri);
     await client.connect();

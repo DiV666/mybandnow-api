@@ -18,7 +18,8 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
 
   // Repositories
   container
-    .register('Mybandnow.User.UserPrismaRepository', UserPrismaRepository);
+    .register('Mybandnow.User.UserPrismaRepository', UserPrismaRepository)
+    .addArgument(new Reference('Shared.Outbox'));
 
   // Use Cases
   registerUserRegister(container);

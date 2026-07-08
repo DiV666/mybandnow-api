@@ -6,7 +6,7 @@ import ApiController from '@Contexts/Shared/infrastructure/Express/ApiController
 
 export default class UserPostRegisterController extends ApiController {
   async run(context: Context, req: Request, res: Response): Promise<void> {
-    const authenticatedUser = null;
+    const authenticatedUser = null as any;
     const id = req.params.id as string || req.body.id as string;
     const { email, password } = req.body;
 

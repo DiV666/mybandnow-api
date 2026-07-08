@@ -11,7 +11,7 @@ import { QueryHandlersInformation } from '@Contexts/Shared/infrastructure/QueryB
 import { RabbitMQConnection } from '@Contexts/Shared/infrastructure/EventBus/RabbitMQ/RabbitMQConnection.js';
 import { RabbitMQQueueFormatter } from '@Contexts/Shared/infrastructure/EventBus/RabbitMQ/RabbitMQQueueFormatter.js';
 import { RabbitMQEventBusFactory } from '@Contexts/Shared/infrastructure/EventBus/RabbitMQ/RabbitMQEventBusFactory.js';
-import { OutboxMongoRepository } from '@Contexts/Shared/infrastructure/EventBus/Outbox/OutboxMongoRepository.js';
+import { OutboxPrismaRepository } from '@Contexts/Shared/infrastructure/EventBus/Outbox/OutboxPrismaRepository.js';
 import { OutboxEventBus } from '@Contexts/Shared/infrastructure/EventBus/Outbox/OutboxEventBus.js';
 import { OutboxPublisher } from '@Contexts/Shared/infrastructure/EventBus/Outbox/OutboxPublisher.js';
 import { DomainEventJsonDeserializer } from '@Contexts/Shared/infrastructure/EventBus/DomainEventJsonDeserializer.js';
@@ -89,8 +89,7 @@ export function registerSharedDependencies(container: ContainerBuilder) {
 
   // Outbox Pattern components
   container
-    .register('Shared.Outbox', OutboxMongoRepository)
-    .addArgument(new Reference('Shared.MongoConnectionManager'))
+    .register('Shared.Outbox', OutboxPrismaRepository)
     .addArgument(5000); // pendingGraceMs — consistent with OutboxPublisher pollIntervalMs
 
   container.register('Shared.DomainEventJsonDeserializer', DomainEventJsonDeserializer);

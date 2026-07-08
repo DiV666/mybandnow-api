@@ -22,8 +22,6 @@ export class User extends AggregateRoot {
     user.record(
       new UserRegisterDomainEvent({
         aggregateId: id.value,
-        email: email.value,
-        password: password.value,
         createdAt: user.createdAt.value.toISOString()
       })
     );
