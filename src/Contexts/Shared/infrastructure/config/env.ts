@@ -40,13 +40,8 @@ export const envSchema = z
     RABBITMQ_MAX_RETRIES: z.coerce.number().int().min(0),
     RABBITMQ_RETRY_TTL: z.coerce.number().int().min(0),
 
-    // MongoDB
-    MONGO_URI: z.string().min(1),
-    MONGO_USER: z.string().min(1),
-    MONGO_PASS: z.string().min(1),
-    MONGO_ANALYTICS_URI: z.string().min(1).optional(),
-    MONGO_ANALYTICS_USER: z.string().optional(),
-    MONGO_ANALYTICS_PASS: z.string().optional(),
+    // Postgres (Prisma)
+    DATABASE_URL: z.string().min(1),
 
     // Keycloak
     KEYCLOAK_ORIGIN: z.url(),
@@ -67,33 +62,7 @@ export const envSchema = z
 
     // Sentry (optional)
     SENTRY_DSN: z.url().optional()
-  })
-  .refine((env) => env.MONGO_ANALYTICS_URI === undefined || env.MONGO_ANALYTICS_USER !== undefined, {
-    message: 'MONGO_ANALYTICS_USER is required when MONGO_ANALYTICS_URI is set',
-    path: ['MONGO_ANALYTICS_USER']
-  })
-  .refine((env) => env.MONGO_ANALYTICS_URI === undefined || env.MONGO_ANALYTICS_PASS !== undefined, {
-    message: 'MONGO_ANALYTICS_PASS is required when MONGO_ANALYTICS_URI is set',
-    path: ['MONGO_ANALYTICS_PASS']
-  })
-  .refine(
-    (env) =>
-      env.MONGO_ANALYTICS_USER === undefined ||
-      (env.MONGO_ANALYTICS_URI !== undefined && env.MONGO_ANALYTICS_PASS !== undefined),
-    {
-      message: 'MONGO_ANALYTICS_URI and MONGO_ANALYTICS_PASS are required when MONGO_ANALYTICS_USER is set',
-      path: ['MONGO_ANALYTICS_URI']
-    }
-  )
-  .refine(
-    (env) =>
-      env.MONGO_ANALYTICS_PASS === undefined ||
-      (env.MONGO_ANALYTICS_URI !== undefined && env.MONGO_ANALYTICS_USER !== undefined),
-    {
-      message: 'MONGO_ANALYTICS_URI and MONGO_ANALYTICS_USER are required when MONGO_ANALYTICS_PASS is set',
-      path: ['MONGO_ANALYTICS_URI']
-    }
-  );
+  });
 
 export type Env = z.infer<typeof envSchema>;
 

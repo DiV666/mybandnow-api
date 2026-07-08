@@ -60,7 +60,7 @@ Use these skills for detailed patterns on-demand:
 | `openapi-controller` | HTTP adapter: definition.json + controller + DI + route + acceptance test | [SKILL.md](.agents/skills/openapi-controller/SKILL.md) |
 | `domain-event`       | Domain event design + RabbitMQ subscriber wiring                          | [SKILL.md](.agents/skills/domain-event/SKILL.md)       |
 | `object-mother`      | Object Mothers, TestCase, Mock assertion patterns for unit tests          | [SKILL.md](.agents/skills/object-mother/SKILL.md)      |
-| `mongo-indexes`      | MongoDB index planning for every new filter or sort field                 | [SKILL.md](.agents/skills/mongo-indexes/SKILL.md)      |
+| `prisma-indexes`     | PostgreSQL / Prisma index planning for database models                    | [SKILL.md](.agents/skills/prisma-indexes/SKILL.md)     |
 | `jira-confluence`    | Jira issues, Confluence PRD sync, and branch task mapping workflow        | [SKILL.md](.agents/skills/jira-confluence/SKILL.md)    |
 | `skill-creator`             | Create new AI agent skills                                                | [SKILL.md](.agents/skills/skill-creator/SKILL.md)             |
 | `living-blueprint`          | Maintain docs/ and Confluence in sync after every feature merge           | [SKILL.md](.agents/skills/living-blueprint/SKILL.md)          |
@@ -74,34 +74,6 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 
 | Action | Skill |
 |--------|-------|
-| Removing a domain module aggregate                              | `kloding-destroy-aggregate`  |
-| Running rb destroy aggregate / rb d a                           | `kloding-destroy-aggregate`  |
-| Removing an HTTP controller                                     | `kloding-destroy-controller` |
-| Running rb destroy controller / rb d c                          | `kloding-destroy-controller` |
-| Removing a use case action                                      | `kloding-destroy-use-case`   |
-| Running rb destroy use-case / rb d uc                           | `kloding-destroy-use-case`   |
-| Removing a full module slice (all controllers or domain)        | `kloding-destroy-module`     |
-| Running rb destroy module / rb d m                              | `kloding-destroy-module`     |
-| Removing a domain or controller parameter                       | `kloding-destroy-parameter`  |
-| Running rb destroy parameter / rb d p / rb d gp                 | `kloding-destroy-parameter`  |
-| Removing a domain event subscriber                              | `kloding-destroy-subscriber` |
-| Running rb destroy subscriber / rb d sub                        | `kloding-destroy-subscriber` |
-| Removing a shared infrastructure service                        | `kloding-destroy-service`    |
-| Running rb destroy service / rb d s                             | `kloding-destroy-service`    |
-| Generating a domain module aggregate                            | `kloding-generate-aggregate`  |
-| Running rb generate aggregate / rb g a                          | `kloding-generate-aggregate`  |
-| Generating an HTTP controller                                   | `kloding-generate-controller` |
-| Running rb generate controller / rb g c                         | `kloding-generate-controller` |
-| Generating a use case action                                    | `kloding-generate-use-case`   |
-| Running rb generate use-case / rb g uc                          | `kloding-generate-use-case`   |
-| Generating a full module slice (all controllers or domain)      | `kloding-generate-module`     |
-| Running rb generate module / rb g m                             | `kloding-generate-module`     |
-| Generating a domain or controller parameter                     | `kloding-generate-parameter`  |
-| Running rb generate parameter / rb g p / rb g gp                | `kloding-generate-parameter`  |
-| Generating a domain event subscriber                            | `kloding-generate-subscriber` |
-| Running rb generate subscriber / rb g sub                       | `kloding-generate-subscriber` |
-| Generating a shared infrastructure service                      | `kloding-generate-service`    |
-| Running rb generate service / rb g s                            | `kloding-generate-service`    |
 | Adding a RabbitMQ subscriber | `domain-event` |
 | Adding a RabbitMQ subscriber | `security` |
 | Adding a new HTTP endpoint | `openapi-controller` |
@@ -109,8 +81,8 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Adding a new external provider | `hexagonal-feature` |
 | Adding a new use case (command or query) | `hexagonal-feature` |
 | Adding a new use case (command or query) | `security` |
-| Adding criteria to a query handler | `mongo-indexes` |
-| Adding filters to a repository | `mongo-indexes` |
+| Adding criteria to a query handler | `prisma-indexes` |
+| Adding filters to a repository | `prisma-indexes` |
 | After completing an SDD archive phase | `living-blueprint` |
 | After completing an SDD tasks phase | `jira-confluence` |
 | After creating/modifying a skill | `skill-sync` |
@@ -118,7 +90,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Auditing logging quality | `log-review` |
 | Create a PR with gh pr create | `pr` |
 | Creating API endpoints | `openapi-controller` |
-| Creating a GET/search endpoint | `mongo-indexes` |
+| Creating a GET/search endpoint | `prisma-indexes` |
 | Creating a git commit | `commit` |
 | Creating a new module | `hexagonal-feature` |
 | Creating domain aggregates, value objects, or domain events | `hexagonal-feature` |
@@ -134,7 +106,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Implementing feature | `tdd` |
 | Inspecting observability | `log-review` |
 | Modifying existing skills structure | `skill-creator` |
-| Modifying moduleIndexes() | `mongo-indexes` |
+| Modifying schema.prisma indexes | `prisma-indexes` |
 | Modifying the Zod env schema | `zod-4` |
 | Planning branching strategy | `jira-confluence` |
 | Publishing business documentation to Confluence | `living-blueprint` |

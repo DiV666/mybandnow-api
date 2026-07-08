@@ -67,10 +67,10 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Adding a new external provider | `hexagonal-feature` |
 | Adding a new use case (command or query) | `hexagonal-feature` |
 | Adding a new use case (command or query) | `security` |
-| Adding criteria to a query handler | `mongo-indexes` |
-| Adding filters to a repository | `mongo-indexes` |
+| Adding criteria to a query handler | `prisma-indexes` |
+| Adding filters to a repository | `prisma-indexes` |
 | Creating API endpoints | `openapi-controller` |
-| Creating a GET/search endpoint | `mongo-indexes` |
+| Creating a GET/search endpoint | `prisma-indexes` |
 | Creating a new module | `hexagonal-feature` |
 | Creating domain aggregates, value objects, or domain events | `hexagonal-feature` |
 | Creating domain aggregates, value objects, or domain events | `security` |
@@ -82,7 +82,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Fixing bug | `tdd` |
 | Implementing feature | `security` |
 | Implementing feature | `tdd` |
-| Modifying moduleIndexes() | `mongo-indexes` |
+| Modifying schema.prisma indexes | `prisma-indexes` |
 | Modifying the Zod env schema | `zod-4` |
 | Reacting to an aggregate state change from another module | `domain-event` |
 | Refactoring code | `security` |

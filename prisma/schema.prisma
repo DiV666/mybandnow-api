@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// =========================================================================
+// 1. CONTEXTO IDENTITY & AUTENTICACIÓN (Local para MVP)
+// =========================================================================
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String    // Almacenada localmente con hash robusto (Argon2id / bcrypt)
+  musician  Musician? // Relación 1:1 con su perfil artístico
+  createdAt DateTime  @default(now())
+}
+
+// =========================================================================
+// 2. CONTEXTO MOAT (Reglas de Negocio / Core Artístico)
+// =========================================================================
+model Musician {
+  id            String       @id @default(uuid())
+  userId        String       @unique
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  username      String       @unique // Nombre de usuario (antes stageName)
+  realName      String?
+  profilePicUrl String?      // Ruta inmutable del avatar en GCS
+  bio           String?
+  instruments   String[]     // ["Guitar", "Vocals", "Drums"] - Postgres nativo
+  
+  memberships   BandMember[] 
+  ownedBands    Band[]       @relation("BandOwner")
+}
+
+model Band {
+  id        String       @id @default(uuid())
+  name      String
+  ownerId   String
+  owner     Musician     @relation("BandOwner", fields: [ownerId], references: [id])
+  members   BandMember[]
+  songs     Song[]
+}
+
+model BandMember {
+  id         String   @id @default(uuid())
+  role       String   @default("MEMBER") // ADMIN | MEMBER | PLAYING_COACH
+  musician   Musician @relation(fields: [musicianId], references: [id])
+  musicianId String
+  band       Band     @relation(fields: [bandId], references: [id], onDelete: Cascade)
+  bandId     String
+
+  @@unique([musicianId, bandId])
+}
+
+model Song {
+  id        String     @id @default(uuid())
+  title     String
+  band      Band       @relation(fields: [bandId], references: [id], onDelete: Cascade)
+  bandId    String
+  tracks    Track[]
+  videoclip Videoclip?
+}
+
+model Track {
+  id             String @id @default(uuid())
+  instrumentName String
+  status         String @default("PENDING") // PENDING | READY | PROCESSING | FAILED
+  song           Song   @relation(fields: [songId], references: [id], onDelete: Cascade)
+  songId         String
+}
+
+model Videoclip {
+  id        String  @id @default(uuid())
+  song      Song    @relation(fields: [songId], references: [id], onDelete: Cascade)
+  songId    String  @unique
+  isPublic  Boolean @default(false)
+  url       String  // GCS path to the final video
+  duration  Int     // Duration in seconds
+  size      Int     // File size in bytes
+}
+
+// =========================================================================
+// 3. CONTEXTO ORCHESTRATOR (Infraestructura Técnica / Saga Asíncrona)
+// =========================================================================
+
+model TrackProcess {
+  id            String   @id // Comparte exactamente el ID del modelo Track (Moat)
+  gcsPath       String   // Ruta en GCS (e.g. bands/:bandId/songs/:songId/tracks/:trackId.mp4)
+  fileSize      Int
+  codec         String   // Extraído por ffprobe (debe ser h264)
+  ffprobeLog    Json?    // Metadatos y logs técnicos estructurados
+  updatedAt     DateTime @updatedAt
+}
+
+model VideoclipProcess {
+  id            String   @id // Comparte exactamente el ID del modelo Videoclip (Moat)
+  status        String   @default("PENDING") // PENDING | MIXING | SUCCESS | FAILED | TIMEOUT
+  aiPayload     Json?    // Snapshot denormalizado enviado al worker de IA
+  aiResponse    Json?    // Registro de logs e intercambio con la IA
+  finalGcsPath  String?  // Ruta inmutable del videoclip generado en GCS
+  startedAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// =========================================================================
+// 4. CONTEXTO SHARED (RabbitMQ Failover)
+// =========================================================================
+model DomainEventFailover {
+  eventId    String   @id
+  aggregateId String
+  eventName  String
+  payload    Json
+  occurredOn DateTime @default(now())
+}
