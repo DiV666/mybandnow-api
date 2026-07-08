@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
-import { z } from 'zod';
 
 const envModuleUrl = pathToFileURL(
   resolve(import.meta.dirname, '../../../../../../src/Contexts/Shared/infrastructure/config/env.ts')
@@ -44,22 +43,6 @@ describe('env config bootstrap logging', () => {
       expect.stringContaining('Invalid environment variables')
     );
   });
-
-  it('rejects invalid keycloak urls using the zod 4 url schema', async () => {
-    process.env = createValidEnv();
-
-    const { envSchema } = await import(freshEnvModuleUrl());
-    const result = envSchema.safeParse({
-      ...createValidEnv(),
-      KEYCLOAK_ORIGIN: 'not-a-url'
-    });
-
-    expect(result.success).toBe(false);
-
-    const errors = result.success ? {} : fieldErrors(result.error);
-
-    expect(errors.KEYCLOAK_ORIGIN).toContain('Invalid URL');
-  });
 });
 
 function createValidEnv(): NodeJS.ProcessEnv {
@@ -67,11 +50,6 @@ function createValidEnv(): NodeJS.ProcessEnv {
     BASE_PATH: '/api',
     CORS_ORIGIN: 'http://localhost:4009',
     CORS_SUCCESS_STATUS: '200',
-    KEYCLOAK_ADMIN_PASS: 'admin-pass',
-    KEYCLOAK_ADMIN_USER: 'admin-user',
-    KEYCLOAK_AUDIENCE: 'account',
-    KEYCLOAK_ORIGIN: 'http://localhost:8080',
-    KEYCLOAK_REALM: 'kloding',
     LOG_FILENAME: 'mybandnow-api.log',
     LOG_LEVEL: 'debug',
     LOG_PATH: './logs',
@@ -91,30 +69,12 @@ function createValidEnv(): NodeJS.ProcessEnv {
     RABBITMQ_VHOST: 'mybandnow',
     KLODING_INTERNAL_PRIVATE_KEY_BASE64: Buffer.from('private-key').toString('base64'),
     KLODING_INTERNAL_PUBLIC_KEY_BASE64: Buffer.from('public-key').toString('base64'),
-    TEST_KEYCLOAK_USER_PASSWORD: 'password123',
     TIMEOUT: '120000',
-    JWT_SECRET: 'supersecret-jwt'
+    JWT_SECRET: 'supersecret-jwt-1234567890123456'
   };
 }
 
 function freshEnvModuleUrl(): string {
   moduleNonce += 1;
   return `${envModuleUrl}?t=${moduleNonce}`;
-}
-
-function fieldErrors(error: z.ZodError): Record<string, string[]> {
-  return error.issues.reduce<Record<string, string[]>>((accumulator, issue) => {
-    const field = issue.path[0];
-
-    if (typeof field !== 'string') {
-      return accumulator;
-    }
-
-    if (!accumulator[field]) {
-      accumulator[field] = [];
-    }
-
-    accumulator[field].push(issue.message);
-    return accumulator;
-  }, {});
 }

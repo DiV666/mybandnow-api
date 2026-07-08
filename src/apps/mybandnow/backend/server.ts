@@ -106,16 +106,14 @@ export class Server {
       handlers: createDefaultHandlers(this.logger),
       securityHandlers: {
         BearerAuth: createSecurityHandler('BearerAuth', async (token, c) => {
-          const idServerService: JWTVerifier = container.get('Mybandnow.Shared.KeycloakBearerToken');
+          const idServerService: JWTVerifier = container.get('Mybandnow.Shared.LocalJwtBearerToken');
           const requiredScopes =
             (c.operation?.security ?? []).find((requirement) => requirement.BearerAuth)?.BearerAuth ?? [];
           return await idServerService.verifyJWT(token, requiredScopes);
         }),
         InternalAuth: createSecurityHandler('InternalAuth', async (token) => {
-          const internalAuthentication = container.get<{
-            verifyJWT: (token: string) => Promise<Record<string, unknown>>;
-          }>('Mybandnow.Shared.InternalAuthentication');
-          return await internalAuthentication.verifyJWT(token);
+          const internalAuthentication: JWTVerifier = container.get('Mybandnow.Shared.InternalAuthentication');
+          return await internalAuthentication.verifyJWT(token, []);
         })
       },
       strict: true,

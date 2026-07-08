@@ -42,19 +42,6 @@ export const envSchema = z.object({
   // Postgres (Prisma)
   DATABASE_URL: z.string().min(1),
 
-  // Keycloak
-  KEYCLOAK_ORIGIN: z.url(),
-  KEYCLOAK_REALM: z.string().min(1),
-  KEYCLOAK_ADMIN_USER: z.string().min(1),
-  KEYCLOAK_ADMIN_PASS: z.string().min(1),
-  KEYCLOAK_AUDIENCE: z.string().min(1),
-  // Optional: base64-encoded PEM public key to pin Keycloak JWT signature verification.
-  // When unset, verification falls back to the dynamic JWKS lookup.
-  KLODING_KEYCLOAK_PUBLIC_KEY_BASE64: z.string().optional(),
-
-  // Test Keycloak user (for acceptance tests only)
-  TEST_KEYCLOAK_USER_PASSWORD: z.string().min(8),
-
   // Internal Authentication (RS256 JWT)
   KLODING_INTERNAL_PUBLIC_KEY_BASE64: z.string().min(1),
   KLODING_INTERNAL_PRIVATE_KEY_BASE64: z.string().min(1),

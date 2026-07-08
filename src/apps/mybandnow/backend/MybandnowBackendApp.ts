@@ -23,9 +23,6 @@ export class MybandnowBackendApp {
   private readonly bootstrapService: AppBootstrapService = container.get('Shared.AppBootstrapService');
 
   async start() {
-    // Eagerly resolve the Keycloak config so an invalid KLODING_KEYCLOAK_PUBLIC_KEY_BASE64
-    // aborts startup instead of failing on the first authenticated request
-    container.get('Apps.Mybandnow.Backend.KeyCloakConfig');
     this.server = new Server(this.API_CONFIG.defaultPort, this.logger, this.bootstrapService.getHealthChecker());
     this.sentry();
     await this.startEventBus();

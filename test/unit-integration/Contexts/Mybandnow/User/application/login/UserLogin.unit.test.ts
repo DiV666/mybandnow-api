@@ -2,7 +2,6 @@ import { describe, it, beforeEach } from 'vitest';
 import { UserLogin } from '@Contexts/Mybandnow/User/application/login/UserLogin.js';
 import { UserMother } from '../../domain/UserMother.js';
 import { UserLoginTestCase } from './UserLoginTestCase.js';
-import { UserNotExistException } from '@Contexts/Mybandnow/User/domain/exception/UserNotExistException.js';
 import { InvalidCredentialsException } from '@Contexts/Mybandnow/User/domain/exception/InvalidCredentialsException.js';
 import { LoginUserQuery } from '@Contexts/Mybandnow/User/application/login/LoginUserQuery.js';
 import { LoginUserResponse } from '@Contexts/Mybandnow/User/application/login/LoginUserResponse.js';

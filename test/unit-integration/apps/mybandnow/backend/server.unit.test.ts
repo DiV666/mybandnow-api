@@ -98,7 +98,7 @@ describe('Server — auth security handlers', () => {
     // Arrange
     const verifyJWT = vi.fn().mockResolvedValue({ sub: 'user-123' });
     const containerGet = vi.fn((id: string) => {
-      if (id === 'Mybandnow.Shared.KeycloakBearerToken') {
+      if (id === 'Mybandnow.Shared.LocalJwtBearerToken') {
         return { verifyJWT };
       }
 
@@ -148,7 +148,7 @@ describe('Server — auth security handlers', () => {
     // Arrange
     const verifyJWT = vi.fn().mockResolvedValue({ sub: 'user-123' });
     const containerGet = vi.fn((id: string) => {
-      if (id === 'Mybandnow.Shared.KeycloakBearerToken') {
+      if (id === 'Mybandnow.Shared.LocalJwtBearerToken') {
         return { verifyJWT };
       }
 

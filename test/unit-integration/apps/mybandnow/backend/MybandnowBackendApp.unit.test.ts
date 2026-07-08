@@ -99,37 +99,6 @@ describe('MybandnowBackendApp', () => {
       // If no error is thrown the server started correctly
       expect(app.port).toBe(4008);
     });
-
-    it('eagerly resolves the Keycloak config so invalid configuration fails at boot', async () => {
-      await app.start();
-
-      expect(vi.mocked(container.get)).toHaveBeenCalledWith('Apps.Mybandnow.Backend.KeyCloakConfig');
-    });
-
-    it('propagates a Keycloak config resolution failure out of start()', async () => {
-      vi.mocked(container.get).mockImplementation((id: string) => {
-        if (id === 'Shared.BunyanLogger') {
-          return { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() };
-        }
-        if (id === 'Shared.AppBootstrapService') {
-          return {
-            getHealthChecker: vi.fn().mockReturnValue({ isUnhealthy: vi.fn().mockReturnValue(false) }),
-            getSentryConfig: vi.fn().mockReturnValue(null)
-          };
-        }
-        if (id === 'Shared.Outbox') {
-          return { initialize: vi.fn().mockResolvedValue(undefined) };
-        }
-        if (id === 'Apps.Mybandnow.Backend.KeyCloakConfig') {
-          throw new Error('Invalid KLODING_KEYCLOAK_PUBLIC_KEY_BASE64');
-        }
-        return { start: vi.fn().mockResolvedValue(undefined), stop: vi.fn().mockResolvedValue(undefined) };
-      });
-
-      app = new MybandnowBackendApp();
-
-      await expect(app.start()).rejects.toThrow('Invalid KLODING_KEYCLOAK_PUBLIC_KEY_BASE64');
-    });
   });
 
   describe('#captureException and #flushTelemetry', () => {

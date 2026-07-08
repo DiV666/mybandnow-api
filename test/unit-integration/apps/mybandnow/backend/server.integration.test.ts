@@ -5,7 +5,7 @@ import { Server } from '../../../../../src/apps/mybandnow/backend/server.js';
 import type { Logger } from '../../../../../src/Contexts/Shared/application/index.js';
 import healthStatus from '../../../../../src/Contexts/Shared/infrastructure/health.js';
 
-describe('Server — health endpoints (no Keycloak required)', () => {
+describe('Server — health endpoints', () => {
   let server: Server;
   let request: ReturnType<typeof supertest>;
 

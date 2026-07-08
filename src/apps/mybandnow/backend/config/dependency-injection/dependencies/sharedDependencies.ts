@@ -15,7 +15,7 @@ import { OutboxEventBus } from '@Contexts/Shared/infrastructure/EventBus/Outbox/
 import { OutboxPublisher } from '@Contexts/Shared/infrastructure/EventBus/Outbox/OutboxPublisher.js';
 import { DomainEventJsonDeserializer } from '@Contexts/Shared/infrastructure/EventBus/DomainEventJsonDeserializer.js';
 import { DomainEventSubscribers } from '@Contexts/Shared/infrastructure/EventBus/DomainEventSubscribers.js';
-import { KeycloakClientFactory } from '@Contexts/Shared/infrastructure/identityServer/keycloak/KeycloakClientFactory.js';
+
 import { AppBootstrapService } from '@Contexts/Shared/application/services/AppBootstrapService.js';
 import { CriteriaScopeSecurity } from '@Contexts/Shared/application/security/CriteriaScopeSecurity.js';
 import healthStatus from '@Contexts/Shared/infrastructure/health.js';
@@ -35,12 +35,6 @@ export function registerSharedDependencies(container: ContainerBuilder) {
     .register('Shared.Express.ApiExceptionListener', ApiExceptionListener)
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(new Reference('Shared.Express.ApiExceptionsHttpStatusCodeMapping'));
-
-  container
-    .register('Shared.KeycloakConnectionManager')
-    .addArgument('mybandnow')
-    .addArgument(new Reference('Apps.Mybandnow.Backend.KeyCloakConfig'))
-    .setFactory(KeycloakClientFactory, 'createClient');
 
   container
     .register('Shared.CommandHandlersInformation', CommandHandlersInformation)

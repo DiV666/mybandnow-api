@@ -194,7 +194,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | HTTP framework | Express 5 + openapi-backend                              |
 | Database       | MongoDB 6 via `MongoRepository` base class               |
 | Messaging      | RabbitMQ via amqplib (`RabbitMQEventBus`)                |
-| Auth           | Keycloak JWT (`KeycloakBearerToken`)                     |
+| Auth           | Local JWT (`LocalJwtBearerToken`)                        |
 | DI container   | node-dependency-injection (`ContainerBuilder`)           |
 | Env validation | Zod (`src/Contexts/Shared/infrastructure/config/env.ts`) |
 | Build          | ESBuild (`esbuild.config.js`)                            |
@@ -235,7 +235,7 @@ src/
     │       ├── persistence/mongo/           # MongoRepository base, MongoCriteriaConverter
     │       └── service/                     # External HTTP client factories
     └── Mybandnow/
-        ├── Shared/                          # Keycloak, MongoConfigFactory, etc.
+        ├── Shared/                          # MongoConfigFactory, etc.
         └── <Module>/                        # Module aggregate
             ├── application/                 # Commands, queries, handlers
             ├── domain/                      # Aggregate, value objects, repository interfaces

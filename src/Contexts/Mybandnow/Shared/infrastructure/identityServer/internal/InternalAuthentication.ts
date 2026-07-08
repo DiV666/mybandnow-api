@@ -2,9 +2,11 @@ import jsonwebtoken from 'jsonwebtoken';
 import { ForbiddenException } from '@Contexts/Shared/domain/exceptions/ForbiddenException.js';
 import { SecurityHandlerException } from '@Contexts/Shared/infrastructure/exceptions/SecurityHandlerException.js';
 
+import { JWTVerifier } from '@Contexts/Shared/domain/JWTVerifier.js';
+
 export type InternalJwtPayload = Record<string, unknown>;
 
-export class InternalAuthentication {
+export class InternalAuthentication implements JWTVerifier {
   constructor(private readonly publicKey: string) {}
 
   async verifyJWT(token: string): Promise<InternalJwtPayload> {

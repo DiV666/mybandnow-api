@@ -5,12 +5,10 @@ import ContinuationLocalStorageExpress from '../../../middlewares/ContinuationLo
 import CorrelationIdHeader from '../../../middlewares/CorrelationIdHeader.js';
 import TraceReqAndRes from '../../../middlewares/TraceReqAndRes.js';
 import { RabbitMQConfigFactory } from '@Contexts/Mybandnow/Shared/infrastructure/EventBus/RabbitMQ/RabbitMQConfigFactory.js';
-import { KeycloakConfigFactory } from '@Contexts/Shared/infrastructure/identityServer/keycloak/KeycloakConfigFactory.js';
 
 export function registerAppsDependencies(container: ContainerBuilder) {
   // Initialization
   container.register('Apps.Mybandnow.Backend.RabbitMQConfig').setFactory(RabbitMQConfigFactory, 'createConfig');
-  container.register('Apps.Mybandnow.Backend.KeyCloakConfig').setFactory(KeycloakConfigFactory, 'createConfig');
 
   // Controllers
   registerUserPostLoginController(container);
