@@ -12,18 +12,18 @@ import { FilterOperator } from '@Contexts/Shared/domain/criteria/FilterOperator.
 import { FilterValue } from '@Contexts/Shared/domain/criteria/FilterValue.js';
 import { Order } from '@Contexts/Shared/domain/criteria/Order.js';
 
-const persistenceRepository: UserPersistenceRepository = container.get('Mybandnow.User.UserMongoRepository');
-const mongoEnvironmentArranger: Promise<EnvironmentArranger> = container.get('Shared.MongoEnvironmentArranger');
+const persistenceRepository: UserPersistenceRepository = container.get('Mybandnow.User.UserRepository');
+const prismaEnvironmentArranger: Promise<EnvironmentArranger> = container.get('Shared.PrismaEnvironmentArranger');
 const testCase = new UserPersistenceRepositoryTestCase();
 
 describe('UserPersistenceRepository', () => {
   beforeEach(async () => {
-    await (await mongoEnvironmentArranger).arrange();
+    await (await prismaEnvironmentArranger).arrange();
   });
 
   afterAll(async () => {
-    await (await mongoEnvironmentArranger).clean();
-    await (await mongoEnvironmentArranger).close();
+    await (await prismaEnvironmentArranger).clean();
+    await (await prismaEnvironmentArranger).close();
   });
   describe('#matching', () => {
     it('should return an existing user by criteria', async () => {
@@ -39,6 +39,13 @@ describe('UserPersistenceRepository', () => {
       testCase.assertSimilar(models[0], expectedModel);
     });
     // Los nuevos tests de filtrado se añadirán aquí
+  });
+  describe('#create', () => {
+    // eslint-disable-next-line sonarjs/assertions-in-tests
+    it('should save a user', async () => {
+      const model = UserMother.random();
+      await persistenceRepository.save(model);
+    });
   });
   describe('#create', () => {
     // eslint-disable-next-line sonarjs/assertions-in-tests

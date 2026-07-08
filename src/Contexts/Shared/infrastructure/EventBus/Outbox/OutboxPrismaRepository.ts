@@ -15,12 +15,12 @@ export class OutboxPrismaRepository implements Outbox {
 
   async initialize(): Promise<void> {
     // In Prisma, index creation is handled via `prisma db push` or `prisma migrate`.
-    // The `@@index([status, createdAt])` is already defined in schema.prisma.
   }
 
   async save(events: DomainEvent[], session?: TransactionSession): Promise<string[]> {
     if (events.length === 0) return [];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const prismaClient = (session as any) || this.client;
 
     const documents = events.map((event) => ({
@@ -53,6 +53,7 @@ export class OutboxPrismaRepository implements Outbox {
       take: limit
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return documents.map((doc: any) => ({
       id: doc.id,
       eventId: doc.eventId,
@@ -79,9 +80,9 @@ export class OutboxPrismaRepository implements Outbox {
   async incrementAttempts(id: string, errorMessage: string): Promise<void> {
     await this.client.outbox.update({
       where: { id },
-      data: { 
-        errorMessage, 
-        attempts: { increment: 1 } 
+      data: {
+        errorMessage,
+        attempts: { increment: 1 }
       }
     });
   }
@@ -89,10 +90,10 @@ export class OutboxPrismaRepository implements Outbox {
   async markAsFailed(id: string, errorMessage: string): Promise<void> {
     await this.client.outbox.update({
       where: { id },
-      data: { 
-        status: 'failed', 
-        errorMessage, 
-        attempts: { increment: 1 } 
+      data: {
+        status: 'failed',
+        errorMessage,
+        attempts: { increment: 1 }
       }
     });
   }

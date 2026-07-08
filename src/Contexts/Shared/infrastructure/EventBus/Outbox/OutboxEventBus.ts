@@ -36,7 +36,7 @@ export class OutboxEventBus implements EventBus {
     setImmediate(async () => {
       try {
         await this.innerBus.publish(events);
-        
+
         // Step 3: Mark as published so the OutboxPublisher poller does not redeliver them
         await this.outbox.markAsPublished(outboxIds);
       } catch (error) {
@@ -49,4 +49,3 @@ export class OutboxEventBus implements EventBus {
     });
   }
 }
-

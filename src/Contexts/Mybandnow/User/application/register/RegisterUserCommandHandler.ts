@@ -10,7 +10,10 @@ export class RegisterUserCommandHandler implements CommandHandler<RegisterUserCo
   }
 
   async handle(command: RegisterUserCommand): Promise<void> {
-    const { id, email, password, authenticatedUser } = command;
-    await this.useCase.run({ id, email, password, authenticatedUser });
+    await this.useCase.run({
+      id: command.id,
+      email: command.email,
+      password: command.password
+    });
   }
 }

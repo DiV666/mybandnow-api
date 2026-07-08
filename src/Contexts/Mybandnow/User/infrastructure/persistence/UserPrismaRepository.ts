@@ -14,6 +14,7 @@ export class UserPrismaRepository implements UserPersistenceRepository {
   async matching(criteria: Criteria): Promise<User[]> {
     const query = this.converter.convert(criteria);
     const documents = await this.client.user.findMany(query);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return documents.map((doc: any) => User.fromPrimitives(doc));
   }
 
@@ -24,7 +25,7 @@ export class UserPrismaRepository implements UserPersistenceRepository {
 
   async save(user: User): Promise<void> {
     const data = user.toPrimitives();
-    
+
     // Peek at domain events without clearing them so the use case can still publish to EventBus
     const events = user.pullDomainEvents({ drain: false });
 
@@ -34,7 +35,7 @@ export class UserPrismaRepository implements UserPersistenceRepository {
         update: data,
         create: data
       });
-      
+
       if (events.length > 0) {
         await this.outbox.save(events, tx as unknown as TransactionSession);
       }

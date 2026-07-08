@@ -1,6 +1,6 @@
+import { register as registerUserPostLoginController } from '../controllers/user/userPostLogin.dependency.js';
 import { register as registerUserPostRegisterController } from '../controllers/user/userPostRegister.dependency.js';
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
-import { MongoConfigFactory } from '@Contexts/Mybandnow/Shared/infrastructure/persistence/mongo/MongoConfigFactory.js';
 import ContinuationLocalStorageExpress from '../../../middlewares/ContinuationLocalStorageExpress.js';
 import CorrelationIdHeader from '../../../middlewares/CorrelationIdHeader.js';
 import TraceReqAndRes from '../../../middlewares/TraceReqAndRes.js';
@@ -9,14 +9,11 @@ import { KeycloakConfigFactory } from '@Contexts/Shared/infrastructure/identityS
 
 export function registerAppsDependencies(container: ContainerBuilder) {
   // Initialization
-  container.register('Apps.Mybandnow.Backend.MongoConfig').setFactory(MongoConfigFactory, 'createConfig');
-  container
-    .register('Apps.Mybandnow.Backend.MongoAnalyticsConfig')
-    .setFactory(MongoConfigFactory, 'createAnalyticsConfig');
   container.register('Apps.Mybandnow.Backend.RabbitMQConfig').setFactory(RabbitMQConfigFactory, 'createConfig');
   container.register('Apps.Mybandnow.Backend.KeyCloakConfig').setFactory(KeycloakConfigFactory, 'createConfig');
 
   // Controllers
+  registerUserPostLoginController(container);
   registerUserPostRegisterController(container);
 
   // Middlewares

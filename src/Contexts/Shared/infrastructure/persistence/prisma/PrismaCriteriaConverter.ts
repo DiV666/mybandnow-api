@@ -1,24 +1,25 @@
 import { InvalidArgumentException } from '../../../domain/exceptions/InvalidArgumentException.js';
 import { Criteria } from '../../../domain/criteria/Criteria.js';
-import { Filter } from '../../../domain/criteria/Filter.js';
 import { Operator } from '../../../domain/criteria/FilterOperator.js';
 import { Filters } from '../../../domain/criteria/Filters.js';
 
 export class PrismaCriteriaConverter {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public convert(criteria: Criteria): any {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const query: any = {};
-    
+
     if (criteria.hasFilters()) {
       query.where = this.generateQuery(criteria.filters);
     } else {
       query.where = {};
     }
 
-    if (criteria.offset !== undefined && criteria.offset !== null) {
+    if (criteria.offset != null) {
       query.skip = criteria.offset;
     }
 
-    if (criteria.limit !== undefined && criteria.limit !== null) {
+    if (criteria.limit != null) {
       query.take = criteria.limit;
     }
 
@@ -31,13 +32,15 @@ export class PrismaCriteriaConverter {
     return query;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, sonarjs/cognitive-complexity
   protected generateQuery(filters: Filters): any {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {};
-    
+
     for (const filter of filters.filters) {
       const field = filter.field.value === '_id' ? 'id' : filter.field.value;
       const value = filter.value.value;
-      
+
       switch (filter.operator.value) {
         case Operator.EQUAL:
           if (Array.isArray(value)) {
@@ -69,7 +72,7 @@ export class PrismaCriteriaConverter {
           throw new InvalidArgumentException({ message: `Unexpected operator value ${filter.operator.value}` });
       }
     }
-    
+
     return where;
   }
 }

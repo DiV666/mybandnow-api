@@ -5,7 +5,6 @@ import { InMemoryCommandBus } from '@Contexts/Shared/infrastructure/CommandBus/I
 import ApiExceptionListener from '@Contexts/Shared/infrastructure/Express/ApiExceptionListener.js';
 import ApiExceptionsHttpStatusCodeMapping from '@Contexts/Shared/infrastructure/Express/ApiExceptionsHttpStatusCodeMapping.js';
 import BunyanLogger from '@Contexts/Shared/infrastructure/Logger/BunyanLogger.js';
-import { MongoClientFactory } from '@Contexts/Shared/infrastructure/persistence/mongo/MongoClientFactory.js';
 import { InMemoryQueryBus } from '@Contexts/Shared/infrastructure/QueryBus/InMemoryQueryBus.js';
 import { QueryHandlersInformation } from '@Contexts/Shared/infrastructure/QueryBus/QueryHandlersInformation.js';
 import { RabbitMQConnection } from '@Contexts/Shared/infrastructure/EventBus/RabbitMQ/RabbitMQConnection.js';
@@ -36,20 +35,6 @@ export function registerSharedDependencies(container: ContainerBuilder) {
     .register('Shared.Express.ApiExceptionListener', ApiExceptionListener)
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(new Reference('Shared.Express.ApiExceptionsHttpStatusCodeMapping'));
-
-  container
-    .register('Shared.MongoConnectionManager')
-    .addArgument('mybandnow')
-    .addArgument(new Reference('Apps.Mybandnow.Backend.MongoConfig'))
-    .addArgument(new Reference('Shared.BunyanLogger'))
-    .setFactory(MongoClientFactory, 'createClient');
-
-  container
-    .register('Shared.MongoAnalyticsConnectionManager')
-    .addArgument('mybandnow-analytics')
-    .addArgument(new Reference('Apps.Mybandnow.Backend.MongoAnalyticsConfig'))
-    .addArgument(new Reference('Shared.BunyanLogger'))
-    .setFactory(MongoClientFactory, 'createClient');
 
   container
     .register('Shared.KeycloakConnectionManager')
@@ -88,9 +73,7 @@ export function registerSharedDependencies(container: ContainerBuilder) {
     .setFactory(RabbitMQEventBusFactory, 'create');
 
   // Outbox Pattern components
-  container
-    .register('Shared.Outbox', OutboxPrismaRepository)
-    .addArgument(5000); // pendingGraceMs — consistent with OutboxPublisher pollIntervalMs
+  container.register('Shared.Outbox', OutboxPrismaRepository).addArgument(5000); // pendingGraceMs — consistent with OutboxPublisher pollIntervalMs
 
   container.register('Shared.DomainEventJsonDeserializer', DomainEventJsonDeserializer);
 

@@ -1,14 +1,10 @@
 import assert from 'assert';
-import { AfterAll, Before, BeforeAll, Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber';
+import { AfterAll, Before, Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber';
 import container from '../../apps/mybandnow/backend/config/dependency-injection/index.js';
 import { EnvironmentArranger } from '../../utils/arranger/EnvironmentArranger.js';
-import axios from 'axios';
-import qs from 'qs';
-import jsonwebtoken from 'jsonwebtoken';
 import { MybandnowWorld } from './MybandnowWorld.js';
-import { testKeycloakClientId, testKeycloakTokenUrl } from '../../utils/keycloak/TestKeycloak.js';
+import jsonwebtoken from 'jsonwebtoken';
 import { env } from '@Contexts/Shared/infrastructure/config/env.js';
-import { waitForKeycloak } from '../utils/waitForKeycloak.js';
 import { UuidMother } from '../../unit-integration/Contexts/Shared/domain/value-object/UuidMother.js';
 
 setDefaultTimeout(20000);
@@ -130,46 +126,44 @@ Then(
   }
 );
 
-BeforeAll(async (): Promise<void> => {
-  await waitForKeycloak({ origin: env.KEYCLOAK_ORIGIN });
-
-  const keycloakEnvironmentArranger: Promise<EnvironmentArranger> = container.get('Shared.KeycloakEnvironmentArranger');
-  await (await keycloakEnvironmentArranger).arrange();
+Then('the response should contain {string}', function (this: MybandnowWorld, field: string) {
+  assert.ok(this.response.body[field] !== undefined, `Response does not contain field: ${field}`);
 });
 
+Then('the response should be empty', function (this: MybandnowWorld) {
+  assert.deepStrictEqual(this.response.body, {});
+});
 Before(async (): Promise<void> => {
-  const mongoEnvironmentArranger: Promise<EnvironmentArranger> = container.get('Shared.MongoEnvironmentArranger');
-  await (await mongoEnvironmentArranger).arrange();
+  const prismaEnvironmentArranger: Promise<EnvironmentArranger> = container.get('Shared.PrismaEnvironmentArranger');
+  await (await prismaEnvironmentArranger).arrange();
 });
 
 /**
- * Makes a request to the Keycloak server to obtain an access token.
+ * Mocks the access token generation locally since Keycloak is removed.
  * @param {string} username - The username.
  * @param {string} password - The password.
  * @return {Promise<string>} The access token.
  */
-async function getToken(username: string, password: string): Promise<string> {
-  const data = qs.stringify({
-    password,
-    username,
-    grant_type: 'password',
-    scope: 'openid',
-    client_id: testKeycloakClientId()
-  });
-  const headers = {
-    'Content-Type': 'application/x-www-form-urlencoded'
+
+async function getToken(username: string, _password?: string, userIdValue?: string): Promise<string> {
+  const { v5: uuidv5 } = await import('uuid');
+  const subId = userIdValue || uuidv5(username, '1b671a64-40d5-491e-99b0-da01ff1f3341');
+  const payload = {
+    sub: subId,
+    email: `${username}@example.com`,
+    realm_access: {
+      roles: ['admin', 'user:create', 'user:read', 'user:update', 'user:delete']
+    },
+    preferred_username: username
   };
 
-  const response = await axios.post(testKeycloakTokenUrl(), data, { headers });
-  return response.data.access_token;
+  return jsonwebtoken.sign(payload, env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '1h' });
 }
 
 AfterAll(async (): Promise<void> => {
-  const mongoEnvironmentArranger: Promise<EnvironmentArranger> = container.get('Shared.MongoEnvironmentArranger');
-  await (await mongoEnvironmentArranger).clean();
-  await (await mongoEnvironmentArranger).close();
-  const keycloakEnvironmentArranger: Promise<EnvironmentArranger> = container.get('Shared.KeycloakEnvironmentArranger');
-  await (await keycloakEnvironmentArranger).clean();
+  const prismaEnvironmentArranger: Promise<EnvironmentArranger> = container.get('Shared.PrismaEnvironmentArranger');
+  await (await prismaEnvironmentArranger).clean();
+  await (await prismaEnvironmentArranger).close();
 });
 
 function attachAuthHeader(world: MybandnowWorld, req: { set: (field: string, value: string) => unknown }): void {

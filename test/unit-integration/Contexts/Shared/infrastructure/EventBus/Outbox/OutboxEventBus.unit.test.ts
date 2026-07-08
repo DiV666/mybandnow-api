@@ -21,6 +21,8 @@ describe('OutboxEventBus', () => {
     occurredOn: new Date('2026-06-16T00:00:00.000Z')
   });
 
+  const waitForImmediate = () => new Promise((resolve) => setImmediate(resolve));
+
   beforeEach(() => {
     outbox = mock<Outbox>();
     innerBus = mock<EventBus>();
@@ -36,6 +38,7 @@ describe('OutboxEventBus', () => {
 
     // Act
     await eventBus.publish([domainEvent]);
+    await waitForImmediate();
 
     // Assert
     expect(outbox.save).toHaveBeenCalledWith([domainEvent]);
@@ -50,11 +53,15 @@ describe('OutboxEventBus', () => {
 
     // Act
     await eventBus.publish([domainEvent]);
+    await waitForImmediate();
 
     // Assert
     expect(outbox.save).toHaveBeenCalledWith([domainEvent]);
     expect(outbox.markAsPublished).not.toHaveBeenCalled();
-    expect(logger.warn).toHaveBeenCalled();
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.objectContaining({ errorType: 'Error', eventCount: 1 }),
+      'Immediate publish failed or could not mark as published; poller will redeliver'
+    );
   });
 
   it('logs an accurate warning and does not treat it as a publish failure when markAsPublished throws after a successful publish', async () => {
@@ -64,34 +71,31 @@ describe('OutboxEventBus', () => {
     outbox.markAsPublished.mockRejectedValue(new Error('MongoDB unavailable'));
 
     // Act
-    await expect(eventBus.publish([domainEvent])).resolves.toBeUndefined();
+    await eventBus.publish([domainEvent]);
+    await waitForImmediate();
 
     // Assert
     expect(innerBus.publish).toHaveBeenCalledWith([domainEvent]);
     expect(outbox.markAsPublished).toHaveBeenCalledWith(['outbox-id']);
     expect(logger.warn).toHaveBeenCalledWith(
       { errorType: 'Error', eventCount: 1 },
-      'Event published but could not be marked as published in outbox; poller will redeliver'
-    );
-    expect(logger.warn).not.toHaveBeenCalledWith(
-      expect.anything(),
-      'Immediate publish failed, events saved to outbox for retry'
+      'Immediate publish failed or could not mark as published; poller will redeliver'
     );
   });
 
   it('classifies a non-Error inner-bus publish failure as UnknownError', async () => {
     // Arrange
     outbox.save.mockResolvedValue(['outbox-id']);
-
     innerBus.publish.mockRejectedValue('broker-unreachable');
 
     // Act
     await eventBus.publish([domainEvent]);
+    await waitForImmediate();
 
     // Assert
     expect(logger.warn).toHaveBeenCalledWith(
       expect.objectContaining({ errorType: 'UnknownError' }),
-      'Immediate publish failed, events saved to outbox for retry'
+      'Immediate publish failed or could not mark as published; poller will redeliver'
     );
   });
 
@@ -99,16 +103,16 @@ describe('OutboxEventBus', () => {
     // Arrange
     outbox.save.mockResolvedValue(['outbox-id']);
     innerBus.publish.mockResolvedValue(undefined);
-
     outbox.markAsPublished.mockRejectedValue('mongo-unavailable');
 
     // Act
-    await expect(eventBus.publish([domainEvent])).resolves.toBeUndefined();
+    await eventBus.publish([domainEvent]);
+    await waitForImmediate();
 
     // Assert
     expect(logger.warn).toHaveBeenCalledWith(
       expect.objectContaining({ errorType: 'UnknownError' }),
-      'Event published but could not be marked as published in outbox; poller will redeliver'
+      'Immediate publish failed or could not mark as published; poller will redeliver'
     );
   });
 

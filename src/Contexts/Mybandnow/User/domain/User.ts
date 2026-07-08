@@ -18,7 +18,7 @@ export class User extends AggregateRoot {
 
   static create(id: UserId, email: UserEmail, password: UserPassword): User {
     const user = new User(id, password, email, new UserCreatedAt(new Date()));
-    
+
     user.record(
       new UserRegisterDomainEvent({
         aggregateId: id.value,

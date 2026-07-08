@@ -3,7 +3,7 @@ import { AuthenticatedUserContext } from '@Contexts/Shared/application/security/
 
 export class RegisterUserCommand extends Command {
   constructor(
-    readonly authenticatedUser: AuthenticatedUserContext,
+    readonly authenticatedUser: AuthenticatedUserContext | undefined,
     readonly id: string,
     readonly email: string,
     readonly password: string

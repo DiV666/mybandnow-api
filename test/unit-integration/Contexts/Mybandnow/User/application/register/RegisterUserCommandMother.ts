@@ -3,7 +3,6 @@ import { RegisterUserCommand } from '@Contexts/Mybandnow/User/application/regist
 import { User } from '@Contexts/Mybandnow/User/domain/User.js';
 import { AuthenticatedUserContext } from '@Contexts/Shared/application/security/AuthenticatedUserContext.js';
 
-
 const defaultAuthenticatedUser: AuthenticatedUserContext = {
   userId: 'test-user-id',
   companyId: 'test-company-id',
@@ -12,22 +11,34 @@ const defaultAuthenticatedUser: AuthenticatedUserContext = {
 };
 
 export class RegisterUserCommandMother {
-  static create(params?: { id?: string; email?: string; password?: string; authenticatedUser?: AuthenticatedUserContext }): RegisterUserCommand {
+  static create(params?: {
+    id?: string;
+    email?: string;
+    password?: string;
+    authenticatedUser?: AuthenticatedUserContext;
+  }): RegisterUserCommand {
     const defaults = {
       id: UserIdMother.random().value,
       email: 'test@example.com',
+      // eslint-disable-next-line sonarjs/no-hardcoded-passwords
       password: 'password123',
       authenticatedUser: defaultAuthenticatedUser
     };
     const commandData = { ...defaults, ...params };
-    return new RegisterUserCommand(commandData.authenticatedUser, commandData.id, commandData.email, commandData.password);
+    return new RegisterUserCommand(
+      commandData.authenticatedUser,
+      commandData.id,
+      commandData.email,
+      commandData.password
+    );
   }
 
   static fromModel(model: User): RegisterUserCommand {
-    return RegisterUserCommandMother.create({ 
+    return RegisterUserCommandMother.create({
       id: model.id.value,
       email: model.email.value,
-      password: model.password.value 
+
+      password: model.password.value
     });
   }
 }

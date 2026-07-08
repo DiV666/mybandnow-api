@@ -6,8 +6,8 @@ export function register(container: ContainerBuilder) {
   container
     .register('Mybandnow.User.UserRegister', UserRegister)
     .addArgument(new Reference('Shared.BunyanLogger'))
-    .addArgument(new Reference('Shared.CriteriaScopeSecurity'))
-    .addArgument(new Reference('Mybandnow.User.UserPrismaRepository'))
+    .addArgument(new Reference('Mybandnow.User.UserRepository'))
+    .addArgument(new Reference('Mybandnow.User.PasswordEncryptor'))
     .addArgument(new Reference('Shared.EventBus'));
 
   container

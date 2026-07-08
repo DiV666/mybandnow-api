@@ -92,7 +92,8 @@ function createValidEnv(): NodeJS.ProcessEnv {
     KLODING_INTERNAL_PRIVATE_KEY_BASE64: Buffer.from('private-key').toString('base64'),
     KLODING_INTERNAL_PUBLIC_KEY_BASE64: Buffer.from('public-key').toString('base64'),
     TEST_KEYCLOAK_USER_PASSWORD: 'password123',
-    TIMEOUT: '120000'
+    TIMEOUT: '120000',
+    JWT_SECRET: 'supersecret-jwt'
   };
 }
 

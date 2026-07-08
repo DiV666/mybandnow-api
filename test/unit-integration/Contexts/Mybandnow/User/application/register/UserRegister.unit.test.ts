@@ -14,8 +14,8 @@ describe('UserRegister should', () => {
     testCase = new UserRegisterTestCase();
     const useCase = new UserRegister(
       testCase.logger(),
-      testCase.scopeSecurity(),
       testCase.persistenceRepository(),
+      testCase.passwordEncryptor(),
       testCase.eventBus()
     );
     commandHandler = new RegisterUserCommandHandler(useCase);
@@ -26,6 +26,7 @@ describe('UserRegister should', () => {
 
     // No existing user found by email
     testCase.shouldMatching();
+    testCase.shouldHashPassword(command.password, 'hashed-password');
     testCase.shouldSaveWithId(command.id);
 
     await testCase.dispatch(command, commandHandler);
@@ -35,10 +36,10 @@ describe('UserRegister should', () => {
   it('throw an exception when the user already exists', async () => {
     const model = UserMother.create();
     const command = RegisterUserCommandMother.fromModel(model);
-    
+
     // Existing user found by email
     testCase.shouldMatching(model);
-    
+
     await testCase.assertSaveException(command, commandHandler, UserAlreadyExistsException);
   });
 });

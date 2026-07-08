@@ -7,14 +7,17 @@ import { TestCase } from '@Test/utils/TestCase.js';
 import { Mock } from '@Test/utils/Mock.js';
 import { UserPersistenceRepository } from '@Contexts/Mybandnow/User/domain/repository/UserPersistenceRepository.js';
 import { Nullable } from '@Contexts/Shared/domain/Nullable.js';
+import { PasswordEncryptor } from '@Contexts/Mybandnow/User/domain/service/PasswordEncryptor.js';
 import { CriteriaScopeSecurity } from '@Contexts/Shared/application/security/CriteriaScopeSecurity.js';
 import { Criteria } from '@Contexts/Shared/domain/criteria/Criteria.js';
 
 export class UserRegisterTestCase extends TestCase {
   private _persistenceRepository: Nullable<MockProxy<UserPersistenceRepository>> = null;
   private _scopeSecurity: Nullable<MockProxy<CriteriaScopeSecurity>> = null;
+  private _passwordEncryptor: Nullable<MockProxy<PasswordEncryptor>> = null;
   private persistenceRepositorySaveMock: Mock = new Mock();
   private persistenceRepositoryMatchingMock: Mock = new Mock();
+  private passwordEncryptorMock: Mock = new Mock();
 
   shouldSave(user: User): void {
     this.persistenceRepositorySaveMock
@@ -38,6 +41,10 @@ export class UserRegisterTestCase extends TestCase {
       .once()
       .withArgs(expect.any(Criteria))
       .andReturn(user ? [user] : []);
+  }
+
+  shouldHashPassword(plain: string, hashed: string): void {
+    this.passwordEncryptorMock.shouldReceive(this.passwordEncryptor().hash).once().withArgs(plain).andReturn(hashed);
   }
 
   async assertSaveException(
@@ -66,5 +73,12 @@ export class UserRegisterTestCase extends TestCase {
       this._persistenceRepository = mock<UserPersistenceRepository>();
     }
     return this._persistenceRepository;
+  }
+
+  passwordEncryptor(): MockProxy<PasswordEncryptor> {
+    if (!this._passwordEncryptor) {
+      this._passwordEncryptor = mock<PasswordEncryptor>();
+    }
+    return this._passwordEncryptor;
   }
 }

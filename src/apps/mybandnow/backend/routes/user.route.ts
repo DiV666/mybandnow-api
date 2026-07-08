@@ -15,3 +15,17 @@ export async function userPostRegister(
     next(error);
   }
 }
+
+export async function userPostLogin(
+  context: OpenAPIContext,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const controller = container.get('Apps.Mybandnow.Backend.controllers.UserPostLoginController');
+    await controller.run(context, req, res);
+  } catch (error) {
+    next(error);
+  }
+}

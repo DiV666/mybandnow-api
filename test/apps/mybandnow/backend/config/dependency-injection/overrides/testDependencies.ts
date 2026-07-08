@@ -1,15 +1,13 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 import { InMemorySyncEventBus } from '../../../../../../../src/Contexts/Shared/infrastructure/EventBus/InMemory/InMemorySyncEventBus.js';
 import { KeycloakClientFactory } from '../../../../../../../src/Contexts/Shared/infrastructure/identityServer/keycloak/KeycloakClientFactory.js';
-import { MongoEnvironmentArranger } from '../../../../../../utils/arranger/MongoEnvironmentArranger.js';
+import { PrismaEnvironmentArranger } from '../../../../../../utils/arranger/PrismaEnvironmentArranger.js';
 import { KeycloakEnvironmentArranger } from '../../../../../../utils/arranger/KeycloakEnvironmentArranger.js';
 import { TestKeycloakConfigFactory } from '../../../../../../utils/keycloak/TestKeycloak.js';
 import { env } from '../../../../../../../src/Contexts/Shared/infrastructure/config/env.js';
 
 export function registerTestDependencies(container: ContainerBuilder): void {
-  container
-    .register('Shared.MongoEnvironmentArranger', MongoEnvironmentArranger)
-    .addArgument(new Reference('Shared.MongoConnectionManager'));
+  container.register('Shared.PrismaEnvironmentArranger', PrismaEnvironmentArranger);
 
   container
     .register('Shared.KeycloakConnectionManager')

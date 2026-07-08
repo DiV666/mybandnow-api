@@ -3,66 +3,68 @@ import StructuredFallbackLogger from '../Logger/StructuredFallbackLogger.js';
 
 const fallbackLogger = new StructuredFallbackLogger();
 
-export const envSchema = z
-  .object({
-    NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+export const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 
-    // API
-    PORT: z.coerce.number().int().min(1).max(65535).default(4008),
-    TIMEOUT: z.coerce.number().int().positive().default(120000),
-    MAX_PAYLOAD_SIZE: z.string().default('256kb'),
-    BASE_PATH: z.string().default('/api'),
+  // API
+  PORT: z.coerce.number().int().min(1).max(65535).default(4008),
+  TIMEOUT: z.coerce.number().int().positive().default(120000),
+  MAX_PAYLOAD_SIZE: z.string().default('256kb'),
+  BASE_PATH: z.string().default('/api'),
 
-    // Logger
-    LOG_PATH: z.string().default('./logs'),
-    LOG_FILENAME: z.string().default('mybandnow-api.log'),
-    LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('debug'),
-    LOG_TYPES: z
-      .string()
-      .default('file,console')
-      .transform((val) => val.split(',').filter(Boolean)),
+  // Logger
+  LOG_PATH: z.string().default('./logs'),
+  LOG_FILENAME: z.string().default('mybandnow-api.log'),
+  LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('debug'),
+  LOG_TYPES: z
+    .string()
+    .default('file,console')
+    .transform((val) => val.split(',').filter(Boolean)),
 
-    // CORS
-    CORS_ORIGIN: z.string().default('http://localhost:4009'),
-    CORS_SUCCESS_STATUS: z.coerce.number().int().default(200),
+  // CORS
+  CORS_ORIGIN: z.string().default('http://localhost:4009'),
+  CORS_SUCCESS_STATUS: z.coerce.number().int().default(200),
 
-    // RabbitMQ
-    RABBITMQ_USERNAME: z.string().min(1),
-    RABBITMQ_PASSWORD: z.string().min(1),
-    RABBITMQ_VHOST: z.string().min(1),
-    RABBITMQ_SECURE: z
-      .enum(['true', 'false'])
-      .default('false')
-      .transform((val): boolean => val === 'true'),
-    RABBITMQ_HOSTNAME: z.string().min(1),
-    RABBITMQ_PORT: z.coerce.number().int().min(1).max(65535),
-    RABBITMQ_EXCHANGE_NAME: z.string().min(1),
-    RABBITMQ_MAX_RETRIES: z.coerce.number().int().min(0),
-    RABBITMQ_RETRY_TTL: z.coerce.number().int().min(0),
+  // RabbitMQ
+  RABBITMQ_USERNAME: z.string().min(1),
+  RABBITMQ_PASSWORD: z.string().min(1),
+  RABBITMQ_VHOST: z.string().min(1),
+  RABBITMQ_SECURE: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((val): boolean => val === 'true'),
+  RABBITMQ_HOSTNAME: z.string().min(1),
+  RABBITMQ_PORT: z.coerce.number().int().min(1).max(65535),
+  RABBITMQ_EXCHANGE_NAME: z.string().min(1),
+  RABBITMQ_MAX_RETRIES: z.coerce.number().int().min(0),
+  RABBITMQ_RETRY_TTL: z.coerce.number().int().min(0),
 
-    // Postgres (Prisma)
-    DATABASE_URL: z.string().min(1),
+  // Postgres (Prisma)
+  DATABASE_URL: z.string().min(1),
 
-    // Keycloak
-    KEYCLOAK_ORIGIN: z.url(),
-    KEYCLOAK_REALM: z.string().min(1),
-    KEYCLOAK_ADMIN_USER: z.string().min(1),
-    KEYCLOAK_ADMIN_PASS: z.string().min(1),
-    KEYCLOAK_AUDIENCE: z.string().min(1),
-    // Optional: base64-encoded PEM public key to pin Keycloak JWT signature verification.
-    // When unset, verification falls back to the dynamic JWKS lookup.
-    KLODING_KEYCLOAK_PUBLIC_KEY_BASE64: z.string().optional(),
+  // Keycloak
+  KEYCLOAK_ORIGIN: z.url(),
+  KEYCLOAK_REALM: z.string().min(1),
+  KEYCLOAK_ADMIN_USER: z.string().min(1),
+  KEYCLOAK_ADMIN_PASS: z.string().min(1),
+  KEYCLOAK_AUDIENCE: z.string().min(1),
+  // Optional: base64-encoded PEM public key to pin Keycloak JWT signature verification.
+  // When unset, verification falls back to the dynamic JWKS lookup.
+  KLODING_KEYCLOAK_PUBLIC_KEY_BASE64: z.string().optional(),
 
-    // Test Keycloak user (for acceptance tests only)
-    TEST_KEYCLOAK_USER_PASSWORD: z.string().min(8),
+  // Test Keycloak user (for acceptance tests only)
+  TEST_KEYCLOAK_USER_PASSWORD: z.string().min(8),
 
-    // Internal Authentication (RS256 JWT)
-    KLODING_INTERNAL_PUBLIC_KEY_BASE64: z.string().min(1),
-    KLODING_INTERNAL_PRIVATE_KEY_BASE64: z.string().min(1),
+  // Internal Authentication (RS256 JWT)
+  KLODING_INTERNAL_PUBLIC_KEY_BASE64: z.string().min(1),
+  KLODING_INTERNAL_PRIVATE_KEY_BASE64: z.string().min(1),
 
-    // Sentry (optional)
-    SENTRY_DSN: z.url().optional()
-  });
+  // Sentry (optional)
+  SENTRY_DSN: z.url().optional(),
+
+  // JWT Secret
+  JWT_SECRET: z.string().min(32)
+});
 
 export type Env = z.infer<typeof envSchema>;
 
@@ -71,7 +73,6 @@ const result = envSchema.safeParse(process.env);
 if (!result.success) {
   const errors = getFieldErrors(result.error);
   fallbackLogger.error({ errors }, 'Invalid environment variables');
-  console.error('VITEST ENV DEBUG ERRORS:', errors);
   throw new Error('Invalid environment variables');
 }
 
