@@ -71,6 +71,7 @@ const result = envSchema.safeParse(process.env);
 if (!result.success) {
   const errors = getFieldErrors(result.error);
   fallbackLogger.error({ errors }, 'Invalid environment variables');
+  console.error('VITEST ENV DEBUG ERRORS:', errors);
   throw new Error('Invalid environment variables');
 }
 

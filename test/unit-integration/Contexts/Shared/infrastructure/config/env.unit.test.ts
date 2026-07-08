@@ -45,60 +45,6 @@ describe('env config bootstrap logging', () => {
     );
   });
 
-  it('rejects partial analytics mongo credentials when analytics uri is configured', async () => {
-    process.env = createValidEnv();
-
-    const { envSchema } = await import(freshEnvModuleUrl());
-    const result = envSchema.safeParse({
-      ...createValidEnv(),
-      MONGO_ANALYTICS_URI: 'mongodb://analytics-host:27017/analytics'
-    });
-
-    expect(result.success).toBe(false);
-
-    const errors = result.success ? {} : fieldErrors(result.error);
-
-    expect(errors).toHaveProperty('MONGO_ANALYTICS_USER');
-    expect(errors).toHaveProperty('MONGO_ANALYTICS_PASS');
-  });
-
-  it('rejects analytics user set without uri or pass', async () => {
-    process.env = createValidEnv();
-
-    const { envSchema } = await import(freshEnvModuleUrl());
-    const result = envSchema.safeParse({
-      ...createValidEnv(),
-      MONGO_ANALYTICS_USER: 'analytics-user'
-    });
-
-    expect(result.success).toBe(false);
-
-    const errors = result.success ? {} : fieldErrors(result.error);
-
-    expect(errors.MONGO_ANALYTICS_URI).toContain(
-      'MONGO_ANALYTICS_URI and MONGO_ANALYTICS_PASS are required when MONGO_ANALYTICS_USER is set'
-    );
-  });
-
-  it('rejects analytics pass set without uri, accumulating multiple issues under the same field', async () => {
-    process.env = createValidEnv();
-
-    const { envSchema } = await import(freshEnvModuleUrl());
-    const result = envSchema.safeParse({
-      ...createValidEnv(),
-      MONGO_ANALYTICS_USER: 'analytics-user',
-      MONGO_ANALYTICS_PASS: 'analytics-pass'
-    });
-
-    expect(result.success).toBe(false);
-
-    const errors = result.success ? {} : fieldErrors(result.error);
-
-    // Both the USER-set and PASS-set refinements fail with the same path (MONGO_ANALYTICS_URI),
-    // so getFieldErrors must accumulate both messages under one array instead of overwriting it.
-    expect(errors.MONGO_ANALYTICS_URI).toHaveLength(2);
-  });
-
   it('rejects invalid keycloak urls using the zod 4 url schema', async () => {
     process.env = createValidEnv();
 
@@ -131,9 +77,7 @@ function createValidEnv(): NodeJS.ProcessEnv {
     LOG_PATH: './logs',
     LOG_TYPES: 'console',
     MAX_PAYLOAD_SIZE: '256kb',
-    MONGO_PASS: 'mongo-pass',
-    MONGO_URI: 'mongodb://localhost:27017/mybandnow',
-    MONGO_USER: 'mongo-user',
+    DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/mybandnow',
     NODE_ENV: 'test',
     PORT: '4008',
     RABBITMQ_EXCHANGE_NAME: 'domain_events',

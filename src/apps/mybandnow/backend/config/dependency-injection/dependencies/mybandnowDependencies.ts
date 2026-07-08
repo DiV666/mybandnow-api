@@ -1,3 +1,5 @@
+import { UserPrismaRepository } from '../../../../../../Contexts/Mybandnow/User/infrastructure/persistence/UserPrismaRepository.js';
+import { register as registerUserRegister } from '../use-cases/user/userRegister.dependency.js';
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 import { KeycloakBearerToken } from '@Contexts/Mybandnow/Shared/infrastructure/identityServer/keycloak/KeycloakBearerToken.js';
 import { InternalAuthentication } from '@Contexts/Mybandnow/Shared/infrastructure/identityServer/internal/InternalAuthentication.js';
@@ -15,6 +17,9 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
     .addArgument(Buffer.from(env.KLODING_INTERNAL_PUBLIC_KEY_BASE64, 'base64').toString('utf8'));
 
   // Repositories
+  container
+    .register('Mybandnow.User.UserPrismaRepository', UserPrismaRepository);
 
   // Use Cases
+  registerUserRegister(container);
 }

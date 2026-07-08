@@ -43,7 +43,52 @@
             }
         }
     ],
-    "paths": {},
+    "paths": {
+        "/v1/users/register": {
+            "post": {
+                "security": [],
+                "operationId": "userPostRegister",
+                "tags": [
+                    "User"
+                ],
+                "summary": "Custom action userPostRegister",
+                "description": "Execute userPostRegister",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": { "type": "string", "format": "uuid" },
+                                    "email": { "type": "string", "format": "email" },
+                                    "password": { "type": "string", "minLength": 8 }
+                                },
+                                "required": ["id", "email", "password"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Conflict"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Unknown"
+                    }
+                }
+            }
+        }
+    },
     "components": {
         "securitySchemes": {
             "BearerAuth": {

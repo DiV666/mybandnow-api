@@ -1,3 +1,4 @@
+import { register as registerUserPostRegisterController } from '../controllers/user/userPostRegister.dependency.js';
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 import { MongoConfigFactory } from '@Contexts/Mybandnow/Shared/infrastructure/persistence/mongo/MongoConfigFactory.js';
 import ContinuationLocalStorageExpress from '../../../middlewares/ContinuationLocalStorageExpress.js';
@@ -16,6 +17,7 @@ export function registerAppsDependencies(container: ContainerBuilder) {
   container.register('Apps.Mybandnow.Backend.KeyCloakConfig').setFactory(KeycloakConfigFactory, 'createConfig');
 
   // Controllers
+  registerUserPostRegisterController(container);
 
   // Middlewares
   container

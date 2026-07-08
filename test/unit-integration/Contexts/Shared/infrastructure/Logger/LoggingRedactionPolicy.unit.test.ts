@@ -43,12 +43,12 @@ describe('LoggingRedactionPolicy', () => {
 
   it('partially masks emails with asterisks', () => {
     expect(maskEmail('john.doe@example.com')).toBe('j***@e***.com');
-    expect(maskEmail('ab@kloding.es')).toBe('a***@r***.es');
+    expect(maskEmail('ab@kloding.es')).toBe('a***@k***.es');
   });
 
   it('does not leak raw single-label email domains', () => {
     expect(maskEmail('user@localhost')).toBe('u***@l***');
-    expect(maskEmail('admin@kloding')).toBe('a***@r***');
+    expect(maskEmail('admin@kloding')).toBe('a***@k***');
   });
 
   it('partially masks phone numbers and preserves only the suffix', () => {
@@ -84,7 +84,7 @@ describe('LoggingRedactionPolicy', () => {
   it('sanitizes bare single-label email domains without re-exposing the raw domain', () => {
     const sanitized = sanitizeStringForLogging('actor user@localhost escalated to admin@kloding');
 
-    expect(sanitized).toBe('actor u***@l*** escalated to a***@r***');
+    expect(sanitized).toBe('actor u***@l*** escalated to a***@k***');
   });
 
   it('sanitizes bare pii values that appear under unknown structured keys', () => {
