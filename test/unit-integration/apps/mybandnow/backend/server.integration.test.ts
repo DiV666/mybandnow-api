@@ -35,7 +35,7 @@ describe('Server — health endpoints', () => {
   describe('GET /v1/readiness', () => {
     it('returns 200 when all dependencies are healthy', async () => {
       // Arrange — ensure health is OK
-      healthStatus.setMongoHealth('OK');
+      healthStatus.setPrismaHealth('OK');
       healthStatus.setRabbitHealth('OK');
 
       const res = await request.get('/v1/readiness');
@@ -45,14 +45,14 @@ describe('Server — health endpoints', () => {
 
     it('returns 503 when any dependency is unhealthy', async () => {
       // Arrange
-      healthStatus.setMongoHealth('KO');
+      healthStatus.setPrismaHealth('KO');
 
       const res = await request.get('/v1/readiness');
       expect(res.status).toBe(503);
       expect(res.body).toMatchObject({ readiness: 'KO' });
 
       // Cleanup
-      healthStatus.setMongoHealth('OK');
+      healthStatus.setPrismaHealth('OK');
     });
   });
 

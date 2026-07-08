@@ -18,7 +18,7 @@ export type OutboxEventStatus = 'pending' | 'published' | 'failed';
 /**
  * Abstract transaction session.
  * Keeps domain layer database-agnostic.
- * Concrete implementations (MongoDB, PostgreSQL, etc.) will cast this to their specific session type.
+ * Concrete implementations (PostgreSQL, etc.) will cast this to their specific session type.
  */
 export type TransactionSession = Record<string, never>;
 

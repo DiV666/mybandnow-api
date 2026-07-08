@@ -9,17 +9,17 @@ describe('HealthStatus', () => {
     // Each test gets the same singleton; reset to known good state first
     const mod = await import('../../../../../src/Contexts/Shared/infrastructure/health.js');
     healthStatus = mod.default;
-    healthStatus.setMongoHealth('OK');
+    healthStatus.setPrismaHealth('OK');
     healthStatus.setRabbitHealth('OK');
   });
 
-  it('is healthy when both Mongo and Rabbit are OK', () => {
+  it('is healthy when both Prisma and Rabbit are OK', () => {
     expect(healthStatus.isHealth()).toBe(true);
     expect(healthStatus.isUnhealthy()).toBe(false);
   });
 
-  it('is unhealthy when Mongo is KO', () => {
-    healthStatus.setMongoHealth('KO');
+  it('is unhealthy when Prisma is KO', () => {
+    healthStatus.setPrismaHealth('KO');
     expect(healthStatus.isHealth()).toBe(false);
     expect(healthStatus.isUnhealthy()).toBe(true);
   });
@@ -31,15 +31,15 @@ describe('HealthStatus', () => {
   });
 
   it('is unhealthy when both are KO', () => {
-    healthStatus.setMongoHealth('KO');
+    healthStatus.setPrismaHealth('KO');
     healthStatus.setRabbitHealth('KO');
     expect(healthStatus.isHealth()).toBe(false);
   });
 
   it('recovers health when both are reset to OK', () => {
-    healthStatus.setMongoHealth('KO');
+    healthStatus.setPrismaHealth('KO');
     healthStatus.setRabbitHealth('KO');
-    healthStatus.setMongoHealth('OK');
+    healthStatus.setPrismaHealth('OK');
     healthStatus.setRabbitHealth('OK');
     expect(healthStatus.isHealth()).toBe(true);
   });

@@ -280,7 +280,7 @@ describe('Server — auth security handlers', () => {
     const result = await capturedOptions?.securityHandlers.InternalAuth(createContext({}), request);
 
     // Assert
-    expect(verifyJWT).toHaveBeenCalledWith('internal-jwt');
+    expect(verifyJWT).toHaveBeenCalledWith('internal-jwt', []);
     expect(result).toEqual({ companyId: 'company-123' });
   });
 });

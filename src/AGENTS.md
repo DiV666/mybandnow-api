@@ -50,7 +50,7 @@ Do NOT apply any commit until the user approves the proposed blocks.
 > - [`openapi-controller`](../.agents/skills/openapi-controller/SKILL.md) — HTTP adapter: definition.json + controller + DI + route
 > - [`domain-event`](../.agents/skills/domain-event/SKILL.md) — Domain event design + RabbitMQ subscriber
 > - [`object-mother`](../.agents/skills/object-mother/SKILL.md) — Object Mothers, TestCase, Mock patterns
-> - [`mongo-indexes`](../.agents/skills/mongo-indexes/SKILL.md) — MongoDB index planning
+> - [`prisma-indexes`](../.agents/skills/prisma-indexes/SKILL.md) — PostgreSQL index planning
 > - [`jira-confluence`](../.agents/skills/jira-confluence/SKILL.md) — Jira issues, Confluence sync, and branch task mapping
 > - [`living-blueprint`](../.agents/skills/living-blueprint/SKILL.md) — Maintain docs/ and Confluence in sync after every feature merge
 
@@ -100,7 +100,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Writing API E2E tests | `test-acceptance` |
 | Writing TypeScript types/interfaces | `typescript` |
 | Writing acceptance tests with Cucumber.js | `test-acceptance` |
-| Writing integration tests against real MongoDB or RabbitMQ | `test-integration` |
+| Writing integration tests against real PostgreSQL or RabbitMQ | `test-integration` |
 | Writing unit tests | `object-mother` |
 | Writing unit tests | `test-unit` |
 
@@ -127,7 +127,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 
 ### Infrastructure Layer (`infrastructure/`)
 
-- **ALWAYS**: extend `MongoRepository` for persistence; override `moduleName()` and `moduleIndexes()`.
+- **ALWAYS**: use `PrismaClient` for persistence.
 - **ALWAYS**: implement the domain repository interface defined in `domain/repository/`.
 - **NEVER**: import from `application/` inside `infrastructure/`.
 - **NEVER**: put domain logic inside repositories or providers.
@@ -192,7 +192,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | -------------- | -------------------------------------------------------- |
 | Runtime        | Node.js 24 / TypeScript 6                                |
 | HTTP framework | Express 5 + openapi-backend                              |
-| Database       | MongoDB 6 via `MongoRepository` base class               |
+| Database       | PostgreSQL via `Prisma`                                  |
 | Messaging      | RabbitMQ via amqplib (`RabbitMQEventBus`)                |
 | Auth           | Local JWT (`LocalJwtBearerToken`)                        |
 | DI container   | node-dependency-injection (`ContainerBuilder`)           |
@@ -232,14 +232,14 @@ src/
     │   └── infrastructure/
     │       ├── config/env.ts                # Zod env schema (fail-fast at startup)
     │       ├── EventBus/RabbitMQ/           # RabbitMQ event bus implementation
-    │       ├── persistence/mongo/           # MongoRepository base, MongoCriteriaConverter
+    │       ├── persistence/prisma/          # Prisma extensions and outbox
     │       └── service/                     # External HTTP client factories
     └── Mybandnow/
-        ├── Shared/                          # MongoConfigFactory, etc.
+        ├── Shared/                          # Shared configurations
         └── <Module>/                        # Module aggregate
             ├── application/                 # Commands, queries, handlers
             ├── domain/                      # Aggregate, value objects, repository interfaces
-            └── infrastructure/              # MongoDB repos, HTTP providers
+            └── infrastructure/              # Prisma repos, HTTP providers
 ```
 
 ---
@@ -254,7 +254,7 @@ src/
 | Exception                             | `<Aggregate><Condition>Exception`     | `OrderNotFoundException`, `OrderInvalidStatusException`                                                      |
 | Repository interface (persistence)    | `<Aggregate>PersistenceRepository`    | `SmsPersistenceRepository`                                                                                   |
 | Repository interface (communications) | `<Aggregate>CommunicationsRepository` | `SmsCommunicationsRepository`                                                                                |
-| Repository implementation             | `<Aggregate>MongoRepository`          | `SmsMongoRepository`                                                                                         |
+| Repository implementation             | `<Aggregate>PrismaRepository`          | `SmsPrismaRepository`                                                                                        |
 | Use case                              | `<Aggregate><Action>`                 | `SmsSend`, `SmsSearch`                                                                                       |
 | Command                               | `<UseCase>Command`                    | `SmsSendCommand`                                                                                             |
 | Command handler                       | `<UseCase>CommandHandler`             | `SmsSendCommandHandler`                                                                                      |
@@ -263,7 +263,7 @@ src/
 | Response DTO                          | `<UseCase>Response`                   | `SmsSearchResponse`                                                                                          |
 | Controller                            | `<HttpMethod><Aggregate>Controller`   | `SmsPostSendController`, `SmsGetSearchController`                                                            |
 | Route handler export                  | `<aggregate><HttpMethod><Action>`     | `orderPostCreate`, `orderGetSearch`                                                                          |
-| DI service key (module services)      | `<Context>.<Module>.<ClassName>`      | `Mybandnow.Order.OrderMongoRepository`                                                                     |
+| DI service key (module services)      | `<Context>.<Module>.<ClassName>`      | `Mybandnow.Order.OrderPrismaRepository`                                                                    |
 | DI service key (app controllers)      | `Apps.<App>.<Layer>.<Group>.<ClassName>` | `Apps.Mybandnow.Backend.controllers.OrderPostCreateController`                                          |
 | DI service key (shared/cross-cutting) | `Shared.<ClassName>`                  | `Shared.EventBus`, `Shared.OutboxPublisher`, `Shared.BunyanLogger`                                          |
 | Test mother                           | `<Entity>Mother`                      | `OrderMother`, `OrderIdMother`, `OrderStatusMother`                                                          |
@@ -278,7 +278,7 @@ src/
 # Unit tests only (no infra required)
 make unit-tests
 
-# Integration tests (requires MongoDB + RabbitMQ via Docker)
+# Integration tests (requires PostgreSQL + RabbitMQ via Docker)
 make integration-tests
 
 # Acceptance tests — Cucumber E2E (requires full Docker stack)
@@ -336,7 +336,7 @@ The source of truth for the API contract is `src/apps/mybandnow/backend/config/s
 
 ### CQRS Query Parameters (Criteria Pattern)
 
-For search/list endpoints, map standard query parameters to the CQRS `Query` DTO, which the Handler passes to `MongoCriteriaConverter` in the Infrastructure layer:
+For search/list endpoints, map standard query parameters to the CQRS `Query` DTO, which the Handler passes to the Infrastructure layer:
 
 - **Pagination**: `?page[number]=1&page[size]=25`
 - **Filtering**: `?filter[status]=SENT`

@@ -2,14 +2,14 @@ export type HealthType = 'OK' | 'KO';
 
 export class HealthStatus {
   private rabbitHealth: HealthType;
-  private mongoHealth: HealthType;
+  private prismaHealth: HealthType;
   constructor() {
-    this.mongoHealth = 'OK';
+    this.prismaHealth = 'OK';
     this.rabbitHealth = 'OK';
   }
 
   isHealth(): boolean {
-    return this.mongoHealth === 'OK' && this.rabbitHealth === 'OK';
+    return this.prismaHealth === 'OK' && this.rabbitHealth === 'OK';
   }
 
   isUnhealthy(): boolean {
@@ -20,8 +20,8 @@ export class HealthStatus {
     this.rabbitHealth = newStatus;
   }
 
-  setMongoHealth(newStatus: HealthType) {
-    this.mongoHealth = newStatus;
+  setPrismaHealth(newStatus: HealthType) {
+    this.prismaHealth = newStatus;
   }
 }
 

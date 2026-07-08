@@ -68,7 +68,7 @@ describe('OutboxEventBus', () => {
     // Arrange
     outbox.save.mockResolvedValue(['outbox-id']);
     innerBus.publish.mockResolvedValue(undefined);
-    outbox.markAsPublished.mockRejectedValue(new Error('MongoDB unavailable'));
+    outbox.markAsPublished.mockRejectedValue(new Error('Database unavailable'));
 
     // Act
     await eventBus.publish([domainEvent]);
@@ -103,7 +103,7 @@ describe('OutboxEventBus', () => {
     // Arrange
     outbox.save.mockResolvedValue(['outbox-id']);
     innerBus.publish.mockResolvedValue(undefined);
-    outbox.markAsPublished.mockRejectedValue('mongo-unavailable');
+    outbox.markAsPublished.mockRejectedValue('db-unavailable');
 
     // Act
     await eventBus.publish([domainEvent]);
