@@ -20,7 +20,7 @@ describe('MusicianSearchByUserId should', () => {
     // Arrange
     const musician = MusicianMother.random();
     const query = MusicianSearchByUserIdQueryMother.create({ userId: musician.userId.value });
-    
+
     testCase.shouldSearchByUserId(musician.userId, musician);
 
     // Act
@@ -35,8 +35,8 @@ describe('MusicianSearchByUserId should', () => {
     // Arrange
     const query = MusicianSearchByUserIdQueryMother.create();
     const userId = new MusicianUserId(query.userId);
-    
-    testCase.shouldSearchByUserId(userId, undefined);
+
+    testCase.shouldSearchByUserId(userId);
 
     // Act
     const response = await queryHandler.handle(query);

@@ -1,5 +1,5 @@
 import pkg from '@prisma/client';
-const { PrismaClient, Prisma } = pkg;
+const { Prisma } = pkg;
 import { Musician } from '../../domain/Musician.js';
 import { MusicianRepository } from '../../domain/repository/MusicianRepository.js';
 import { MusicianId } from '../../domain/value-object/MusicianId.js';
@@ -12,8 +12,6 @@ import { PrismaClientFactory } from '../../../../Shared/infrastructure/persisten
 
 export class PrismaMusicianRepository implements MusicianRepository {
   private prisma = PrismaClientFactory.createClient();
-
-  constructor() {}
 
   async save(musician: Musician): Promise<void> {
     const primitives = musician.toPrimitives();

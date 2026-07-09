@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { PrismaClient } from '@prisma/client';
 import { PrismaMusicianRepository } from '@Contexts/Moat/Musician/infrastructure/persistence/PrismaMusicianRepository.js';
 import { MusicianMother } from '../../domain/MusicianMother.js';
 import { MusicianIdMother } from '../../domain/MusicianIdMother.js';
@@ -11,7 +10,7 @@ describe('PrismaMusicianRepository', () => {
   let repository: PrismaMusicianRepository;
 
   beforeEach(async () => {
-    repository = new PrismaMusicianRepository(prisma);
+    repository = new PrismaMusicianRepository();
     await prisma.bandMember.deleteMany();
     await prisma.band.deleteMany();
     await prisma.musician.deleteMany();
@@ -21,7 +20,7 @@ describe('PrismaMusicianRepository', () => {
   describe('save', () => {
     it('should save a valid musician', async () => {
       const musician = MusicianMother.random();
-      
+
       // We need to create the User first because Musician has a FK to User
       await prisma.user.create({
         data: {
@@ -49,7 +48,7 @@ describe('PrismaMusicianRepository', () => {
 
     it('should find an existing musician', async () => {
       const expected = MusicianMother.random();
-      
+
       await prisma.user.create({
         data: {
           id: expected.userId.value,
@@ -74,7 +73,7 @@ describe('PrismaMusicianRepository', () => {
 
     it('should find an existing musician by userId', async () => {
       const expected = MusicianMother.random();
-      
+
       await prisma.user.create({
         data: {
           id: expected.userId.value,

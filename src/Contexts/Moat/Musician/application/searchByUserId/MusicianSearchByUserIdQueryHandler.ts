@@ -4,7 +4,10 @@ import { MusicianSearchByUserIdQuery } from './MusicianSearchByUserIdQuery.js';
 import { MusicianSearchByUserId } from './MusicianSearchByUserId.js';
 import { MusicianSearchByUserIdResponse } from './MusicianSearchByUserIdResponse.js';
 
-export class MusicianSearchByUserIdQueryHandler implements QueryHandler<MusicianSearchByUserIdQuery, MusicianSearchByUserIdResponse> {
+export class MusicianSearchByUserIdQueryHandler implements QueryHandler<
+  MusicianSearchByUserIdQuery,
+  MusicianSearchByUserIdResponse
+> {
   constructor(private useCase: MusicianSearchByUserId) {}
 
   subscribedTo(): Query {
