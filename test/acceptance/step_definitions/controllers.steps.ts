@@ -30,7 +30,6 @@ Given(
     const userIdValue = uuidv5(username, NAMESPACE);
     const encryptor = container.get<PasswordEncryptor>('Mybandnow.User.PasswordEncryptor');
     const userRepository = container.get<UserPersistenceRepository>('Mybandnow.User.UserRepository');
-    const musicianRepository = container.get<MusicianRepository>('Moat.Musician.MusicianRepository');
 
     const hashedPassword = await encryptor.hash(password);
     const user = User.create(
@@ -40,18 +39,27 @@ Given(
     );
     await userRepository.save(user);
 
-    const musician = new Musician(
-      new MusicianId(MusicianId.random()),
-      new MusicianUsername(username),
-      new MusicianName(username),
-      new MusicianUserId(userIdValue)
-    );
-    await musicianRepository.save(musician);
-
     const access_token = await getToken(username, password, userIdValue);
     this.setAuthToken(access_token);
   }
 );
+
+Given('they have a musician profile', async function (this: MybandnowWorld) {
+  if (!this.authToken)
+    throw new Error('No auth token found. Cannot create musician profile without an authenticated user.');
+  const payload = jsonwebtoken.decode(this.authToken) as any;
+  const username = payload.preferred_username;
+  const userIdValue = payload.userId;
+
+  const musicianRepository = container.get<MusicianRepository>('Moat.Musician.MusicianRepository');
+  const musician = new Musician(
+    new MusicianId(MusicianId.random()),
+    new MusicianUsername(username),
+    new MusicianName(username),
+    new MusicianUserId(userIdValue)
+  );
+  await musicianRepository.save(musician);
+});
 
 Given('An internal authenticated user', function (this: MybandnowWorld) {
   const token = jsonwebtoken.sign(

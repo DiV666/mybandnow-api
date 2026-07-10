@@ -23,7 +23,6 @@ export class MusicianSearchByUserIdTestCase extends TestCase {
     this.repositorySearchByUserIdMock.expect(expected);
   }
 
-
   repository(): MockProxy<MusicianRepository> {
     this._repository ??= mock<MusicianRepository>();
     return this._repository;

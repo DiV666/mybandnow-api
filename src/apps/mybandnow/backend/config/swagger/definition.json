@@ -154,6 +154,42 @@
       }
     },
     "/v1/profile": {
+      "post": {
+        "tags": [
+          "Mybandnow"
+        ],
+        "summary": "Create musician profile",
+        "operationId": "profilePost",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MusicianCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "401": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
       "get": {
         "tags": [
           "Mybandnow"
@@ -281,6 +317,46 @@
         ],
         "properties": {
           "message": {
+            "type": "string"
+          }
+        }
+      },
+      "BandMemberResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "musicianId",
+          "role"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "musicianId": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "role": {
+            "type": "string"
+          }
+        }
+      },
+      "MusicianCreateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "username"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "name": {
+            "type": "string"
+          },
+          "username": {
             "type": "string"
           }
         }

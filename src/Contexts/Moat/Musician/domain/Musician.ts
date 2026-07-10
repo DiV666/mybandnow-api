@@ -1,4 +1,6 @@
 import { AggregateRoot } from '@Contexts/Shared/domain/AggregateRoot.js';
+import { Clock } from '@Contexts/Shared/domain/Clock.js';
+import { MusicianCreatedDomainEvent } from './MusicianCreatedDomainEvent.js';
 import { Primitives } from '@Contexts/Shared/domain/Primitives.js';
 import { MusicianId } from './value-object/MusicianId.js';
 import { MusicianUserId } from './value-object/MusicianUserId.js';
@@ -13,6 +15,23 @@ export class Musician extends AggregateRoot {
     readonly userId: MusicianUserId
   ) {
     super();
+  }
+
+  static create(params: { id: string; username: string; name: string; userId: string }, clock: Clock): Musician {
+    const createdAt = clock.now();
+
+    const model = Musician.fromPrimitives(params);
+
+    const { id, ...primitives } = model.toPrimitives();
+    model.record(
+      new MusicianCreatedDomainEvent({
+        aggregateId: id,
+        createdAt: createdAt instanceof Date ? createdAt.toISOString() : createdAt,
+        ...primitives
+      })
+    );
+
+    return model;
   }
 
   static fromPrimitives(plainData: Primitives<Musician>): Musician {

@@ -5,6 +5,7 @@ import { PrismaMusicianRepository } from '@Contexts/Moat/Musician/infrastructure
 import { MusicianSearchByUserIdQueryHandler } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQueryHandler.js';
 import { MusicianSearchByUserId } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserId.js';
 import { register as registerUserRegister } from '../use-cases/user/userRegister.dependency.js';
+import { register as registerMusicianCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/musician/musicianCreator.dependency.js';
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 
 import { InternalAuthentication } from '@Contexts/Mybandnow/Shared/infrastructure/identityServer/internal/InternalAuthentication.js';
@@ -30,6 +31,7 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   // Use Cases
   registerUserLogin(container);
   registerUserRegister(container);
+  registerMusicianCreator(container);
 
   container
     .register('Moat.Musician.MusicianSearchByUserId', MusicianSearchByUserId)

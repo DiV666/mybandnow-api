@@ -1,6 +1,7 @@
 import { register as registerUserPostLoginController } from '../controllers/user/userPostLogin.dependency.js';
 import { register as registerUserPostRegisterController } from '../controllers/user/userPostRegister.dependency.js';
 import { register as registerProfileGetController } from '../controllers/musician/profileGet.dependency.js';
+import { register as registerProfilePostController } from '../controllers/musician/profilePost.dependency.js';
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 import ContinuationLocalStorageExpress from '../../../middlewares/ContinuationLocalStorageExpress.js';
 import CorrelationIdHeader from '../../../middlewares/CorrelationIdHeader.js';
@@ -15,6 +16,7 @@ export function registerAppsDependencies(container: ContainerBuilder) {
   registerUserPostLoginController(container);
   registerUserPostRegisterController(container);
   registerProfileGetController(container);
+  registerProfilePostController(container);
 
   // Middlewares
   container

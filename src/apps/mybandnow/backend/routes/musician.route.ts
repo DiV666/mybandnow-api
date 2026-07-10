@@ -11,3 +11,12 @@ export async function profileGet(context: Context, req: Request, res: Response, 
     next(error);
   }
 }
+
+export async function profilePost(context: Context, req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const controller = container.get<ApiController>('Apps.Mybandnow.Backend.controllers.ProfilePostController');
+    await controller.run(context, req, res);
+  } catch (error) {
+    next(error);
+  }
+}

@@ -3,6 +3,7 @@ Feature: Get current user profile
 
   Background:
     Given An authenticated user "testuser" with password "asdASD123!"
+    And they have a musician profile
 
   Scenario: A valid profile is returned for the authenticated user
     Given I send a GET request to "/v1/profile"
