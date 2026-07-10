@@ -1,3 +1,8 @@
+import { register as registerBandGetMatchByCriteriaController } from '../controllers/band/bandGetMatchByCriteria.dependency.js';
+import { register as registerBandGetSearchController } from '../controllers/band/bandGetSearch.dependency.js';
+import { register as registerBandDeleteRemoveController } from '../controllers/band/bandDeleteRemove.dependency.js';
+import { register as registerBandPutUpdateController } from '../controllers/band/bandPutUpdate.dependency.js';
+import { register as registerBandPostCreateController } from '../controllers/band/bandPostCreate.dependency.js';
 import { register as registerUserPostLoginController } from '../controllers/user/userPostLogin.dependency.js';
 import { register as registerUserPostRegisterController } from '../controllers/user/userPostRegister.dependency.js';
 import { register as registerProfileGetController } from '../controllers/musician/profileGet.dependency.js';
@@ -13,6 +18,11 @@ export function registerAppsDependencies(container: ContainerBuilder) {
   container.register('Apps.Mybandnow.Backend.RabbitMQConfig').setFactory(RabbitMQConfigFactory, 'createConfig');
 
   // Controllers
+  registerBandGetMatchByCriteriaController(container);
+  registerBandGetSearchController(container);
+  registerBandDeleteRemoveController(container);
+  registerBandPutUpdateController(container);
+  registerBandPostCreateController(container);
   registerUserPostLoginController(container);
   registerUserPostRegisterController(container);
   registerProfileGetController(container);

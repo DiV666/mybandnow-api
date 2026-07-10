@@ -6,6 +6,12 @@ import { MusicianSearchByUserIdQueryHandler } from '@Contexts/Moat/Musician/appl
 import { MusicianSearchByUserId } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserId.js';
 import { register as registerUserRegister } from '../use-cases/user/userRegister.dependency.js';
 import { register as registerMusicianCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/musician/musicianCreator.dependency.js';
+import { register as registerBandCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandCreator.dependency.js';
+import { register as registerBandUpdater } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandUpdater.dependency.js';
+import { register as registerBandRemover } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandRemover.dependency.js';
+import { register as registerBandFinder } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandFinder.dependency.js';
+import { register as registerBandMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandMatcher.dependency.js';
+import { BandPrismaRepository } from '@Contexts/Moat/Band/infrastructure/persistence/BandPrismaRepository.js';
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 
 import { InternalAuthentication } from '@Contexts/Mybandnow/Shared/infrastructure/identityServer/internal/InternalAuthentication.js';
@@ -27,11 +33,19 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   // Repositories
   container.register('Mybandnow.User.UserRepository', UserPrismaRepository).addArgument(new Reference('Shared.Outbox'));
   container.register('Moat.Musician.MusicianRepository', PrismaMusicianRepository);
+  container
+    .register('Moat.Band.BandPrismaRepository', BandPrismaRepository)
+    .addArgument(new Reference('Shared.Outbox'));
 
   // Use Cases
   registerUserLogin(container);
   registerUserRegister(container);
   registerMusicianCreator(container);
+  registerBandCreator(container);
+  registerBandUpdater(container);
+  registerBandRemover(container);
+  registerBandFinder(container);
+  registerBandMatcher(container);
 
   container
     .register('Moat.Musician.MusicianSearchByUserId', MusicianSearchByUserId)

@@ -8,7 +8,7 @@ export type Properties<T> = Omit<MethodsAndProperties<T>, Methods<T>>;
 
 export type NativePrimitive = string | number | boolean | bigint | symbol | null | undefined;
 
-export type HasOnlyValueProperty<T> = keyof Properties<T> extends 'value'
+export type HasOnlyValueProperty<T> = keyof Properties<T> extends 'value' | 'validValues'
   ? 'value' extends keyof Properties<T>
     ? true
     : false

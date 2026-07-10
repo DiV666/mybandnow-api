@@ -4,6 +4,12 @@ import { Operator } from '../../../domain/criteria/FilterOperator.js';
 import { Filters } from '../../../domain/criteria/Filters.js';
 
 export class PrismaCriteriaConverter {
+  private fieldMappings: Map<string, string>;
+
+  constructor(fieldMappings?: Map<string, string> | Record<string, string>) {
+    this.fieldMappings = fieldMappings instanceof Map ? fieldMappings : new Map(Object.entries(fieldMappings || {}));
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public convert(criteria: Criteria): any {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,7 +44,10 @@ export class PrismaCriteriaConverter {
     const where: any = {};
 
     for (const filter of filters.filters) {
-      const field = filter.field.value === '_id' ? 'id' : filter.field.value;
+      let field = filter.field.value === '_id' ? 'id' : filter.field.value;
+      if (this.fieldMappings.has(field)) {
+        field = this.fieldMappings.get(field)!;
+      }
       const value = filter.value.value;
 
       switch (filter.operator.value) {

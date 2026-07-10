@@ -15,13 +15,21 @@ export class PrismaEnvironmentArranger extends EnvironmentArranger {
   }
 
   public async clean(): Promise<void> {
-    const propertyNames = Object.getOwnPropertyNames(this.client);
-    const modelNames = propertyNames.filter((propertyName) => {
-      // Find all models on the prisma client. They don't start with '_' or '$'
-      return !propertyName.startsWith('_') && !propertyName.startsWith('$');
-    });
+    const deletionOrder = [
+      'outbox',
+      'domainEventFailover',
+      'videoclipProcess',
+      'trackProcess',
+      'videoclip',
+      'track',
+      'song',
+      'bandMember',
+      'band',
+      'musician',
+      'user'
+    ];
 
-    for (const model of modelNames) {
+    for (const model of deletionOrder) {
       try {
         // @ts-expect-error We dynamically access models which isn't perfectly typed
         await this.client[model].deleteMany({});

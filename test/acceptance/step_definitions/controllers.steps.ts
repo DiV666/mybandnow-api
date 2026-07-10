@@ -1,4 +1,5 @@
 import assert from 'assert';
+import * as fs from 'fs';
 import { AfterAll, Before, Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber';
 import container from '../../apps/mybandnow/backend/config/dependency-injection/index.js';
 import { EnvironmentArranger } from '../../utils/arranger/EnvironmentArranger.js';
@@ -47,7 +48,7 @@ Given(
 Given('they have a musician profile', async function (this: MybandnowWorld) {
   if (!this.authToken)
     throw new Error('No auth token found. Cannot create musician profile without an authenticated user.');
-  const payload = jsonwebtoken.decode(this.authToken) as any;
+  const payload = jsonwebtoken.decode(this.authToken) as jsonwebtoken.JwtPayload;
   const username = payload.preferred_username;
   const userIdValue = payload.userId;
 
@@ -124,6 +125,11 @@ When('I send a DELETE request to {string}', async function (this: MybandnowWorld
 });
 
 Then('the response status code should be {int}', function (this: MybandnowWorld, status: number) {
+  if (this.response.status !== status) {
+    fs.writeFileSync('error_body.txt', JSON.stringify(this.response.body));
+    // eslint-disable-next-line no-console
+    console.error('Body:', this.response.body);
+  }
   assert.equal(this.response.status, status);
 });
 
