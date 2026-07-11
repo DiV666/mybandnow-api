@@ -17,4 +17,8 @@ export class TrackStatusMother {
     const allowed = this.allowedValues();
     return this.create(RandomBetween.values(allowed));
   }
+
+  static pending(): TrackStatus {
+    return this.create(TrackStatusValues.PENDING);
+  }
 }

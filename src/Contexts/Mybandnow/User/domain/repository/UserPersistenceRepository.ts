@@ -1,5 +1,5 @@
 import { User } from '../User.js';
-import { Criteria } from '../../../../Shared/domain/criteria/Criteria.js';
+import { Criteria } from '@Contexts/Shared/domain/criteria/Criteria.js';
 
 export interface UserPersistenceRepository {
   matching(criteria: Criteria): Promise<Array<User>>;

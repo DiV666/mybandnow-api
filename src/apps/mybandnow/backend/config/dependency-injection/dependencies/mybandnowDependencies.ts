@@ -34,9 +34,7 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   // Repositories
   container.register('Mybandnow.User.UserRepository', UserPrismaRepository).addArgument(new Reference('Shared.Outbox'));
   container.register('Moat.Musician.MusicianRepository', PrismaMusicianRepository);
-  container
-    .register('Moat.Band.BandRepository', BandPrismaRepository)
-    .addArgument(new Reference('Shared.Outbox'));
+  container.register('Moat.Band.BandRepository', BandPrismaRepository).addArgument(new Reference('Shared.Outbox'));
 
   container.register('Moat.Videoclip.VideoclipRepository', VideoclipPrismaRepository);
 

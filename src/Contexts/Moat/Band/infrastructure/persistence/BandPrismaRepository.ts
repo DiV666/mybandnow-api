@@ -97,12 +97,14 @@ export class BandPrismaRepository implements BandPersistenceRepository {
       ...prismaQuery,
       include: { members: true }
     });
-    return bandsData.map((bandData) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return bandsData.map((bandData: any) =>
       Band.fromPrimitives({
         id: bandData.id,
         name: bandData.name,
         ownerId: bandData.ownerId,
-        members: bandData.members.map((member) => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        members: bandData.members.map((member: any) => ({
           id: member.id,
           musicianId: member.musicianId,
           role: member.role as BandMemberRoleType

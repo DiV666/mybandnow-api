@@ -1,8 +1,8 @@
 import { Band } from '../Band.js';
-import { Nullable } from '../../../../Shared/domain/Nullable.js';
+import { Nullable } from '@Contexts/Shared/domain/Nullable.js';
 import { BandId } from '../value-object/BandId.js';
 
-import { Criteria } from '../../../../Shared/domain/criteria/Criteria.js';
+import { Criteria } from '@Contexts/Shared/domain/criteria/Criteria.js';
 
 export interface BandPersistenceRepository {
   search(id: BandId): Promise<Nullable<Band>>;

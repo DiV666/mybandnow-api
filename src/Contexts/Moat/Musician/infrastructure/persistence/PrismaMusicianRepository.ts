@@ -5,10 +5,10 @@ import { MusicianRepository } from '../../domain/repository/MusicianRepository.j
 import { MusicianId } from '../../domain/value-object/MusicianId.js';
 import { MusicianUserId } from '../../domain/value-object/MusicianUserId.js';
 import { MusicianUsername } from '../../domain/value-object/MusicianUsername.js';
-import { InvalidArgumentException } from '../../../../Shared/domain/exceptions/InvalidArgumentException.js';
-import { Nullable } from '../../../../Shared/domain/Nullable.js';
+import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
+import { Nullable } from '@Contexts/Shared/domain/Nullable.js';
 
-import { PrismaClientFactory } from '../../../../Shared/infrastructure/persistence/prisma/PrismaClientFactory.js';
+import { PrismaClientFactory } from '@Contexts/Shared/infrastructure/persistence/prisma/PrismaClientFactory.js';
 
 export class PrismaMusicianRepository implements MusicianRepository {
   private prisma = PrismaClientFactory.createClient();

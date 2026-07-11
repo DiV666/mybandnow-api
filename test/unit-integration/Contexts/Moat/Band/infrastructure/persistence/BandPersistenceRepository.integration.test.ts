@@ -12,7 +12,7 @@ import { FilterOperator } from '@Contexts/Shared/domain/criteria/FilterOperator.
 import { FilterValue } from '@Contexts/Shared/domain/criteria/FilterValue.js';
 import { Order } from '@Contexts/Shared/domain/criteria/Order.js';
 
-const persistenceRepository: BandPersistenceRepository = container.get('Moat.Band.BandPrismaRepository');
+const persistenceRepository: BandPersistenceRepository = container.get('Moat.Band.BandRepository');
 const prismaEnvironmentArranger: Promise<EnvironmentArranger> = container.get('Shared.PrismaEnvironmentArranger');
 const testCase = new BandPersistenceRepositoryTestCase();
 

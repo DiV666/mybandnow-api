@@ -1,9 +1,9 @@
 import { UserPersistenceRepository } from '../../domain/repository/UserPersistenceRepository.js';
 import { User } from '../../domain/User.js';
-import { Criteria } from '../../../../Shared/domain/criteria/Criteria.js';
-import { PrismaCriteriaConverter } from '../../../../Shared/infrastructure/persistence/prisma/PrismaCriteriaConverter.js';
-import { PrismaClientFactory } from '../../../../Shared/infrastructure/persistence/prisma/PrismaClientFactory.js';
-import { Outbox, TransactionSession } from '../../../../Shared/domain/Outbox.js';
+import { Criteria } from '@Contexts/Shared/domain/criteria/Criteria.js';
+import { PrismaCriteriaConverter } from '@Contexts/Shared/infrastructure/persistence/prisma/PrismaCriteriaConverter.js';
+import { PrismaClientFactory } from '@Contexts/Shared/infrastructure/persistence/prisma/PrismaClientFactory.js';
+import { Outbox, TransactionSession } from '@Contexts/Shared/domain/Outbox.js';
 
 export class UserPrismaRepository implements UserPersistenceRepository {
   private client = PrismaClientFactory.createClient();

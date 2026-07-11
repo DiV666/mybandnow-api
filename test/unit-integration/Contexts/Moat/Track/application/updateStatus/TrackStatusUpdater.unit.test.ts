@@ -37,7 +37,10 @@ describe('TrackStatusUpdater', () => {
 
   it('should throw an error if track does not exist', async () => {
     vi.mocked(repository.search).mockResolvedValue(null);
+    const nonExistentId = TrackMother.create().id.value;
 
-    await expect(updater.run({ id: 'any-id', status: TrackStatusValues.COMPLETED })).rejects.toThrow(TrackNotExistException);
+    await expect(updater.run({ id: nonExistentId, status: TrackStatusValues.COMPLETED })).rejects.toThrow(
+      TrackNotExistException
+    );
   });
 });

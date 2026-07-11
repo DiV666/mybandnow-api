@@ -2,6 +2,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { TrackUploader } from '../../../../../../../src/Contexts/Moat/Track/application/upload/TrackUploader.js';
 import { TrackPersistenceRepository } from '../../../../../../../src/Contexts/Moat/Track/domain/repository/TrackPersistenceRepository.js';
 import { TrackMother } from '../../domain/TrackMother.js';
+import { TrackStatusMother } from '../../domain/TrackStatusMother.js';
 import { TrackNotExistException } from '../../../../../../../src/Contexts/Moat/Track/domain/exception/TrackNotExistException.js';
 import { EventBus } from '@Contexts/Shared/domain/EventBus.js';
 
@@ -23,7 +24,7 @@ describe('TrackUploader', () => {
   });
 
   it('should process upload for a track', async () => {
-    const track = TrackMother.create();
+    const track = TrackMother.create({ status: TrackStatusMother.pending() });
     vi.mocked(repository.search).mockResolvedValue(track);
 
     await uploader.run({
@@ -38,10 +39,13 @@ describe('TrackUploader', () => {
 
   it('should throw an error if track does not exist', async () => {
     vi.mocked(repository.search).mockResolvedValue(null);
+    const nonExistentId = TrackMother.create().id.value;
 
-    await expect(uploader.run({
-      id: 'any-id',
-      fileReference: 'path/to/file.mp3'
-    })).rejects.toThrow(TrackNotExistException);
+    await expect(
+      uploader.run({
+        id: nonExistentId,
+        fileReference: 'path/to/file.mp3'
+      })
+    ).rejects.toThrow(TrackNotExistException);
   });
 });
