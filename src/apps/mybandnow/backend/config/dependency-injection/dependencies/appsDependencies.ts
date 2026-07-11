@@ -12,6 +12,7 @@ import ContinuationLocalStorageExpress from '../../../middlewares/ContinuationLo
 import CorrelationIdHeader from '../../../middlewares/CorrelationIdHeader.js';
 import TraceReqAndRes from '../../../middlewares/TraceReqAndRes.js';
 import { RabbitMQConfigFactory } from '@Contexts/Mybandnow/Shared/infrastructure/EventBus/RabbitMQ/RabbitMQConfigFactory.js';
+import { ValidateTrackOnUploadRequested } from '../../../subscribers/ValidateTrackOnUploadRequested.js';
 
 export function registerAppsDependencies(container: ContainerBuilder) {
   // Initialization
@@ -40,4 +41,10 @@ export function registerAppsDependencies(container: ContainerBuilder) {
     .addArgument(new Reference('Shared.Clock'));
 
   // Subscribers
+  container
+    .register('Apps.Mybandnow.Backend.subscribers.ValidateTrackOnUploadRequested', ValidateTrackOnUploadRequested)
+    .addArgument('moat.track.upload_requested')
+    .addArgument(new Reference('Shared.BunyanLogger'))
+    .addArgument(new Reference('Shared.CommandBus'))
+    .addTag('domainEventSubscriber');
 }
