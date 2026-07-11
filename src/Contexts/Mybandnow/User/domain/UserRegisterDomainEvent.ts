@@ -1,6 +1,7 @@
 import { DomainEvent, DomainEventAttributes } from '@Contexts/Shared/domain/DomainEvent.js';
 
 export type UserRegisterDomainEventAttributes = {
+  readonly email: string;
   readonly createdAt: string;
 };
 
