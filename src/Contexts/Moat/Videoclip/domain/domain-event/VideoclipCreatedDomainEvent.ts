@@ -1,4 +1,4 @@
-import { DomainEvent } from '../../../../Shared/domain/DomainEvent.js';
+import { DomainEvent } from '@Contexts/Shared/domain/DomainEvent.js';
 
 export type VideoclipCreatedDomainEventAttributes = {
   readonly createdAt: string;

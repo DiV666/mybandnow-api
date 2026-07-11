@@ -1,7 +1,7 @@
-import { EventBus } from '../../../../Shared/domain/EventBus.js';
+import { EventBus } from '@Contexts/Shared/domain/EventBus.js';
 import { Videoclip, VideoclipPrimitives } from '../../domain/Videoclip.js';
 import { VideoclipPersistenceRepository } from '../../domain/repository/VideoclipPersistenceRepository.js';
-import Logger from '../../../../Shared/domain/Logger.js';
+import Logger from '@Contexts/Shared/domain/Logger.js';
 import { VideoclipId } from '../../domain/value-object/VideoclipId.js';
 import { VideoclipExistException } from '../../domain/exception/VideoclipExistException.js';
 

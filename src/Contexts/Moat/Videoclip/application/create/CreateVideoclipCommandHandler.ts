@@ -1,7 +1,7 @@
-import { CommandHandler } from '../../../../Shared/domain/CommandHandler.js';
+import { CommandHandler } from '@Contexts/Shared/domain/CommandHandler.js';
 import { CreateVideoclipCommand } from './CreateVideoclipCommand.js';
 import { VideoclipCreator } from './VideoclipCreator.js';
-import { Command } from '../../../../Shared/domain/Command.js';
+import { Command } from '@Contexts/Shared/domain/Command.js';
 
 export class CreateVideoclipCommandHandler implements CommandHandler<CreateVideoclipCommand> {
   constructor(private useCase: VideoclipCreator) {}

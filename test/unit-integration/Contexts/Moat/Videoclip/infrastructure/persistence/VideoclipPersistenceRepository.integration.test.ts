@@ -6,7 +6,7 @@ import { VideoclipMother } from '../../domain/VideoclipMother.js';
 import { VideoclipPersistenceRepositoryTestCase } from './VideoclipPersistenceRepositoryTestCase.js';
 import { PrismaClientFactory } from '../../../../../../../src/Contexts/Shared/infrastructure/persistence/prisma/PrismaClientFactory.js';
 
-const persistenceRepository: VideoclipPersistenceRepository = container.get('Moat.Videoclip.VideoclipPrismaRepository');
+const persistenceRepository: VideoclipPersistenceRepository = container.get('Moat.Videoclip.VideoclipRepository');
 const environmentArranger: Promise<EnvironmentArranger> = container.get('Shared.PrismaEnvironmentArranger');
 const testCase = new VideoclipPersistenceRepositoryTestCase();
 const prisma = PrismaClientFactory.createClient();

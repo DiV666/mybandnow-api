@@ -1,4 +1,4 @@
-import { Exception } from '../../../../Shared/domain/Exception.js';
+import { Exception } from '@Contexts/Shared/domain/Exception.js';
 
 export class VideoclipNotExistException extends Exception {
   constructor(id: string) {

@@ -1,4 +1,4 @@
-import { Nullable } from '../../../../Shared/domain/Nullable.js';
+import { Nullable } from '@Contexts/Shared/domain/Nullable.js';
 import { Videoclip } from '../Videoclip.js';
 import { VideoclipId } from '../value-object/VideoclipId.js';
 

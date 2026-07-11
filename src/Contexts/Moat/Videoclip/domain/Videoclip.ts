@@ -1,4 +1,4 @@
-import { AggregateRoot } from '../../../Shared/domain/AggregateRoot.js';
+import { AggregateRoot } from '@Contexts/Shared/domain/AggregateRoot.js';
 import { VideoclipCreatedDomainEvent } from './domain-event/VideoclipCreatedDomainEvent.js';
 import { VideoclipId } from './value-object/VideoclipId.js';
 import { VideoclipCreatedAt } from './value-object/VideoclipCreatedAt.js';

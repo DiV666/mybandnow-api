@@ -1,4 +1,4 @@
-import { Command } from '../../../../Shared/domain/Command.js';
+import { Command } from '@Contexts/Shared/domain/Command.js';
 
 export class CreateVideoclipCommand extends Command {
   constructor(
