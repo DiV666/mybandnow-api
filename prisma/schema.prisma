@@ -66,21 +66,23 @@ model Song {
 }
 
 model Track {
-  id             String @id @default(uuid())
+  id             String   @id @default(uuid())
   instrumentName String
-  status         String @default("PENDING") // PENDING | READY | PROCESSING | FAILED
-  song           Song   @relation(fields: [songId], references: [id], onDelete: Cascade)
+  status         String   @default("PENDING") // PENDING | READY | PROCESSING | FAILED
+  song           Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
   songId         String
+  createdAt      DateTime @default(now())
 }
 
 model Videoclip {
-  id        String  @id @default(uuid())
-  song      Song    @relation(fields: [songId], references: [id], onDelete: Cascade)
-  songId    String  @unique
-  isPublic  Boolean @default(false)
-  url       String  // GCS path to the final video
-  duration  Int     // Duration in seconds
-  size      Int     // File size in bytes
+  id        String   @id @default(uuid())
+  song      Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+  songId    String   @unique
+  isPublic  Boolean  @default(false)
+  url       String   // GCS path to the final video
+  duration  Int      // Duration in seconds
+  size      Int      // File size in bytes
+  createdAt DateTime @default(now())
 }
 
 // =========================================================================

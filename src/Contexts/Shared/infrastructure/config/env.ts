@@ -49,6 +49,9 @@ export const envSchema = z.object({
   // Sentry (optional)
   SENTRY_DSN: z.url().optional(),
 
+  // Storage
+  GCS_BUCKET: z.string().min(1).default('mybandnow-tracks'),
+
   // JWT Secret
   JWT_SECRET: z.string().min(32)
 });
