@@ -83,7 +83,13 @@ export class BandPrismaRepository implements BandPersistenceRepository {
     const prismaQuery = this.converter.convert(criteria);
 
     if (prismaQuery.where?.userId) {
-      prismaQuery.where.owner = { userId: prismaQuery.where.userId };
+      prismaQuery.where.members = {
+        some: {
+          musician: {
+            userId: prismaQuery.where.userId
+          }
+        }
+      };
       delete prismaQuery.where.userId;
     }
 
@@ -91,14 +97,12 @@ export class BandPrismaRepository implements BandPersistenceRepository {
       ...prismaQuery,
       include: { members: true }
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return bandsData.map((bandData: any) =>
+    return bandsData.map((bandData) =>
       Band.fromPrimitives({
         id: bandData.id,
         name: bandData.name,
         ownerId: bandData.ownerId,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        members: bandData.members.map((member: any) => ({
+        members: bandData.members.map((member) => ({
           id: member.id,
           musicianId: member.musicianId,
           role: member.role as BandMemberRoleType
@@ -112,7 +116,13 @@ export class BandPrismaRepository implements BandPersistenceRepository {
     const prismaQuery = this.converter.convert(criteria);
 
     if (prismaQuery.where?.userId) {
-      prismaQuery.where.owner = { userId: prismaQuery.where.userId };
+      prismaQuery.where.members = {
+        some: {
+          musician: {
+            userId: prismaQuery.where.userId
+          }
+        }
+      };
       delete prismaQuery.where.userId;
     }
 

@@ -12,6 +12,7 @@ import { register as registerBandRemover } from '@Apps/moat/backend/config/depen
 import { register as registerBandFinder } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandFinder.dependency.js';
 import { register as registerBandMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandMatcher.dependency.js';
 import { BandPrismaRepository } from '@Contexts/Moat/Band/infrastructure/persistence/BandPrismaRepository.js';
+import { VideoclipPrismaRepository } from '@Contexts/Moat/Videoclip/infrastructure/persistence/VideoclipPrismaRepository.js';
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 
 import { InternalAuthentication } from '@Contexts/Mybandnow/Shared/infrastructure/identityServer/internal/InternalAuthentication.js';
@@ -34,8 +35,10 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   container.register('Mybandnow.User.UserRepository', UserPrismaRepository).addArgument(new Reference('Shared.Outbox'));
   container.register('Moat.Musician.MusicianRepository', PrismaMusicianRepository);
   container
-    .register('Moat.Band.BandPrismaRepository', BandPrismaRepository)
+    .register('Moat.Band.BandRepository', BandPrismaRepository)
     .addArgument(new Reference('Shared.Outbox'));
+
+  container.register('Moat.Videoclip.VideoclipRepository', VideoclipPrismaRepository);
 
   // Use Cases
   registerUserLogin(container);

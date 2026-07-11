@@ -50,6 +50,10 @@ describe('BandCreator should', () => {
     const band = BandMother.create();
     const command = CreateBandCommandMother.fromModel(band);
 
+    testCase.shouldAsk(
+      { userId: command.ownerId },
+      { musician: { id: command.ownerId, userId: command.ownerId, name: 'Test' } }
+    );
     testCase.shouldSearch(band.id, band); // Mock that it exists
     await testCase.dispatch(command, commandHandler);
     testCase.assertNotSave();
@@ -59,6 +63,10 @@ describe('BandCreator should', () => {
     const band = BandMother.create();
     const command = CreateBandCommandMother.create(); // Completely different random command
 
+    testCase.shouldAsk(
+      { userId: command.ownerId },
+      { musician: { id: command.ownerId, userId: command.ownerId, name: 'Test' } }
+    );
     testCase.shouldSearch(new BandId(command.id), band); // Mock that search by command ID returns a different model
     await testCase.assertSaveException(command, commandHandler, BandExistException);
   });

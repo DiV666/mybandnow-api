@@ -6,7 +6,7 @@ export function register(container: ContainerBuilder) {
   container
     .register('Moat.Band.BandFinder', BandFinder)
     .addArgument(new Reference('Shared.CriteriaScopeSecurity'))
-    .addArgument(new Reference('Moat.Band.BandPrismaRepository'));
+    .addArgument(new Reference('Moat.Band.BandRepository'));
 
   container
     .register('Moat.Band.SearchBandQueryHandler', SearchBandQueryHandler)

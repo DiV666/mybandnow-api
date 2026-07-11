@@ -7,7 +7,7 @@ export function register(container: ContainerBuilder) {
     .register('Moat.Band.BandRemover', BandRemover)
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(new Reference('Shared.CriteriaScopeSecurity'))
-    .addArgument(new Reference('Moat.Band.BandPrismaRepository'))
+    .addArgument(new Reference('Moat.Band.BandRepository'))
     .addArgument(new Reference('Shared.EventBus'));
 
   container

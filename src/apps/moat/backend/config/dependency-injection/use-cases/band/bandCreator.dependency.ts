@@ -6,7 +6,7 @@ export function register(container: ContainerBuilder) {
   container
     .register('Moat.Band.BandCreator', BandCreator)
     .addArgument(new Reference('Shared.BunyanLogger'))
-    .addArgument(new Reference('Moat.Band.BandPrismaRepository'))
+    .addArgument(new Reference('Moat.Band.BandRepository'))
     .addArgument(new Reference('Shared.EventBus'))
     .addArgument(new Reference('Shared.Clock'))
     .addArgument(new Reference('Shared.QueryBus'));
