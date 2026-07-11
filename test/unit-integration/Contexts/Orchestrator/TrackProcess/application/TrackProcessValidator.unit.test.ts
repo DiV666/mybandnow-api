@@ -7,6 +7,7 @@ import { FileSystemRepository } from '@Contexts/Shared/domain/FileSystemReposito
 import { TrackProcessPersistenceRepository } from '@Contexts/Orchestrator/TrackProcess/domain/repository/TrackProcessPersistenceRepository.js';
 import { EventBus } from '@Contexts/Shared/domain/EventBus.js';
 import { FileReference } from '@Contexts/Shared/domain/value-object/FileReference.js';
+import { TrackProcessFailedDomainEvent } from '@Contexts/Orchestrator/TrackProcess/domain/TrackProcessFailedDomainEvent.js';
 import Logger from '@Contexts/Shared/domain/Logger.js';
 
 describe('TrackProcessValidator', () => {
@@ -90,8 +91,22 @@ describe('TrackProcessValidator', () => {
 
     expect(validationService.validate).toHaveBeenCalledWith(fileReference);
     expect(storageRepository.uploadFile).not.toHaveBeenCalled();
-    expect(trackProcessRepository.save).not.toHaveBeenCalled();
-    expect(eventBus.publish).toHaveBeenCalled();
+    expect(trackProcessRepository.save).toHaveBeenCalledOnce();
+    expect(trackProcessRepository.save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: expect.objectContaining({ value: aggregateId }),
+        status: expect.objectContaining({ value: 'FAILED' })
+      })
+    );
+    expect(eventBus.publish).toHaveBeenCalledOnce();
+    expect(eventBus.publish).toHaveBeenCalledWith([
+      expect.objectContaining({
+        eventName: TrackProcessFailedDomainEvent.EVENT_NAME,
+        aggregateId,
+        eventId: expect.any(String),
+        occurredOn: expect.any(Date)
+      })
+    ]);
     expect(fileSystemRepository.deleteFile).toHaveBeenCalledWith(new FileReference(fileReference));
   });
 });

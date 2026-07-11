@@ -22,6 +22,7 @@ export class TrackProcessPrismaRepository implements TrackProcessPersistenceRepo
     }
 
     const data = {
+      status: primitives.status,
       gcsPath: primitives.gcsPath,
       fileSize: primitives.fileSize,
       codec: primitives.codec,
@@ -56,6 +57,7 @@ export class TrackProcessPrismaRepository implements TrackProcessPersistenceRepo
 
     return TrackProcess.fromPrimitives({
       id: trackProcessDb.id,
+      status: trackProcessDb.status,
       gcsPath: trackProcessDb.gcsPath,
       fileSize: trackProcessDb.fileSize,
       codec: trackProcessDb.codec,

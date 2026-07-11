@@ -91,9 +91,10 @@ model Videoclip {
 
 model TrackProcess {
   id            String   @id // Comparte exactamente el ID del modelo Track (Moat)
-  gcsPath       String   // Ruta en GCS (e.g. bands/:bandId/songs/:songId/tracks/:trackId.mp4)
-  fileSize      Int
-  codec         String   // Extraído por ffprobe (debe ser h264)
+  status        String   @default("COMPLETED") // COMPLETED | FAILED
+  gcsPath       String?  // Ruta en GCS (e.g. bands/:bandId/songs/:songId/tracks/:trackId.mp4)
+  fileSize      Int?
+  codec         String?  // Extraído por ffprobe (debe ser h264)
   ffprobeLog    Json?    // Metadatos y logs técnicos estructurados
   updatedAt     DateTime @updatedAt
 }

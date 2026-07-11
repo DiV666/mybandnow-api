@@ -15,7 +15,9 @@ export class TrackProcessStatus extends StringValueObject {
   private ensureIsValidStatus(value: string): void {
     const validValues = Object.values(TrackProcessStatusValues) as string[];
     if (!validValues.includes(value)) {
-      throw new InvalidArgumentException(`The track process status <${value}> is not valid`);
+      throw new InvalidArgumentException({
+        message: `The track process status <${value}> is not valid`
+      });
     }
   }
 

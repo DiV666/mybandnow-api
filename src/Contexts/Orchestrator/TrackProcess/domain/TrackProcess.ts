@@ -75,7 +75,7 @@ export class TrackProcess extends AggregateRoot {
       new TrackProcessId(plainData.id),
       new TrackProcessStatus(plainData.status),
       plainData.gcsPath ? new GcsPath(plainData.gcsPath) : null,
-      plainData.fileSize ? new FileSize(plainData.fileSize) : null,
+      plainData.fileSize === null ? null : new FileSize(plainData.fileSize),
       plainData.codec ? new Codec(plainData.codec) : null,
       new FfprobeLog(plainData.ffprobeLog),
       new TrackProcessUpdatedAt(plainData.updatedAt)
