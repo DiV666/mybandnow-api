@@ -45,10 +45,13 @@ Given(
   }
 );
 
-Given('I authenticate as user {string} with id {string}', async function (this: MybandnowWorld, username: string, userId: string) {
-  const accessToken = await getToken(username, undefined, userId);
-  this.setAuthToken(accessToken);
-});
+Given(
+  'I authenticate as user {string} with id {string}',
+  async function (this: MybandnowWorld, username: string, userId: string) {
+    const accessToken = await getToken(username, undefined, userId);
+    this.setAuthToken(accessToken);
+  }
+);
 
 Given('they have a musician profile', async function (this: MybandnowWorld) {
   if (!this.authToken)

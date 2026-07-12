@@ -10,9 +10,11 @@ import { register as registerProfilePostController } from '../controllers/musici
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 import ContinuationLocalStorageExpress from '../../../middlewares/ContinuationLocalStorageExpress.js';
 import CorrelationIdHeader from '../../../middlewares/CorrelationIdHeader.js';
+import { RequireMusicianProfileMiddleware } from '../../../middlewares/RequireMusicianProfileMiddleware.js';
 import TraceReqAndRes from '../../../middlewares/TraceReqAndRes.js';
 import { RabbitMQConfigFactory } from '@Contexts/Mybandnow/Shared/infrastructure/EventBus/RabbitMQ/RabbitMQConfigFactory.js';
 import { ValidateTrackOnUploadRequested } from '../../../subscribers/ValidateTrackOnUploadRequested.js';
+import type { CommandBus } from '@Contexts/Shared/domain/CommandBus.js';
 
 export function registerAppsDependencies(container: ContainerBuilder) {
   // Initialization
@@ -40,11 +42,15 @@ export function registerAppsDependencies(container: ContainerBuilder) {
     .register('Apps.Mybandnow.Backend.middlewares.ContinuationLocalStorageExpress', ContinuationLocalStorageExpress)
     .addArgument(new Reference('Shared.Clock'));
 
+  container
+    .register('Apps.Mybandnow.Backend.middlewares.RequireMusicianProfileMiddleware', RequireMusicianProfileMiddleware)
+    .addArgument(new Reference('Moat.Musician.MusicianSearchByUserId'));
+
   // Subscribers
   container
     .register('Apps.Mybandnow.Backend.subscribers.ValidateTrackOnUploadRequested', ValidateTrackOnUploadRequested)
     .addArgument('moat.track.upload_requested')
     .addArgument(new Reference('Shared.BunyanLogger'))
-    .addArgument(new Reference('Shared.CommandBus'))
+    .addArgument(() => container.get<CommandBus>('Shared.CommandBus'))
     .addTag('domainEventSubscriber');
 }

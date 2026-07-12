@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import type { Context as OpenAPIContext } from 'openapi-backend';
-import container from '../config/dependency-injection/index.js';
+import { runController } from './controllerRoute.js';
+
+const requireMusicianProfile = ['Apps.Mybandnow.Backend.middlewares.RequireMusicianProfileMiddleware'] as const;
 
 export async function bandPostCreate(
   context: OpenAPIContext,
@@ -8,12 +10,9 @@ export async function bandPostCreate(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  try {
-    const controller = container.get('Apps.Mybandnow.Backend.controllers.BandPostCreateController');
-    await controller.run(context, req, res);
-  } catch (error) {
-    next(error);
-  }
+  await runController('Apps.Mybandnow.Backend.controllers.BandPostCreateController', context, req, res, next, [
+    ...requireMusicianProfile
+  ]);
 }
 
 export async function bandPutUpdate(
@@ -22,12 +21,9 @@ export async function bandPutUpdate(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  try {
-    const controller = container.get('Apps.Mybandnow.Backend.controllers.BandPutUpdateController');
-    await controller.run(context, req, res);
-  } catch (error) {
-    next(error);
-  }
+  await runController('Apps.Mybandnow.Backend.controllers.BandPutUpdateController', context, req, res, next, [
+    ...requireMusicianProfile
+  ]);
 }
 
 export async function bandDeleteRemove(
@@ -36,12 +32,9 @@ export async function bandDeleteRemove(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  try {
-    const controller = container.get('Apps.Mybandnow.Backend.controllers.BandDeleteRemoveController');
-    await controller.run(context, req, res);
-  } catch (error) {
-    next(error);
-  }
+  await runController('Apps.Mybandnow.Backend.controllers.BandDeleteRemoveController', context, req, res, next, [
+    ...requireMusicianProfile
+  ]);
 }
 
 export async function bandGetSearch(
@@ -50,12 +43,7 @@ export async function bandGetSearch(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  try {
-    const controller = container.get('Apps.Mybandnow.Backend.controllers.BandGetSearchController');
-    await controller.run(context, req, res);
-  } catch (error) {
-    next(error);
-  }
+  await runController('Apps.Mybandnow.Backend.controllers.BandGetSearchController', context, req, res, next);
 }
 
 export async function bandGetMatchByCriteria(
@@ -64,10 +52,5 @@ export async function bandGetMatchByCriteria(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  try {
-    const controller = container.get('Apps.Mybandnow.Backend.controllers.BandGetMatchByCriteriaController');
-    await controller.run(context, req, res);
-  } catch (error) {
-    next(error);
-  }
+  await runController('Apps.Mybandnow.Backend.controllers.BandGetMatchByCriteriaController', context, req, res, next);
 }

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import type { Context as OpenAPIContext } from 'openapi-backend';
-import container from '../config/dependency-injection/index.js';
+import { runController } from './controllerRoute.js';
 
 export async function userPostRegister(
   context: OpenAPIContext,
@@ -8,12 +8,7 @@ export async function userPostRegister(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  try {
-    const controller = container.get('Apps.Mybandnow.Backend.controllers.UserPostRegisterController');
-    await controller.run(context, req, res);
-  } catch (error) {
-    next(error);
-  }
+  await runController('Apps.Mybandnow.Backend.controllers.UserPostRegisterController', context, req, res, next);
 }
 
 export async function userPostLogin(
@@ -22,10 +17,5 @@ export async function userPostLogin(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  try {
-    const controller = container.get('Apps.Mybandnow.Backend.controllers.UserPostLoginController');
-    await controller.run(context, req, res);
-  } catch (error) {
-    next(error);
-  }
+  await runController('Apps.Mybandnow.Backend.controllers.UserPostLoginController', context, req, res, next);
 }

@@ -1,6 +1,6 @@
 import { DomainEvent } from '@Contexts/Shared/domain/DomainEvent.js';
 
-type TrackCompletedDomainEventAttributes = {
+export type TrackCompletedDomainEventAttributes = {
   readonly id: string;
 };
 

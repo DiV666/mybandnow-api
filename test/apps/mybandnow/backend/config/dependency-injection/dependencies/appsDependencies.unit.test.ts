@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ContainerBuilder, Reference } from 'node-dependency-injection';
+import { ContainerBuilder } from 'node-dependency-injection';
 import { registerAppsDependencies } from '../../../../../../../src/apps/mybandnow/backend/config/dependency-injection/dependencies/appsDependencies.js';
 
 describe('registerAppsDependencies', () => {
@@ -16,7 +16,7 @@ describe('registerAppsDependencies', () => {
     expect(subscriberIds).toContain('Apps.Mybandnow.Backend.subscribers.ValidateTrackOnUploadRequested');
   });
 
-  it('injects the command bus into the track upload subscriber', () => {
+  it('injects a lazy command bus resolver into the track upload subscriber', () => {
     // Arrange
     const container = new ContainerBuilder();
 
@@ -26,7 +26,6 @@ describe('registerAppsDependencies', () => {
 
     // Assert
     expect(definition.args).toHaveLength(3);
-    expect(definition.args[2]).toBeInstanceOf(Reference);
-    expect((definition.args[2] as Reference).id).toBe('Shared.CommandBus');
+    expect(definition.args[2]).toEqual(expect.any(Function));
   });
 });

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mock, MockProxy } from 'vitest-mock-extended';
 import { ValidateTrackOnUploadRequested } from '../../../../../../src/apps/mybandnow/backend/subscribers/ValidateTrackOnUploadRequested.js';
 import { TrackUploadRequestedDomainEvent } from '../../../../../../src/Contexts/Moat/Track/domain/TrackUploadRequestedDomainEvent.js';
@@ -10,15 +10,17 @@ import { InvalidArgumentException } from '../../../../../../src/Contexts/Shared/
 describe('ValidateTrackOnUploadRequested', () => {
   let logger: MockProxy<Logger>;
   let commandBus: MockProxy<CommandBus>;
+  let commandBusResolver: () => CommandBus;
 
   beforeEach(() => {
     logger = mock<Logger>();
     commandBus = mock<CommandBus>();
+    commandBusResolver = vi.fn().mockReturnValue(commandBus);
   });
 
   it('dispatches TrackProcessValidateCommand with aggregateId and fileReference from the domain event', async () => {
     // Arrange
-    const subscriber = new ValidateTrackOnUploadRequested('moat.track.upload_requested', logger, commandBus);
+    const subscriber = new ValidateTrackOnUploadRequested('moat.track.upload_requested', logger, commandBusResolver);
     const domainEvent = new TrackUploadRequestedDomainEvent({
       aggregateId: '12345678-1234-4234-8234-123456789012',
       fileReference: 'uploads/track.mp4'
@@ -28,6 +30,7 @@ describe('ValidateTrackOnUploadRequested', () => {
     await subscriber.on(domainEvent);
 
     // Assert
+    expect(commandBusResolver).toHaveBeenCalledOnce();
     expect(commandBus.dispatch).toHaveBeenCalledOnce();
     expect(commandBus.dispatch).toHaveBeenCalledWith(expect.any(TrackProcessValidateCommand));
 
@@ -42,7 +45,7 @@ describe('ValidateTrackOnUploadRequested', () => {
 
   it('delegates handlerException to logger.error', () => {
     // Arrange
-    const subscriber = new ValidateTrackOnUploadRequested('moat.track.upload_requested', logger, commandBus);
+    const subscriber = new ValidateTrackOnUploadRequested('moat.track.upload_requested', logger, commandBusResolver);
     const exception = new InvalidArgumentException({ message: 'invalid track payload' });
 
     // Act
