@@ -6,13 +6,17 @@ import { SongInstrumentPersistenceRepository } from '../../domain/repository/Son
 import Logger from '@Contexts/Shared/domain/Logger.js';
 import { SongInstrumentId } from '../../domain/value-object/SongInstrumentId.js';
 import { SongInstrumentExistException } from '../../domain/exception/SongInstrumentExistException.js';
+import { MusicianRepository } from '../../../Musician/domain/repository/MusicianRepository.js';
+import { MusicianId } from '../../../Musician/domain/value-object/MusicianId.js';
+import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
 
 export class SongInstrumentCreator {
   constructor(
     private readonly logger: Logger,
     private readonly persistenceRepository: SongInstrumentPersistenceRepository,
     private readonly eventBus: EventBus,
-    private readonly clock: Clock
+    private readonly clock: Clock,
+    private readonly musicianRepository: MusicianRepository
   ) {}
 
   async run({
@@ -40,10 +44,19 @@ export class SongInstrumentCreator {
       throw new SongInstrumentExistException(id);
     }
 
+    const musician = await this.musicianRepository.search(new MusicianId(musicianId));
+
+    if (!musician) {
+      throw new InvalidArgumentException({
+        code: 'SONG_INSTRUMENT_MUSICIAN_NOT_FOUND',
+        message: `Musician ${musicianId} does not exist.`
+      });
+    }
+
     const songinstrument = SongInstrument.create({ id, musicianId, instrumentType, songId, name }, this.clock);
-    this.logger.info({ id }, 'moat.songinstrument.create.success');
 
     await this.persistenceRepository.save(songinstrument);
     await this.eventBus.publish(songinstrument.pullDomainEvents());
+    this.logger.info({ id }, 'moat.songinstrument.create.success');
   }
 }

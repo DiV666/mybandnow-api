@@ -333,7 +333,7 @@
                     "SongInstrument"
                 ],
                 "summary": "Create a song instrument",
-                "description": "Create a song instrument for a song owned by the authenticated musician. The musicianId in the body must match that owner's musician profile.",
+                "description": "Create a song instrument for a song owned by the authenticated musician. The song owner may assign any existing musicianId.",
                 "parameters": [
                     {
                         "name": "songId",
@@ -785,7 +785,7 @@
                                 "$ref": "#/components/schemas/UUID"
                             }
                         ],
-                        "description": "Must match the authenticated song owner's musician profile. Cross-musician assignment is not allowed in this flow."
+                        "description": "Must reference an existing musician. The authenticated song owner may assign their own musician profile or another existing musician."
                     }
                 }
             }

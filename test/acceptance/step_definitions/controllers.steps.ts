@@ -74,7 +74,9 @@ Given('another musician already exists with username {string}', async function (
 
 Given(
   'A musician exists with id {string}, user id {string}, and username {string}',
-  async function (musicianId: string, userIdValue: string, username: string) {
+  async function (this: MybandnowWorld, musicianId: string, userIdValue: string, username: string) {
+    musicianId = this.dataUtil.replaceTokensWithCustomOrFakerValues(musicianId) as string;
+    userIdValue = this.dataUtil.replaceTokensWithCustomOrFakerValues(userIdValue) as string;
     await savePersistedUser(username, userIdValue, 'asdASD123!');
     await saveMusicianProfile({ musicianId, username, userIdValue });
   }

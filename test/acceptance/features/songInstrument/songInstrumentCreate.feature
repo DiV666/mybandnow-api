@@ -13,6 +13,11 @@ Feature: Create a new song instrument
     $uuid
     """
     And An existing song with id "#songId" and musician "#musicianId"
+    And An "assignedMusicianId" parameter with value as "string":
+    """
+    $uuid
+    """
+    And A musician exists with id "#assignedMusicianId", user id "#assignedMusicianId", and username "assigned-musician"
     And An "id" parameter with value as "string":
     """
     $uuid
@@ -45,7 +50,7 @@ Feature: Create a new song instrument
       """
     Then the response status code should be 403
 
-  Scenario: The song owner cannot assign a different musicianId
+  Scenario: The song owner can assign a different existing musicianId
     Given I authenticate as user "song-owner" with id "#musicianId"
     When I send a POST request to "/v1/songs/#songId/instruments" with body:
       """
@@ -53,17 +58,23 @@ Feature: Create a new song instrument
         "id": "#id",
         "name": "Lead Guitar",
         "instrumentType": "guitar",
-        "musicianId": "11111111-1111-4111-8111-111111111111"
+        "musicianId": "#assignedMusicianId"
       }
       """
-    Then the response status code should be 403
-    And the response should be:
+    Then the response status code should be 201
+
+  Scenario: The song owner cannot assign a non-existing musicianId
+    Given I authenticate as user "song-owner" with id "#musicianId"
+    When I send a POST request to "/v1/songs/#songId/instruments" with body:
       """
       {
-        "code": "FORBIDDEN",
-        "message": "Only the song owner can assign their own musicianId to the song instrument."
+        "id": "#id",
+        "name": "Lead Guitar",
+        "instrumentType": "guitar",
+        "musicianId": "$uuid"
       }
       """
+    Then the response status code should be 400
 
   Scenario: Missing required fields returns 400
     Given I authenticate as user "song-owner" with id "#musicianId"

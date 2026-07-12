@@ -8,7 +8,8 @@ export function register(container: ContainerBuilder) {
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'))
     .addArgument(new Reference('Shared.EventBus'))
-    .addArgument(new Reference('Shared.Clock'));
+    .addArgument(new Reference('Shared.Clock'))
+    .addArgument(new Reference('Moat.Musician.MusicianRepository'));
 
   container
     .register('Moat.SongInstrument.CreateSongInstrumentCommandHandler', CreateSongInstrumentCommandHandler)

@@ -40,10 +40,6 @@ export default class SongInstrumentPostCreateController extends ApiController {
       throw new ForbiddenException('Only the song owner can create song instruments.');
     }
 
-    if (musicianId !== musicianResponse.musician.id) {
-      throw new ForbiddenException('Only the song owner can assign their own musicianId to the song instrument.');
-    }
-
     await this.commandBus.dispatch(new CreateSongInstrumentCommand(id, name, songId, instrumentType, musicianId));
 
     res.status(httpStatus.CREATED).end();

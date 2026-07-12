@@ -73,7 +73,7 @@ describe('SongInstrumentPostCreateController', () => {
     expect(res.end).toHaveBeenCalledOnce();
   });
 
-  it('throws forbidden when the owner tries to assign a different musicianId', async () => {
+  it('authorizes with the authenticated owner and dispatches the create command when musicianId belongs to another existing musician', async () => {
     // Arrange
     const logger = mock<Logger>();
     const commandBus = mock<CommandBus>();
@@ -102,6 +102,7 @@ describe('SongInstrumentPostCreateController', () => {
       }
     });
     const res = mock<Response>();
+    res.status.mockReturnValue(res);
     queryBus.ask
       .mockResolvedValueOnce(
         new MusicianSearchByUserIdResponse({
@@ -113,9 +114,20 @@ describe('SongInstrumentPostCreateController', () => {
       )
       .mockResolvedValueOnce(new SongInstrumentCheckSongOwnershipResponse(true));
 
-    // Act / Assert
-    await expect(controller.run(context, req, res)).rejects.toThrow(ForbiddenException);
-    expect(commandBus.dispatch).not.toHaveBeenCalled();
+    // Act
+    await controller.run(context, req, res);
+
+    // Assert
+    expect(queryBus.ask).toHaveBeenNthCalledWith(1, new MusicianSearchByUserIdQuery('authenticated-user-id'));
+    expect(queryBus.ask).toHaveBeenNthCalledWith(
+      2,
+      new SongInstrumentCheckSongOwnershipQuery('path-song-id', 'owner-musician-id')
+    );
+    expect(commandBus.dispatch).toHaveBeenCalledExactlyOnceWith(
+      new CreateSongInstrumentCommand('instrument-id', 'Lead Guitar', 'path-song-id', 'guitar', 'another-musician-id')
+    );
+    expect(res.status).toHaveBeenCalledWith(httpStatus.CREATED);
+    expect(res.end).toHaveBeenCalledOnce();
   });
 
   it('throws forbidden when the authenticated musician does not own the song', async () => {

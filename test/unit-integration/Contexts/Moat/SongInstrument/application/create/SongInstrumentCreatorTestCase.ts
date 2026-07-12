@@ -9,12 +9,17 @@ import { Mock } from '@Test/utils/Mock.js';
 import { SongInstrumentPersistenceRepository } from '@Contexts/Moat/SongInstrument/domain/repository/SongInstrumentPersistenceRepository.js';
 import { Nullable } from '@Contexts/Shared/domain/Nullable.js';
 import { FakeClock } from '@Test/utils/mocks/FakeClock.js';
+import { MusicianRepository } from '@Contexts/Moat/Musician/domain/repository/MusicianRepository.js';
+import { MusicianId } from '@Contexts/Moat/Musician/domain/value-object/MusicianId.js';
+import { Musician } from '@Contexts/Moat/Musician/domain/Musician.js';
 
 export class SongInstrumentCreatorTestCase extends TestCase {
   private _persistenceRepository: Nullable<MockProxy<SongInstrumentPersistenceRepository>> = null;
+  private _musicianRepository: Nullable<MockProxy<MusicianRepository>> = null;
   private _clock: Nullable<FakeClock> = null;
   private persistenceRepositorySaveMock: Mock = new Mock();
   private persistenceRepositorySearchMock: Mock = new Mock();
+  private musicianRepositorySearchMock: Mock = new Mock();
 
   shouldSave(songInstrument: SongInstrument): void {
     const similarToSongInstrument = this.similarTo(songInstrument as unknown as Record<string, unknown>, {
@@ -34,6 +39,14 @@ export class SongInstrumentCreatorTestCase extends TestCase {
       .once()
       .withArgs(id)
       .andReturn(songInstrument);
+  }
+
+  shouldSearchMusician(id: MusicianId, musician?: Musician): void {
+    this.musicianRepositorySearchMock
+      .shouldReceive(this.musicianRepository().search)
+      .once()
+      .withArgs(id)
+      .andReturn(musician);
   }
 
   assertSave(data: null) {
@@ -62,6 +75,13 @@ export class SongInstrumentCreatorTestCase extends TestCase {
       this._persistenceRepository = mock<SongInstrumentPersistenceRepository>();
     }
     return this._persistenceRepository;
+  }
+
+  musicianRepository(): MockProxy<MusicianRepository> {
+    if (!this._musicianRepository) {
+      this._musicianRepository = mock<MusicianRepository>();
+    }
+    return this._musicianRepository;
   }
 
   clock(): FakeClock {
