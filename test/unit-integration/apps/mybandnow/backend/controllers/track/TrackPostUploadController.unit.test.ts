@@ -105,4 +105,40 @@ describe('TrackPostUploadController', () => {
     expect(unlink).toHaveBeenCalledWith(tempFilePath);
     expect(res.status).not.toHaveBeenCalled();
   });
+
+  it('deletes the temp file when authorization fails after parsing', async () => {
+    const logger = mock<Logger>();
+    const commandBus = mock<CommandBus>();
+    const queryBus = mock<QueryBus>();
+    const exceptionHandler = new ApiExceptionsHttpStatusCodeMapping();
+    const fileParser = mock<MultipartFileParser>();
+    const controller = new TrackPostUploadController(logger, commandBus, queryBus, exceptionHandler, fileParser);
+    vi.mocked(unlink).mockResolvedValue(undefined);
+
+    const context = {
+      security: {
+        BearerAuth: {
+          userId: 'authenticated-user-id'
+        }
+      },
+      request: {
+        params: {
+          songId: 'path-song-id',
+          instrumentId: 'path-instrument-id'
+        }
+      }
+    } as unknown as Context;
+    const req = mock<Request>();
+    const res = mock<Response>();
+    const tempFilePath = '/srv/uploads/upload.mp4';
+
+    fileParser.parse.mockResolvedValue({ tempFilePath });
+    queryBus.ask.mockResolvedValue(new MusicianSearchByUserIdResponse(null));
+
+    await expect(controller.run(context, req, res)).rejects.toThrow('Profile required');
+
+    expect(commandBus.dispatch).not.toHaveBeenCalled();
+    expect(unlink).toHaveBeenCalledWith(tempFilePath);
+    expect(res.status).not.toHaveBeenCalled();
+  });
 });

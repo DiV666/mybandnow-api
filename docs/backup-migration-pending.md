@@ -2,30 +2,20 @@
 
 ## En curso
 
-- `SongInstrument` ya existe como POC de creación con contrato `POST /v1/songs/{songId}/instruments`.
-- El endpoint legacy de upload de track fue restaurado para no perder funcionalidad, pero debe evolucionar al modelo final basado en `SongInstrument`.
+- `SongInstrument` ya tiene alta protegida con contrato `POST /v1/songs/{songId}/instruments`.
+- El upload de track ya usa el contrato final `POST /v1/songs/{songId}/instruments/{instrumentId}/upload`.
 
 ## Pendientes prioritarios
 
-### 1. Endurecer la creación de `SongInstrument`
+### 1. Cerrar la migración del recurso de vídeo final
 
-- No confiar en `musicianId` enviado en el body.
-- Validar relación entre:
-  - usuario autenticado
-  - `musicianId`
-  - `songId`
-- Decidir si el backend debe inferir `musicianId` desde el usuario autenticado o solo permitir asignación por ciertos roles.
+- Modelar `SongInstrumentVideo` como recurso persistente separado del `Track` temporal.
+- Definir el endpoint de lectura/escritura del vídeo final cuando el flujo asíncrono termine.
 
-### 2. Rediseñar el endpoint de upload hacia `SongInstrument`
+### 2. Revisar el endpoint pendiente del backup
 
-- Sustituir el contrato legacy restaurado por uno basado en el recurso real.
-- Contrato objetivo acordado:
-  - `POST /v1/songs/{songId}/instruments/{instrumentId}/upload`
-- El upload debe:
-  - validar que `instrumentId` pertenece a `songId`
-  - validar que el músico autenticado puede subir para ese instrumento
-  - crear/orquestar internamente el `Track`
-  - no exponer `trackId` como requisito previo al cliente
+- Evaluar si sigue siendo necesario restaurar:
+  - `GET /v1/musicians/{id}`
 
 ### 3. Definir bien la relación entre modelos
 
@@ -34,14 +24,11 @@
 - `SongInstrumentVideo` = vídeo final individual del instrumento (pendiente de modelar).
 - `Videoclip` = composición final de varios vídeos (fuera de este paso).
 
-### 4. Recuperar endpoint pendiente del backup
-
-- Evaluar si sigue siendo necesario restaurar:
-  - `GET /v1/musicians/{id}`
-
 ## Notas de diseño ya decididas
 
 - Mantener `/upload` en el endpoint porque describe mejor la operación técnica.
 - Evitar usar `instrumentType` como identificador del recurso; usar `instrumentId`.
 - No meter `videoUrl` en `SongInstrument`.
+- En `POST /v1/songs/{songId}/instruments`, solo la persona propietaria de la canción puede crear el recurso y, por ahora, solo puede asignar su propio `musicianId`.
+- En `POST /v1/songs/{songId}/instruments/{instrumentId}/upload`, el controlador elimina el fichero temporal si la autorización o cualquier validación falla antes de devolver `202 Accepted`.
 - Resolver conflictos de unicidad de perfil de músico tanto a nivel aplicación como traduciendo `P2002` en repositorio.
