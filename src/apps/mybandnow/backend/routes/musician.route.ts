@@ -6,6 +6,15 @@ export async function profileGet(context: Context, req: Request, res: Response, 
   await runController('Apps.Mybandnow.Backend.controllers.ProfileGetController', context, req, res, next);
 }
 
+export async function musicianGetById(
+  context: Context,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  await runController('Apps.Mybandnow.Backend.controllers.MusicianGetByIdController', context, req, res, next);
+}
+
 export async function profilePost(context: Context, req: Request, res: Response, next: NextFunction): Promise<void> {
   await runController('Apps.Mybandnow.Backend.controllers.ProfilePostController', context, req, res, next);
 }

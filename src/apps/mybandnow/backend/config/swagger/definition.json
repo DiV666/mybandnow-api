@@ -218,6 +218,36 @@
                 }
             }
         },
+        "/v1/musicians/{id}": {
+            "get": {
+                "tags": [
+                    "Mybandnow"
+                ],
+                "summary": "Get musician by id",
+                "operationId": "musicianGetById",
+                "security": [],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Id"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MusicianResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                }
+            }
+        },
         "/v1/songs/{songId}/instruments/{instrumentId}/upload": {
             "post": {
                 "tags": [
@@ -715,15 +745,11 @@
                 "additionalProperties": false,
                 "required": [
                     "id",
-                    "userId",
                     "name",
                     "username"
                 ],
                 "properties": {
                     "id": {
-                        "$ref": "#/components/schemas/UUID"
-                    },
-                    "userId": {
                         "$ref": "#/components/schemas/UUID"
                     },
                     "name": {

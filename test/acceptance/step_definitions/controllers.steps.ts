@@ -62,15 +62,23 @@ Given('they have a musician profile', async function (this: MybandnowWorld) {
   const username = payload.preferred_username;
   const userIdValue = payload.userId;
 
-  await saveMusicianProfile(username, userIdValue);
+  await saveMusicianProfile({ username, userIdValue });
 });
 
 Given('another musician already exists with username {string}', async function (username: string) {
   const userIdValue = uuidv5(`existing-${username}`, '1b671a64-40d5-491e-99b0-da01ff1f3341');
 
   await savePersistedUser(username, userIdValue, 'asdASD123!');
-  await saveMusicianProfile(username, userIdValue);
+  await saveMusicianProfile({ username, userIdValue });
 });
+
+Given(
+  'A musician exists with id {string}, user id {string}, and username {string}',
+  async function (musicianId: string, userIdValue: string, username: string) {
+    await savePersistedUser(username, userIdValue, 'asdASD123!');
+    await saveMusicianProfile({ musicianId, username, userIdValue });
+  }
+);
 
 Given('An internal authenticated user', function (this: MybandnowWorld) {
   const token = jsonwebtoken.sign(
@@ -283,10 +291,16 @@ async function savePersistedUser(username: string, userIdValue: string, password
   await userRepository.save(user);
 }
 
-async function saveMusicianProfile(username: string, userIdValue: string): Promise<void> {
+interface SaveMusicianProfileParams {
+  musicianId?: string;
+  username: string;
+  userIdValue: string;
+}
+
+async function saveMusicianProfile({ musicianId, username, userIdValue }: SaveMusicianProfileParams): Promise<void> {
   const musicianRepository = container.get<MusicianRepository>('Moat.Musician.MusicianRepository');
   const musician = new Musician(
-    new MusicianId(MusicianId.random()),
+    new MusicianId(musicianId ?? MusicianId.random()),
     new MusicianUsername(username),
     new MusicianName(username),
     new MusicianUserId(userIdValue)

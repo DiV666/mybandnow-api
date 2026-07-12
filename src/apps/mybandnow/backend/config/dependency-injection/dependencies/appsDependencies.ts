@@ -5,6 +5,7 @@ import { register as registerBandPutUpdateController } from '../controllers/band
 import { register as registerBandPostCreateController } from '../controllers/band/bandPostCreate.dependency.js';
 import { register as registerUserPostLoginController } from '../controllers/user/userPostLogin.dependency.js';
 import { register as registerUserPostRegisterController } from '../controllers/user/userPostRegister.dependency.js';
+import { register as registerMusicianGetByIdController } from '../controllers/musician/musicianGetById.dependency.js';
 import { register as registerProfileGetController } from '../controllers/musician/profileGet.dependency.js';
 import { register as registerProfilePostController } from '../controllers/musician/profilePost.dependency.js';
 import { register as registerSongInstrumentPostCreateController } from '../controllers/songInstrument/songInstrumentPostCreate.dependency.js';
@@ -31,6 +32,7 @@ export function registerAppsDependencies(container: ContainerBuilder) {
   registerBandPostCreateController(container);
   registerUserPostLoginController(container);
   registerUserPostRegisterController(container);
+  registerMusicianGetByIdController(container);
   registerProfileGetController(container);
   registerProfilePostController(container);
   registerSongInstrumentPostCreateController(container);

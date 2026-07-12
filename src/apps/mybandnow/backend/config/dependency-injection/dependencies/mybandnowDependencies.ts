@@ -6,6 +6,7 @@ import { MusicianSearchByUserIdQueryHandler } from '@Contexts/Moat/Musician/appl
 import { MusicianSearchByUserId } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserId.js';
 import { register as registerUserRegister } from '../use-cases/user/userRegister.dependency.js';
 import { register as registerMusicianCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/musician/musicianCreator.dependency.js';
+import { register as registerMusicianFindById } from '@Apps/moat/backend/config/dependency-injection/use-cases/musician/musicianFindById.dependency.js';
 import { register as registerBandCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandCreator.dependency.js';
 import { register as registerBandUpdater } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandUpdater.dependency.js';
 import { register as registerBandRemover } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandRemover.dependency.js';
@@ -52,6 +53,7 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   registerUserLogin(container);
   registerUserRegister(container);
   registerMusicianCreator(container);
+  registerMusicianFindById(container);
   registerBandCreator(container);
   registerBandUpdater(container);
   registerBandRemover(container);
