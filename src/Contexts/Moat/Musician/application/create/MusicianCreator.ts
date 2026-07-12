@@ -5,7 +5,11 @@ import { Primitives } from '@Contexts/Shared/domain/Primitives.js';
 import { MusicianRepository } from '../../domain/repository/MusicianRepository.js';
 import Logger from '@Contexts/Shared/domain/Logger.js';
 import { MusicianId } from '../../domain/value-object/MusicianId.js';
+import { MusicianUserId } from '../../domain/value-object/MusicianUserId.js';
+import { MusicianUsername } from '../../domain/value-object/MusicianUsername.js';
 import { MusicianExistException } from '../../domain/exception/MusicianExistException.js';
+import { MusicianUsernameAlreadyExistsException } from '../../domain/exception/MusicianUsernameAlreadyExistsException.js';
+import { MusicianUserAlreadyHasProfileException } from '../../domain/exception/MusicianUserAlreadyHasProfileException.js';
 
 export class MusicianCreator {
   constructor(
@@ -32,6 +36,18 @@ export class MusicianCreator {
       }
 
       throw new MusicianExistException(id);
+    }
+
+    const musicianWithSameUsername = await this.persistenceRepository.searchByUsername(new MusicianUsername(username));
+
+    if (musicianWithSameUsername) {
+      throw new MusicianUsernameAlreadyExistsException(username);
+    }
+
+    const musicianWithSameUserId = await this.persistenceRepository.searchByUserId(new MusicianUserId(userId));
+
+    if (musicianWithSameUserId) {
+      throw new MusicianUserAlreadyHasProfileException(userId);
     }
 
     const musician = Musician.create({ id, username, name, userId }, this.clock);

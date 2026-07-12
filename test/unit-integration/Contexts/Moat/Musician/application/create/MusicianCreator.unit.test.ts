@@ -7,6 +7,9 @@ import { MusicianCreatorTestCase } from './MusicianCreatorTestCase.js';
 import { MusicianCreatedDomainEventMother } from '../../domain/MusicianCreatedDomainEventMother.js';
 import { MusicianExistException } from '@Contexts/Moat/Musician/domain/exception/MusicianExistException.js';
 import { MusicianId } from '@Contexts/Moat/Musician/domain/value-object/MusicianId.js';
+import { MusicianUsername } from '@Contexts/Moat/Musician/domain/value-object/MusicianUsername.js';
+import { MusicianUsernameAlreadyExistsException } from '@Contexts/Moat/Musician/domain/exception/MusicianUsernameAlreadyExistsException.js';
+import { MusicianUserAlreadyHasProfileException } from '@Contexts/Moat/Musician/domain/exception/MusicianUserAlreadyHasProfileException.js';
 
 describe('MusicianCreator should', () => {
   let testCase: MusicianCreatorTestCase;
@@ -29,6 +32,8 @@ describe('MusicianCreator should', () => {
     const domainEvent = MusicianCreatedDomainEventMother.fromModel(musician);
 
     testCase.shouldSearch(musician.id); // Ensure it doesn't exist
+    testCase.shouldSearchByUsername(musician.username);
+    testCase.shouldSearchByUserId(musician.userId);
     testCase.shouldSave(musician);
     testCase.shouldPublishDomainEvent(domainEvent, ['attributes.createdAt', 'attributes.updatedAt']);
 
@@ -54,5 +59,26 @@ describe('MusicianCreator should', () => {
 
     testCase.shouldSearch(new MusicianId(command.id), musician); // Mock that search by command ID returns a different model
     await testCase.assertSaveException(command, commandHandler, MusicianExistException);
+  });
+
+  it('throw an exception when the username already exists for another musician', async () => {
+    const existingMusician = MusicianMother.create();
+    const command = CreateMusicianCommandMother.create({ username: existingMusician.username.value });
+
+    testCase.shouldSearch(new MusicianId(command.id));
+    testCase.shouldSearchByUsername(existingMusician.username, existingMusician);
+
+    await testCase.assertSaveException(command, commandHandler, MusicianUsernameAlreadyExistsException);
+  });
+
+  it('throw an exception when the user already has a musician profile', async () => {
+    const existingMusician = MusicianMother.create();
+    const command = CreateMusicianCommandMother.create({ userId: existingMusician.userId.value });
+
+    testCase.shouldSearch(new MusicianId(command.id));
+    testCase.shouldSearchByUsername(new MusicianUsername(command.username));
+    testCase.shouldSearchByUserId(existingMusician.userId, existingMusician);
+
+    await testCase.assertSaveException(command, commandHandler, MusicianUserAlreadyHasProfileException);
   });
 });

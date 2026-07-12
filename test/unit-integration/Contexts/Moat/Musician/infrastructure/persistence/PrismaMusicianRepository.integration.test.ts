@@ -1,8 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { PrismaMusicianRepository } from '@Contexts/Moat/Musician/infrastructure/persistence/PrismaMusicianRepository.js';
+import { MusicianUsernameAlreadyExistsException } from '@Contexts/Moat/Musician/domain/exception/MusicianUsernameAlreadyExistsException.js';
+import { MusicianUserAlreadyHasProfileException } from '@Contexts/Moat/Musician/domain/exception/MusicianUserAlreadyHasProfileException.js';
 import { MusicianMother } from '../../domain/MusicianMother.js';
 import { MusicianIdMother } from '../../domain/MusicianIdMother.js';
 import { MusicianUserIdMother } from '../../domain/MusicianUserIdMother.js';
+import { MusicianUsernameMother } from '../../domain/MusicianUsernameMother.js';
 import { PrismaClientFactory } from '@Contexts/Shared/infrastructure/persistence/prisma/PrismaClientFactory.js';
 
 const prisma = PrismaClientFactory.createClient();
@@ -37,6 +40,62 @@ describe('PrismaMusicianRepository', () => {
       });
       expect(dbMusician?.userId).toBe(musician.userId.value);
       expect(dbMusician?.username).toBe(musician.username.value);
+    });
+
+    it('should translate Prisma P2002 for duplicate username', async () => {
+      const existing = MusicianMother.random();
+      const duplicatedUsername = MusicianMother.create({
+        username: MusicianUsernameMother.create(existing.username.value)
+      });
+
+      await prisma.user.createMany({
+        data: [
+          {
+            id: existing.userId.value,
+            email: `${existing.userId.value}@test.com`,
+            password: 'password'
+          },
+          {
+            id: duplicatedUsername.userId.value,
+            email: `${duplicatedUsername.userId.value}@test.com`,
+            password: 'password'
+          }
+        ]
+      });
+
+      await repository.save(existing);
+
+      await expect(repository.save(duplicatedUsername)).rejects.toThrow(
+        new MusicianUsernameAlreadyExistsException(duplicatedUsername.username.value)
+      );
+    });
+
+    it('should translate Prisma P2002 for duplicate userId', async () => {
+      const existing = MusicianMother.random();
+      const duplicatedUserId = MusicianMother.create({
+        userId: MusicianUserIdMother.create(existing.userId.value)
+      });
+
+      await prisma.user.createMany({
+        data: [
+          {
+            id: existing.userId.value,
+            email: `${existing.userId.value}@test.com`,
+            password: 'password'
+          },
+          {
+            id: duplicatedUserId.id.value,
+            email: `${duplicatedUserId.id.value}@test.com`,
+            password: 'password'
+          }
+        ]
+      });
+
+      await repository.save(existing);
+
+      await expect(repository.save(duplicatedUserId)).rejects.toThrow(
+        new MusicianUserAlreadyHasProfileException(duplicatedUserId.userId.value)
+      );
     });
   });
 

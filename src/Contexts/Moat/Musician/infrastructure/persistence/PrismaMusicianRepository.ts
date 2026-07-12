@@ -1,17 +1,86 @@
-import pkg from '@prisma/client';
-const { Prisma } = pkg;
 import { Musician } from '../../domain/Musician.js';
 import { MusicianRepository } from '../../domain/repository/MusicianRepository.js';
 import { MusicianId } from '../../domain/value-object/MusicianId.js';
 import { MusicianUserId } from '../../domain/value-object/MusicianUserId.js';
 import { MusicianUsername } from '../../domain/value-object/MusicianUsername.js';
 import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
+import { MusicianUsernameAlreadyExistsException } from '../../domain/exception/MusicianUsernameAlreadyExistsException.js';
+import { MusicianUserAlreadyHasProfileException } from '../../domain/exception/MusicianUserAlreadyHasProfileException.js';
 import { Nullable } from '@Contexts/Shared/domain/Nullable.js';
+import { Primitives } from '@Contexts/Shared/domain/Primitives.js';
 
 import { PrismaClientFactory } from '@Contexts/Shared/infrastructure/persistence/prisma/PrismaClientFactory.js';
 
 export class PrismaMusicianRepository implements MusicianRepository {
   private prisma = PrismaClientFactory.createClient();
+
+  private isPrismaKnownRequestError(error: unknown): error is {
+    code: string;
+    meta?: {
+      target?: unknown;
+      driverAdapterError?: {
+        cause?: {
+          constraint?: {
+            fields?: unknown;
+          };
+        };
+      };
+    };
+  } & Error {
+    return typeof error === 'object' && error !== null && 'code' in error && typeof error.code === 'string';
+  }
+
+  private matchesTargetValue(target: unknown, fieldName: string): boolean {
+    if (Array.isArray(target)) {
+      return target.some((entry) => typeof entry === 'string' && entry.replaceAll('"', '').includes(fieldName));
+    }
+
+    return typeof target === 'string' && target.replaceAll('"', '').includes(fieldName);
+  }
+
+  private isUniqueConstraintTarget(
+    error: {
+      meta?: {
+        target?: unknown;
+        driverAdapterError?: {
+          cause?: {
+            constraint?: {
+              fields?: unknown;
+            };
+          };
+        };
+      };
+    },
+    fieldName: string
+  ): boolean {
+    const target = error.meta?.target;
+    const driverConstraintFields = error.meta?.driverAdapterError?.cause?.constraint?.fields;
+
+    return this.matchesTargetValue(target, fieldName) || this.matchesTargetValue(driverConstraintFields, fieldName);
+  }
+
+  private throwTranslatedPersistenceError(primitives: Primitives<Musician>, error: unknown): never {
+    if (this.isPrismaKnownRequestError(error)) {
+      if (error.code === 'P2002') {
+        if (this.isUniqueConstraintTarget(error, 'username')) {
+          throw new MusicianUsernameAlreadyExistsException(primitives.username);
+        }
+
+        if (this.isUniqueConstraintTarget(error, 'userId')) {
+          throw new MusicianUserAlreadyHasProfileException(primitives.userId);
+        }
+      }
+
+      if (error.code === 'P2003') {
+        throw new InvalidArgumentException({
+          code: 'MUSICIAN_USER_NOT_FOUND',
+          message: `Cannot save musician ${primitives.id} because user ${primitives.userId} does not exist.`
+        });
+      }
+    }
+
+    throw error;
+  }
 
   async save(musician: Musician): Promise<void> {
     const primitives = musician.toPrimitives();
@@ -33,15 +102,7 @@ export class PrismaMusicianRepository implements MusicianRepository {
         }
       });
     } catch (error: unknown) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2003') {
-          throw new InvalidArgumentException({
-            code: 'MUSICIAN_USER_NOT_FOUND',
-            message: `Cannot save musician ${primitives.id} because user ${primitives.userId} does not exist.`
-          });
-        }
-      }
-      throw error;
+      this.throwTranslatedPersistenceError(primitives, error);
     }
   }
 

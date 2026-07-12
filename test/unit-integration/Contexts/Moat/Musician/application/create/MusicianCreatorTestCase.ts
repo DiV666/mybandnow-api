@@ -3,6 +3,8 @@ import { Command } from '@Contexts/Shared/domain/Command.js';
 import { CommandHandler } from '@Contexts/Shared/domain/CommandHandler.js';
 import { Musician } from '@Contexts/Moat/Musician/domain/Musician.js';
 import { MusicianId } from '@Contexts/Moat/Musician/domain/value-object/MusicianId.js';
+import { MusicianUserId } from '@Contexts/Moat/Musician/domain/value-object/MusicianUserId.js';
+import { MusicianUsername } from '@Contexts/Moat/Musician/domain/value-object/MusicianUsername.js';
 import { TestCase } from '@Test/utils/TestCase.js';
 import { Mock } from '@Test/utils/Mock.js';
 import { MusicianRepository } from '@Contexts/Moat/Musician/domain/repository/MusicianRepository.js';
@@ -32,6 +34,22 @@ export class MusicianCreatorTestCase extends TestCase {
       .shouldReceive(this.persistenceRepository().search)
       .once()
       .withArgs(id)
+      .andReturn(musician);
+  }
+
+  shouldSearchByUsername(username: MusicianUsername, musician?: Musician): void {
+    this.persistenceRepositorySearchMock
+      .shouldReceive(this.persistenceRepository().searchByUsername)
+      .once()
+      .withArgs(username)
+      .andReturn(musician);
+  }
+
+  shouldSearchByUserId(userId: MusicianUserId, musician?: Musician): void {
+    this.persistenceRepositorySearchMock
+      .shouldReceive(this.persistenceRepository().searchByUserId)
+      .once()
+      .withArgs(userId)
       .andReturn(musician);
   }
 

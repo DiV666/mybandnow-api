@@ -60,14 +60,14 @@ Given('they have a musician profile', async function (this: MybandnowWorld) {
   const username = payload.preferred_username;
   const userIdValue = payload.userId;
 
-  const musicianRepository = container.get<MusicianRepository>('Moat.Musician.MusicianRepository');
-  const musician = new Musician(
-    new MusicianId(MusicianId.random()),
-    new MusicianUsername(username),
-    new MusicianName(username),
-    new MusicianUserId(userIdValue)
-  );
-  await musicianRepository.save(musician);
+  await saveMusicianProfile(username, userIdValue);
+});
+
+Given('another musician already exists with username {string}', async function (username: string) {
+  const userIdValue = uuidv5(`existing-${username}`, '1b671a64-40d5-491e-99b0-da01ff1f3341');
+
+  await savePersistedUser(username, userIdValue, 'asdASD123!');
+  await saveMusicianProfile(username, userIdValue);
 });
 
 Given('An internal authenticated user', function (this: MybandnowWorld) {
@@ -215,6 +215,32 @@ async function getToken(username: string, _password?: string, userIdValue?: stri
   };
 
   return jsonwebtoken.sign(payload, env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '1h' });
+}
+
+async function savePersistedUser(username: string, userIdValue: string, password: string): Promise<void> {
+  const encryptor = container.get<PasswordEncryptor>('Mybandnow.User.PasswordEncryptor');
+  const userRepository = container.get<UserPersistenceRepository>('Mybandnow.User.UserRepository');
+
+  const hashedPassword = await encryptor.hash(password);
+  const user = User.create(
+    new UserId(userIdValue),
+    new UserEmail(`${username}@example.com`),
+    new UserPassword(hashedPassword)
+  );
+
+  await userRepository.save(user);
+}
+
+async function saveMusicianProfile(username: string, userIdValue: string): Promise<void> {
+  const musicianRepository = container.get<MusicianRepository>('Moat.Musician.MusicianRepository');
+  const musician = new Musician(
+    new MusicianId(MusicianId.random()),
+    new MusicianUsername(username),
+    new MusicianName(username),
+    new MusicianUserId(userIdValue)
+  );
+
+  await musicianRepository.save(musician);
 }
 
 AfterAll(async (): Promise<void> => {

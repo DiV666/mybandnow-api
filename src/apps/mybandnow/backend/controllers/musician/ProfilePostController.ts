@@ -17,7 +17,9 @@ export default class ProfilePostController extends ApiController {
 
   exceptions(): Record<string, number> {
     return {
-      MusicianExistException: httpStatus.CONFLICT
+      MusicianExistException: httpStatus.CONFLICT,
+      MusicianUsernameAlreadyExistsException: httpStatus.CONFLICT,
+      MusicianUserAlreadyHasProfileException: httpStatus.CONFLICT
     };
   }
 }
