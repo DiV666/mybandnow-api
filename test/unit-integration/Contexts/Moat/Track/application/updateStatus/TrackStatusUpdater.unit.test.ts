@@ -16,8 +16,9 @@ describe('TrackStatusUpdater', () => {
     repository = {
       save: vi.fn(),
       search: vi.fn(),
+      searchBySongInstrumentId: vi.fn(),
       remove: vi.fn()
-    };
+    } as TrackPersistenceRepository;
     eventBus = {
       publish: vi.fn()
     } as unknown as EventBus;

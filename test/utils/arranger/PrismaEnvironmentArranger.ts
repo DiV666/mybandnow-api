@@ -21,6 +21,7 @@ export class PrismaEnvironmentArranger extends EnvironmentArranger {
       'videoclipProcess',
       'trackProcess',
       'videoclip',
+      'songInstrument',
       'track',
       'song',
       'bandMember',

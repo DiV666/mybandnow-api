@@ -10,5 +10,15 @@ describe('Track should', () => {
       const newModel = Track.fromPrimitives(primitives);
       expect(newModel).toEqual(model);
     });
+
+    it('serializes the explicit song instrument relation', () => {
+      const model = TrackMother.create();
+
+      expect(model.toPrimitives()).toEqual(
+        expect.objectContaining({
+          songInstrumentId: model.songInstrumentId.value
+        })
+      );
+    });
   });
 });

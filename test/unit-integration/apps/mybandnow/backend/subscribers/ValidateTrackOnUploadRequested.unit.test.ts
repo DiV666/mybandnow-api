@@ -43,6 +43,29 @@ describe('ValidateTrackOnUploadRequested', () => {
     });
   });
 
+  it('dispatches TrackProcessValidateCommand when RabbitMQ provides only generic event attributes', async () => {
+    // Arrange
+    const subscriber = new ValidateTrackOnUploadRequested('moat.track.upload_requested', logger, commandBusResolver);
+    const domainEvent = {
+      aggregateId: '12345678-1234-4234-8234-123456789012',
+      attributes: {
+        fileReference: 'uploads/from-rabbitmq.mp4'
+      }
+    } as unknown as TrackUploadRequestedDomainEvent;
+
+    // Act
+    await subscriber.on(domainEvent);
+
+    // Assert
+    const [command] = commandBus.dispatch.mock.calls[0] ?? [];
+
+    expect(command).toBeInstanceOf(TrackProcessValidateCommand);
+    expect(command).toMatchObject({
+      aggregateId: domainEvent.aggregateId,
+      fileReference: 'uploads/from-rabbitmq.mp4'
+    });
+  });
+
   it('delegates handlerException to logger.error', () => {
     // Arrange
     const subscriber = new ValidateTrackOnUploadRequested('moat.track.upload_requested', logger, commandBusResolver);

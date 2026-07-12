@@ -11,7 +11,13 @@ import { register as registerBandUpdater } from '@Apps/moat/backend/config/depen
 import { register as registerBandRemover } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandRemover.dependency.js';
 import { register as registerBandFinder } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandFinder.dependency.js';
 import { register as registerBandMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandMatcher.dependency.js';
+import { register as registerSongInstrumentCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentCreator.dependency.js';
+import { register as registerTrackUploader } from '@Apps/moat/backend/config/dependency-injection/use-cases/track/trackUploader.dependency.js';
 import { BandPrismaRepository } from '@Contexts/Moat/Band/infrastructure/persistence/BandPrismaRepository.js';
+import { SongInstrumentPrismaRepository } from '@Contexts/Moat/SongInstrument/infrastructure/persistence/SongInstrumentPrismaRepository.js';
+import { SongInstrumentCheckSongOwnership } from '@Contexts/Moat/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnership.js';
+import { SongInstrumentCheckSongOwnershipQueryHandler } from '@Contexts/Moat/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnershipQueryHandler.js';
+import { TrackPrismaRepository } from '@Contexts/Moat/Track/infrastructure/persistence/TrackPrismaRepository.js';
 import { VideoclipPrismaRepository } from '@Contexts/Moat/Videoclip/infrastructure/persistence/VideoclipPrismaRepository.js';
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 
@@ -35,6 +41,10 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   container.register('Mybandnow.User.UserRepository', UserPrismaRepository).addArgument(new Reference('Shared.Outbox'));
   container.register('Moat.Musician.MusicianRepository', PrismaMusicianRepository);
   container.register('Moat.Band.BandRepository', BandPrismaRepository).addArgument(new Reference('Shared.Outbox'));
+  container
+    .register('Moat.SongInstrument.SongInstrumentRepository', SongInstrumentPrismaRepository)
+    .addArgument(new Reference('Shared.Outbox'));
+  container.register('Moat.Track.TrackRepository', TrackPrismaRepository).addArgument(new Reference('Shared.Outbox'));
 
   container.register('Moat.Videoclip.VideoclipRepository', VideoclipPrismaRepository);
 
@@ -47,6 +57,8 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   registerBandRemover(container);
   registerBandFinder(container);
   registerBandMatcher(container);
+  registerSongInstrumentCreator(container);
+  registerTrackUploader(container);
 
   container
     .register('Moat.Musician.MusicianSearchByUserId', MusicianSearchByUserId)
@@ -55,5 +67,17 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   container
     .register('Moat.Musician.MusicianSearchByUserIdQueryHandler', MusicianSearchByUserIdQueryHandler)
     .addArgument(new Reference('Moat.Musician.MusicianSearchByUserId'))
+    .addTag('queryHandler');
+
+  container
+    .register('Moat.SongInstrument.SongInstrumentCheckSongOwnership', SongInstrumentCheckSongOwnership)
+    .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'));
+
+  container
+    .register(
+      'Moat.SongInstrument.SongInstrumentCheckSongOwnershipQueryHandler',
+      SongInstrumentCheckSongOwnershipQueryHandler
+    )
+    .addArgument(new Reference('Moat.SongInstrument.SongInstrumentCheckSongOwnership'))
     .addTag('queryHandler');
 }

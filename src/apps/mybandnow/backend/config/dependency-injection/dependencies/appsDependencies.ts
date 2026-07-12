@@ -7,6 +7,8 @@ import { register as registerUserPostLoginController } from '../controllers/user
 import { register as registerUserPostRegisterController } from '../controllers/user/userPostRegister.dependency.js';
 import { register as registerProfileGetController } from '../controllers/musician/profileGet.dependency.js';
 import { register as registerProfilePostController } from '../controllers/musician/profilePost.dependency.js';
+import { register as registerSongInstrumentPostCreateController } from '../controllers/songInstrument/songInstrumentPostCreate.dependency.js';
+import { register as registerTrackPostUploadController } from '../controllers/track/trackPostUpload.dependency.js';
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 import ContinuationLocalStorageExpress from '../../../middlewares/ContinuationLocalStorageExpress.js';
 import CorrelationIdHeader from '../../../middlewares/CorrelationIdHeader.js';
@@ -15,6 +17,7 @@ import TraceReqAndRes from '../../../middlewares/TraceReqAndRes.js';
 import { RabbitMQConfigFactory } from '@Contexts/Mybandnow/Shared/infrastructure/EventBus/RabbitMQ/RabbitMQConfigFactory.js';
 import { ValidateTrackOnUploadRequested } from '../../../subscribers/ValidateTrackOnUploadRequested.js';
 import type { CommandBus } from '@Contexts/Shared/domain/CommandBus.js';
+import { MultipartFileParser } from '@Contexts/Shared/infrastructure/Express/MultipartFileParser.js';
 
 export function registerAppsDependencies(container: ContainerBuilder) {
   // Initialization
@@ -30,8 +33,12 @@ export function registerAppsDependencies(container: ContainerBuilder) {
   registerUserPostRegisterController(container);
   registerProfileGetController(container);
   registerProfilePostController(container);
+  registerSongInstrumentPostCreateController(container);
+  registerTrackPostUploadController(container);
 
   // Middlewares
+  container.register('Shared.Express.MultipartFileParser', MultipartFileParser);
+
   container
     .register('Apps.Mybandnow.Backend.middlewares.TraceReqAndRes', TraceReqAndRes)
     .addArgument(new Reference('Shared.BunyanLogger'));

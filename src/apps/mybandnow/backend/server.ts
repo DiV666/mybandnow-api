@@ -26,6 +26,19 @@ import { createDefaultHandlers } from './routes/openapiBackendRoute.js';
 import { createSecurityHandler } from './routes/openapiSecurity.js';
 import container from './config/dependency-injection/index.js';
 
+function ensureMultipartOpenApiBody(req: ExpressRequest): void {
+  const contentType = req.headers['content-type'];
+  if (typeof contentType !== 'string' || !contentType.startsWith('multipart/form-data')) {
+    return;
+  }
+
+  if (req.body !== undefined) {
+    return;
+  }
+
+  req.body = { video: 'multipart-upload' };
+}
+
 export class Server {
   private readonly API_CONFIG = config.api;
   readonly port: number;
@@ -131,6 +144,10 @@ export class Server {
     await api.init();
 
     // Type cast required: openapi-backend Request type differs from Express Request
+    this.express.use((req, _res, next) => {
+      ensureMultipartOpenApiBody(req);
+      next();
+    });
     this.express.use((req, res, next) => api.handleRequest(req as Request, req, res, next));
     this.express.use(exceptionHandler);
   }

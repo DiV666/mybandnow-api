@@ -29,9 +29,10 @@ model Musician {
   profilePicUrl String?      // Ruta inmutable del avatar en GCS
   bio           String?
   instruments   String[]     // ["Guitar", "Vocals", "Drums"] - Postgres nativo
-  
+   
   memberships   BandMember[] 
   ownedBands    Band[]       @relation("BandOwner")
+  songInstruments SongInstrument[]
 }
 
 model Band {
@@ -62,7 +63,20 @@ model Song {
   band      Band       @relation(fields: [bandId], references: [id], onDelete: Cascade)
   bandId    String
   tracks    Track[]
+  songInstruments SongInstrument[]
   videoclip Videoclip?
+}
+
+model SongInstrument {
+  id             String   @id @default(uuid())
+  name           String
+  instrumentType String
+  song           Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+  songId         String
+  musician       Musician @relation(fields: [musicianId], references: [id], onDelete: Cascade)
+  musicianId     String
+  tracks         Track[]
+  createdAt      DateTime @default(now())
 }
 
 model Track {
@@ -71,6 +85,8 @@ model Track {
   status         String   @default("PENDING") // PENDING | READY | PROCESSING | FAILED
   song           Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
   songId         String
+  songInstrument   SongInstrument @relation(fields: [songInstrumentId], references: [id], onDelete: Cascade)
+  songInstrumentId String         @unique
   createdAt      DateTime @default(now())
 }
 

@@ -218,6 +218,131 @@
                 }
             }
         },
+        "/v1/songs/{songId}/instruments/{instrumentId}/upload": {
+            "post": {
+                "tags": [
+                    "Track"
+                ],
+                "summary": "Upload a track video for asynchronous validation",
+                "description": "Send the multipart/form-data field named video with an MP4 file for a specific song instrument participation.",
+                "operationId": "trackPostUpload",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "songId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Song identifier",
+                        "schema": {
+                            "$ref": "#/components/schemas/UUID"
+                        }
+                    },
+                    {
+                        "name": "instrumentId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Song instrument identifier",
+                        "schema": {
+                            "$ref": "#/components/schemas/UUID"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                    "video"
+                                ],
+                                "properties": {
+                                    "video": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "description": "MP4 video file uploaded in the video field"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                }
+            }
+        },
+        "/v1/songs/{songId}/instruments": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "operationId": "songInstrumentPostCreate",
+                "tags": [
+                    "SongInstrument"
+                ],
+                "summary": "Create a song instrument",
+                "description": "Create a song instrument",
+                "parameters": [
+                    {
+                        "name": "songId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/UUID"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SongInstrumentCreateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The song instrument has been created"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Conflict"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Unknown"
+                    }
+                }
+            }
+        },
         "/v1/bands": {
             "post": {
                 "security": [
@@ -606,6 +731,30 @@
                     },
                     "username": {
                         "type": "string"
+                    }
+                }
+            },
+            "SongInstrumentCreateRequest": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "id",
+                    "name",
+                    "instrumentType",
+                    "musicianId"
+                ],
+                "properties": {
+                    "id": {
+                        "$ref": "#/components/schemas/UUID"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "instrumentType": {
+                        "type": "string"
+                    },
+                    "musicianId": {
+                        "$ref": "#/components/schemas/UUID"
                     }
                 }
             }

@@ -4,6 +4,7 @@ import { Repeater } from '../../../Shared/domain/value-object/Repeater.js';
 import { TrackCreatedAtMother } from './TrackCreatedAtMother.js';
 import { TrackSongIdMother } from './TrackSongIdMother.js';
 import { TrackInstrumentNameMother } from './TrackInstrumentNameMother.js';
+import { TrackSongInstrumentIdMother } from './TrackSongInstrumentIdMother.js';
 import { TrackStatusMother } from './TrackStatusMother.js';
 
 export class TrackMother {
@@ -12,6 +13,7 @@ export class TrackMother {
       id: TrackIdMother.random(),
       status: TrackStatusMother.random(),
       instrumentName: TrackInstrumentNameMother.random(),
+      songInstrumentId: TrackSongInstrumentIdMother.random(),
       songId: TrackSongIdMother.random(),
       createdAt: TrackCreatedAtMother.now()
     };
@@ -28,6 +30,7 @@ export class TrackMother {
       id: data.id.value,
       status: data.status.value,
       instrumentName: data.instrumentName.value,
+      songInstrumentId: data.songInstrumentId.value,
       songId: data.songId.value,
       createdAt: data.createdAt.value.toISOString()
     });
