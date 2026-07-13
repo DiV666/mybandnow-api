@@ -1,34 +1,41 @@
-# Pendientes de migración desde `mybandnow-api.bck`
+# Estado de la migración desde `mybandnow-api.bck`
 
-## En curso
+## Cambios ya reconciliados en `docs/`
 
-- `SongInstrument` ya tiene alta protegida con contrato `POST /v1/songs/{songId}/instruments`.
-- El upload de track ya usa el contrato final `POST /v1/songs/{songId}/instruments/{instrumentId}/upload`.
+- `docs/index.md` ya refleja la superficie real de endpoints del OpenAPI actual
+- `docs/architecture.md`, `docs/infrastructure.md`, `docs/configuration.md` y `docs/development.md` ya no describen MongoDB ni Keycloak como stack principal
+- `docs/auth.md` ya documenta la regla nueva de lectura de `SongInstrument` para miembros de banda
+- la existencia de `GET /v1/musicians/{id}` ya quedó reflejada en la documentación actual
+- `SongInstrumentVideo` ya no es una idea pendiente: existe como recurso persistido y aparece anidado en la respuesta del `GET` de `SongInstrument`
 
-## Pendientes prioritarios
+## Deuda técnica y de migración que sigue visible
 
-### 1. Cerrar la migración del recurso de vídeo final
+### 1. Restos de nomenclatura antigua `Track`
 
-- Modelar `SongInstrumentVideo` como recurso persistente separado del `Track` temporal.
-- Definir el endpoint de lectura/escritura del vídeo final cuando el flujo asíncrono termine.
+Todavía quedan residuos del modelo anterior en el código:
 
-### 2. Revisar el endpoint pendiente del backup
+- `src/Contexts/Orchestrator/TrackProcess/`
+- comentarios y nombres de value objects heredados en el contexto `SongInstrumentProcess`
+- migraciones Prisma que muestran el renombrado progresivo desde `Track*` hacia `SongInstrument*`
 
-- Evaluar si sigue siendo necesario restaurar:
-  - `GET /v1/musicians/{id}`
+Esto no bloquea la funcionalidad actual, pero sí añade ruido conceptual.
 
-### 3. Definir bien la relación entre modelos
+### 2. Superficie pública incompleta para vídeo final
 
-- `SongInstrument` = participación instrumental dentro de una canción.
-- `Track` = workflow temporal de upload/validación/estados.
-- `SongInstrumentVideo` = vídeo final individual del instrumento (pendiente de modelar).
-- `Videoclip` = composición final de varios vídeos (fuera de este paso).
+El sistema ya persiste `SongInstrumentVideo`, pero hoy no expone un endpoint dedicado para gestionarlo de forma independiente.
 
-## Notas de diseño ya decididas
+Estado actual:
 
-- Mantener `/upload` en el endpoint porque describe mejor la operación técnica.
-- Evitar usar `instrumentType` como identificador del recurso; usar `instrumentId`.
-- No meter `videoUrl` en `SongInstrument`.
-- En `POST /v1/songs/{songId}/instruments`, solo la persona propietaria de la canción puede crear el recurso y, por ahora, solo puede asignar su propio `musicianId`.
-- En `POST /v1/songs/{songId}/instruments/{instrumentId}/upload`, el controlador elimina el fichero temporal si la autorización o cualquier validación falla antes de devolver `202 Accepted`.
-- Resolver conflictos de unicidad de perfil de músico tanto a nivel aplicación como traduciendo `P2002` en repositorio.
+- el vídeo final se materializa como resultado del flujo asíncrono
+- la lectura autenticada disponible hoy es indirecta, dentro de `GET /v1/songs/{songId}/instruments/{instrumentId}` para miembros de la banda
+
+### 3. Videoclip sin contrato HTTP expuesto
+
+El modelo `Videoclip` existe en Prisma y en el contexto `Moat`, pero el OpenAPI actual no publica endpoints específicos para ese agregado.
+
+## Decisiones ya consolidadas
+
+- mantener `/upload` como operación explícita para el envío técnico del fichero
+- usar `instrumentId` como identificador del recurso
+- separar `SongInstrument`, `SongInstrumentUpload`, `SongInstrumentVideo` y `Videoclip` como piezas con responsabilidades distintas
+- validar los vídeos subidos con `ffprobe` antes de consolidarlos en GCS

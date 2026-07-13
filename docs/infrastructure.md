@@ -1,62 +1,103 @@
 # Infraestructura
 
-## MongoDB
+## PostgreSQL con Prisma
 
-El acceso a MongoDB usa el driver oficial y utilidades compartidas de repositorio.
+La persistencia relacional se gestiona con Prisma sobre PostgreSQL.
 
-- `MongoClientFactory` crea y reutiliza clientes
-- `MongoRepository` aporta la base común de persistencia
-- `MongoCriteriaConverter`, `MongoQueryBuilder` y los helpers de índices traducen criterios de dominio a consultas MongoDB
+Piezas clave:
 
-## Bus de eventos
+- `PrismaClientFactory` crea y reutiliza el cliente Prisma
+- los repositorios `*PrismaRepository` implementan los contratos de dominio
+- `PrismaCriteriaConverter` traduce `Criteria` a filtros compatibles con Prisma
+- `OutboxPrismaRepository` persiste eventos pendientes de publicación
 
-El bus de eventos separa el puerto de dominio del cableado de infraestructura.
+Modelos persistidos relevantes en `prisma/schema.prisma`:
 
-- `EventBus` en `src/Contexts/Shared/domain/EventBus.ts` es el puerto usado por aplicación
-- `DomainEventSubscribers` vive en infraestructura y se inyecta por DI
-- `RabbitMQEventBus` configura exchanges, colas y publicación
-- `OutboxEventBus` persiste primero y delega el envío inmediato a RabbitMQ
-- `OutboxPublisher` reintenta eventos `pending` en segundo plano
-- `InMemorySyncEventBus` e `InMemoryAsyncEventBus` cubren tests y escenarios locales
+- `User`
+- `Musician`
+- `Band`
+- `BandMember`
+- `Song`
+- `SongInstrument`
+- `SongInstrumentUpload`
+- `SongInstrumentVideo`
+- `SongInstrumentProcess`
+- `Videoclip`
+- `Outbox`
 
 ## RabbitMQ
 
-La infraestructura RabbitMQ incluye:
+RabbitMQ transporta eventos de dominio y coordina procesos asíncronos.
 
-- `RabbitMQConnection` para conectividad AMQP
-- `RabbitMQConfigurer` para exchanges, colas y bindings
-- `RabbitMQConsumer` y `RabbitMQConsumerFactory` para ejecución y reintentos de subscribers
+Componentes principales:
 
-Comportamiento del consumidor:
+- `RabbitMQConnection`
+- `RabbitMQConfigurer`
+- `RabbitMQEventBus`
+- `RabbitMQConsumer` y `RabbitMQConsumerFactory`
+- `OutboxEventBus`
+- `OutboxPublisher`
 
-- `RabbitMQConsumer` valida el payload deserializado de forma defensiva: `eventName`, `aggregateId`, `eventId`, `occurredOn` (fecha válida) y `attributes` deben tener la forma esperada antes de instanciar el evento de dominio.
-- El correlation ID se propaga desde `meta['x-correlation-id']` del mensaje en lugar de generarse de nuevo en el consumidor.
-- Las excepciones `NonRetryableException` (`src/Contexts/Shared/domain/exceptions/NonRetryableException.ts`) se enrutan directamente a la cola dead-letter sin reintentos; el resto de errores sigue el ciclo de reintentos hasta `RABBITMQ_MAX_RETRIES`.
+Comportamiento relevante:
 
-## Cliente HTTP saliente
+- el outbox desacopla persistencia de publicación
+- los reintentos usan `RABBITMQ_MAX_RETRIES` y `RABBITMQ_RETRY_TTL`
+- existen implementaciones en memoria para tests y escenarios locales
 
-`HttpClient` (`src/Contexts/Shared/infrastructure/Http/HttpClient.ts`) envuelve las llamadas HTTP salientes con logging estructurado:
+## Almacenamiento remoto en GCS
 
-- Interceptores de petición, respuesta y error registran cada llamada (inicio, completada, fallida) con duración y URL saneada (`sanitizeUrlForLogging` elimina query y fragmento).
-- Cada petición acepta un `logContext` (`HttpClientRequestLogContext`: `integration`, `operation`, `resourceId`) que enriquece los logs; también puede fijarse un `logContext` por defecto al construir el cliente.
-- El correlation ID activo se propaga automáticamente en la cabecera `x-correlation-id`.
+Los uploads validados se mueven a Google Cloud Storage.
 
-## Keycloak
+Implementación actual:
 
-Keycloak actúa como proveedor externo de identidad.
+- `GcsStorageRepository` usa `@google-cloud/storage`
+- el bucket se resuelve desde `GCS_BUCKET`
+- el cliente de GCS se construye con `new Storage()`, por lo que la autenticación depende del mecanismo estándar del runtime donde corre la API
 
-- `KeycloakBearerToken` valida JWT Bearer mediante JWKS
-- `KeycloakClientFactory` crea clientes admin para helpers de aceptación y flujos de setup
-- `KeycloakConfigFactory` construye los objetos de configuración consumidos por DI
+Operaciones actuales:
 
-## Servicios compartidos de runtime
+- subir el fichero validado al bucket
+- borrar el fichero remoto cuando el flujo lo requiera
 
-- `BunyanLogger` aporta logging estructurado
-- `StructuredFallbackLogger` es un logger síncrono de respaldo que escribe JSON en stderr; se usa antes de que exista el logger principal (validación de entorno) y en la ruta de crash del runtime
-- `AppBootstrapService` expone dependencias de bootstrap hacia `apps/` sin importar infraestructura directamente
-- `SystemClock` es la implementación productiva de reloj inyectable
+## Validación técnica de vídeo con `ffprobe`
 
-## Logging y redacción
+La API valida los uploads con `ffprobe` a través de `fluent-ffmpeg`.
 
-- `LoggingRedactionPolicy` (`src/Contexts/Shared/domain/LoggingRedactionPolicy.ts`) es el motor de redacción de datos sensibles usado por `BunyanLogger` y `HttpClient`: redacta bearer tokens, contraseñas, emails, teléfonos y documentos de identidad, además de nombres de campo sensibles configurables, con una profundidad máxima de saneado de 5 niveles.
-- `StructuredLogging` (`src/Contexts/Shared/domain/StructuredLogging.ts`) define las primitivas compartidas de entradas de log estructuradas y saneado de errores, reutilizadas por `StructuredFallbackLogger` y el logging de runtime de `apps/`.
+`FfmpegVideoValidationService`:
+
+- ejecuta `ffprobe` sobre el fichero temporal
+- exige que exista al menos un stream de vídeo
+- extrae `codec`, duración, ancho y alto
+- falla si el fichero no contiene un vídeo interpretable
+
+Esta validación ocurre en la fase asíncrona de `SongInstrumentProcess`.
+
+## Sistema de ficheros temporal
+
+El upload HTTP trabaja primero con un fichero temporal local.
+
+Puntos relevantes:
+
+- el controller parsea `multipart/form-data`
+- si la autorización o la validación inicial fallan, el fichero temporal se elimina
+- el sistema local solo actúa como staging antes de la validación y subida a GCS
+
+## Seguridad y runtime compartido
+
+Servicios transversales destacados:
+
+- `LocalJwtBearerToken` para `BearerAuth`
+- `InternalAuthentication` para `InternalAuth`
+- `BunyanLogger` para logging estructurado
+- `StructuredFallbackLogger` para fallos tempranos de arranque
+- middlewares de correlation ID, CLS y trazas de request/response
+
+## Ficheros clave
+
+- `src/Contexts/Shared/infrastructure/persistence/prisma/PrismaClientFactory.ts`
+- `src/Contexts/Shared/infrastructure/persistence/prisma/PrismaCriteriaConverter.ts`
+- `src/Contexts/Shared/infrastructure/EventBus/Outbox/OutboxPrismaRepository.ts`
+- `src/apps/mybandnow/backend/config/dependency-injection/dependencies/orchestratorDependencies.ts`
+- `src/Contexts/Orchestrator/SongInstrumentProcess/infrastructure/GcsStorageRepository.ts`
+- `src/Contexts/Orchestrator/SongInstrumentProcess/infrastructure/FfmpegVideoValidationService.ts`
+- `prisma/schema.prisma`

@@ -1,6 +1,8 @@
 # Autenticación y autorización
 
-## Autenticación Bearer
+## Esquemas soportados
+
+### `BearerAuth`
 
 Los endpoints protegidos usan JWT Bearer:
 
@@ -8,53 +10,89 @@ Los endpoints protegidos usan JWT Bearer:
 Authorization: Bearer <JWT>
 ```
 
-Flujo de validación:
+Implementación actual:
 
-1. El handler de seguridad extrae el token desde `Authorization`.
-2. `openapi-backend` delega la validación al security handler configurado.
-3. `KeycloakBearerToken` valida la firma JWT. Por defecto usa el endpoint JWKS de Keycloak (búsqueda dinámica de la clave por `kid`). Si `KLODING_KEYCLOAK_PUBLIC_KEY_BASE64` está definida, la firma se verifica contra esa clave pública fijada (certificate pinning) y no se consulta el JWKS.
-4. La API valida `issuer`, `realm` y metadatos asociados antes de aceptar la petición.
-5. `KeycloakBearerToken` valida además la audiencia del token: el claim `aud` debe incluir el valor configurado en `KEYCLOAK_AUDIENCE` (por defecto `account`). Ya no se valida el claim `azp` (authorized party), porque la API acepta tokens emitidos para múltiples clientes OAuth, incluidos clientes creados dinámicamente. Si `aud` falta o no incluye el valor configurado, la petición se rechaza con `401`.
+- la API extrae el token desde la cabecera `Authorization`
+- `openapi-backend` delega la verificación al security handler configurado en `src/apps/mybandnow/backend/routes/openapiSecurity.ts`
+- `LocalJwtBearerToken` valida la firma con `JWT_SECRET` usando `HS256`
+- el token debe incluir al menos `userId` y `email`
+- si el endpoint declara scopes, el token debe incluir todos los roles requeridos en `roles[]`
 
-### Pinning opcional del certificado de Keycloak
+Comportamiento HTTP:
 
-- `KLODING_KEYCLOAK_PUBLIC_KEY_BASE64` (opcional): clave pública PEM codificada en Base64.
-- Si está definida: la firma del token se verifica directamente contra esa clave fijada; no se realiza la búsqueda dinámica en el JWKS. Protege frente a un endpoint JWKS comprometido o mal configurado que sirva una clave no confiable.
-- Si no está definida (ausente o vacía): el comportamiento actual no cambia; la firma se verifica con la clave publicada dinámicamente por el JWKS de Keycloak.
-- Las validaciones de `issuer`, algoritmo (`RS256`), audiencia (`aud`) y permisos se aplican igual en ambos caminos.
-- Pensado para cuando Keycloak esté configurado para firmar los tokens con un certificado dedicado y conocido.
+- `401 Unauthorized`: token ausente, inválido o con firma no válida
+- `403 Forbidden`: token válido pero sin claims mínimas o sin permisos suficientes
 
-> **Nota (medida provisional):** `aud=account` es el valor genérico que el client scope `account` de Keycloak añade a todos los tokens del realm, compartido por muchos servicios. Por tanto, esta validación no garantiza de forma estricta que el token fuera emitido específicamente para esta API. Una garantía más fuerte requeriría un Audience Protocol Mapper dedicado en Keycloak configurado como client scope por defecto, lo cual queda fuera del alcance de este cambio.
+### `InternalAuth`
 
-## Autenticación interna
+La especificación OpenAPI también declara `InternalAuth` como credencial por cabecera:
 
-La plantilla también soporta autenticación interna RS256 mediante cabeceras a través de `InternalAuth` en los componentes OpenAPI.
+```text
+x-internal-auth: <JWT RS256>
+```
 
-Variables requeridas:
+Estado actual:
 
-- `KLODING_INTERNAL_PUBLIC_KEY_BASE64`
-- `KLODING_INTERNAL_PRIVATE_KEY_BASE64`
+- la verificación interna usa `InternalAuthentication`
+- la firma se valida con `KLODING_INTERNAL_PUBLIC_KEY_BASE64`
+- el token interno debe incluir `partnerId`, `companyId` y `userId`
+- hoy los endpoints de negocio documentados en `docs/index.md` usan `BearerAuth`
 
-## Autorización por scope
+## Reglas de autorización por recurso
 
-`CriteriaScopeSecurity` refuerza el aislamiento por tenant/usuario en las consultas basadas en `Criteria`, a partir del contexto del usuario autenticado (`AuthenticatedUserContext`: `userId`, `companyId`, `partnerId`, `roles`).
+### Requisito transversal: perfil musical
 
-Reglas de `CriteriaScopeSecurity.apply(criteria, user)` según el rol:
+Los endpoints que operan como músico autenticado resuelven primero el perfil `Musician` asociado al `userId` del JWT.
 
-| Rol | Filtro aplicado |
-| --- | --- |
-| `admin-scope` | Ninguno (acceso global, la criteria se devuelve intacta) |
-| `partner-scope` | `partnerId = user.partnerId` |
-| `company-scope` | `companyId = user.companyId` |
-| (sin rol de scope) | `userId = user.userId` |
+Si el usuario autenticado no tiene perfil musical, la API responde `403 Forbidden` con el mensaje `Profile required`.
 
-Cualquier filtro sobre `partnerId`, `companyId` o `userId` que venga en la criteria original se elimina antes de añadir el filtro de scope: el cliente no puede ampliar ni sortear su ámbito enviando sus propios filtros.
+### Reglas de `SongInstrument`
+
+#### `POST /v1/songs/{songId}/instruments`
+
+- requiere `BearerAuth`
+- solo la persona propietaria de la canción puede crear participaciones instrumentales
+- la comprobación de ownership se resuelve con `SongInstrumentCheckSongOwnership`
+- el request incluye `id`, `name`, `instrumentType` y `musicianId`
+- la implementación actual permite que la persona propietaria asigne cualquier `musicianId` existente
+
+#### `GET /v1/songs/{songId}/instruments/{instrumentId}`
+
+- requiere `BearerAuth`
+- solo puede leerlo una persona que pertenezca a la banda de la canción
+- la regla incluye dos casos válidos:
+  - la persona es `ownerId` de la banda
+  - la persona figura en `BandMember` para esa banda
+- si no se cumple esa condición, la API responde `403 Forbidden`
+- la respuesta incluye la participación instrumental y `video`, que puede ser `null` o un `SongInstrumentVideo` persistido
+
+#### `POST /v1/songs/{songId}/instruments/{instrumentId}/upload`
+
+- requiere `BearerAuth`
+- solo la persona asignada en `songInstrument.musicianId` puede subir el vídeo
+- el endpoint acepta `multipart/form-data` con el campo binario `video`
+- si autorización o validación fallan antes del `202 Accepted`, el controlador elimina el fichero temporal
+
+## Otras reglas visibles en OpenAPI
+
+| Endpoint | Regla de acceso |
+| --------------------------------------- | ------------------- |
+| `POST /v1/profile` | Usuario autenticado |
+| `GET /v1/profile` | Usuario autenticado |
+| `GET /v1/musicians/{id}` | Público |
+| `POST /v1/bands` | Usuario autenticado |
+| `GET /v1/bands` | Usuario autenticado |
+| `GET /v1/bands/{id}` | Usuario autenticado |
+| `PUT /v1/bands/{id}` | Usuario autenticado |
+| `DELETE /v1/bands/{id}` | Usuario autenticado |
 
 ## Ficheros clave
 
-- `src/apps/mybandnow/backend/server.ts`
-- `src/apps/mybandnow/backend/config/dependency-injection/dependencies/mybandnowDependencies.ts`
+- `src/Contexts/Mybandnow/Shared/infrastructure/Authentication/LocalJwtBearerToken.ts`
 - `src/Contexts/Mybandnow/Shared/infrastructure/identityServer/internal/InternalAuthentication.ts`
-- `src/Contexts/Mybandnow/Shared/infrastructure/identityServer/keycloak/KeycloakBearerToken.ts`
-- `src/Contexts/Shared/application/security/CriteriaScopeSecurity.ts`
-- `src/Contexts/Shared/application/security/AuthenticatedUserContext.ts`
+- `src/apps/mybandnow/backend/routes/openapiSecurity.ts`
+- `src/apps/mybandnow/backend/controllers/songInstrument/SongInstrumentGetByIdController.ts`
+- `src/apps/mybandnow/backend/controllers/songInstrument/SongInstrumentPostCreateController.ts`
+- `src/apps/mybandnow/backend/controllers/songInstrumentUpload/SongInstrumentUploadPostUploadController.ts`
+- `src/Contexts/Moat/SongInstrument/application/findById/SongInstrumentFindById.ts`
+- `src/Contexts/Moat/SongInstrument/infrastructure/persistence/SongInstrumentPrismaRepository.ts`
