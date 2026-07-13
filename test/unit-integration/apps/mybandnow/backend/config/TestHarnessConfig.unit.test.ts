@@ -83,7 +83,8 @@ describe('test harness logging config', () => {
     };
 
     // Assert
-    expect(packageJson.scripts['tests:acceptance']).toBe('cucumber-js');
+    expect(packageJson.scripts['tests:acceptance']).toContain('cucumber-js');
+    expect(packageJson.scripts['tests:acceptance']).not.toContain('NODE_ENV=');
   });
 
   it('starts the runtime container without the npm lifecycle banner', () => {

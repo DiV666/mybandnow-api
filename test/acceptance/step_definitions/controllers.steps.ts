@@ -328,7 +328,7 @@ Given('a {string} track with id {string} exists', async function (status: string
       id: ownerMusicianId,
       userId: ownerUserId,
       username: `track-owner-${trackId}`,
-      realName: 'Track Owner',
+      realName: 'Song Instrument Upload Owner',
       instruments: []
     }
   });
@@ -338,7 +338,7 @@ Given('a {string} track with id {string} exists', async function (status: string
     update: {},
     create: {
       id: bandId,
-      name: 'Track Upload Band',
+      name: 'Song Instrument Upload Band',
       ownerId: ownerMusicianId
     }
   });
@@ -348,7 +348,7 @@ Given('a {string} track with id {string} exists', async function (status: string
     update: {},
     create: {
       id: songId,
-      title: 'Track Upload Song',
+      title: 'Song Instrument Upload Song',
       bandId
     }
   });
@@ -370,7 +370,7 @@ Given('a {string} track with id {string} exists', async function (status: string
     }
   });
 
-  await prisma.track.upsert({
+  await prisma.songInstrumentUpload.upsert({
     where: { id: trackId },
     update: {
       instrumentName: 'guitar',
@@ -402,7 +402,7 @@ Given(
       update: {},
       create: {
         id: bandId,
-        name: 'Track Upload Band',
+        name: 'Song Instrument Upload Band',
         ownerId: authenticatedMusician.id
       }
     });
@@ -410,12 +410,12 @@ Given(
     await prisma.song.upsert({
       where: { id: resolvedSongId },
       update: {
-        title: 'Track Upload Song',
+        title: 'Song Instrument Upload Song',
         bandId
       },
       create: {
         id: resolvedSongId,
-        title: 'Track Upload Song',
+        title: 'Song Instrument Upload Song',
         bandId
       }
     });
@@ -462,7 +462,7 @@ Given(
         id: otherMusicianId,
         userId: otherUserId,
         username,
-        realName: 'Other Track Musician',
+        realName: 'Other Song Instrument Upload Musician',
         instruments: []
       }
     });
@@ -472,7 +472,7 @@ Given(
       update: {},
       create: {
         id: bandId,
-        name: 'Track Upload Band',
+        name: 'Song Instrument Upload Band',
         ownerId: otherMusicianId
       }
     });
@@ -480,12 +480,12 @@ Given(
     await prisma.song.upsert({
       where: { id: resolvedSongId },
       update: {
-        title: 'Track Upload Song',
+        title: 'Song Instrument Upload Song',
         bandId
       },
       create: {
         id: resolvedSongId,
-        title: 'Track Upload Song',
+        title: 'Song Instrument Upload Song',
         bandId
       }
     });
@@ -510,13 +510,13 @@ Given(
 );
 
 Given(
-  'an internal track already exists for song {string} and song instrument {string}',
+  'an internal song instrument upload already exists for song {string} and song instrument {string}',
   async function (this: MybandnowWorld, songId: string, songInstrumentId: string) {
     const prisma = PrismaClientFactory.createClient();
     const resolvedSongId = this.dataUtil.replaceTokensWithCustomOrFakerValues(songId) as string;
     const resolvedSongInstrumentId = this.dataUtil.replaceTokensWithCustomOrFakerValues(songInstrumentId) as string;
 
-    await prisma.track.create({
+    await prisma.songInstrumentUpload.create({
       data: {
         id: uuidv5(`track-${resolvedSongInstrumentId}`, '1b671a64-40d5-491e-99b0-da01ff1f3341'),
         instrumentName: 'Lead Guitar',
@@ -529,12 +529,12 @@ Given(
 );
 
 Then(
-  'exactly {int} internal track should exist for song {string} and song instrument {string}',
+  'exactly {int} internal song instrument upload should exist for song {string} and song instrument {string}',
   async function (this: MybandnowWorld, total: number, songId: string, songInstrumentId: string) {
     const prisma = PrismaClientFactory.createClient();
     const resolvedSongId = this.dataUtil.replaceTokensWithCustomOrFakerValues(songId) as string;
     const resolvedSongInstrumentId = this.dataUtil.replaceTokensWithCustomOrFakerValues(songInstrumentId) as string;
-    const tracks = await prisma.track.findMany({
+    const tracks = await prisma.songInstrumentUpload.findMany({
       where: {
         songId: resolvedSongId,
         songInstrumentId: resolvedSongInstrumentId
@@ -545,51 +545,54 @@ Then(
   }
 );
 
-Given('An existing song with id {string} and musician {string}', async function (songId: string, musicianId: string) {
-  const prisma = PrismaClientFactory.createClient();
-  const resolvedSongId = this.dataUtil.replaceTokensWithCustomOrFakerValues(songId) as string;
-  const resolvedMusicianId = this.dataUtil.replaceTokensWithCustomOrFakerValues(musicianId) as string;
-  const username = `song-instrument-${resolvedMusicianId}`;
+Given(
+  'An existing song with id {string} and musician {string}',
+  async function (this: MybandnowWorld, songId: string, musicianId: string) {
+    const prisma = PrismaClientFactory.createClient();
+    const resolvedSongId = this.dataUtil.replaceTokensWithCustomOrFakerValues(songId) as string;
+    const resolvedMusicianId = this.dataUtil.replaceTokensWithCustomOrFakerValues(musicianId) as string;
+    const username = `song-instrument-${resolvedMusicianId}`;
 
-  await savePersistedUser(username, resolvedMusicianId, 'asdASD123!');
+    await savePersistedUser(username, resolvedMusicianId, 'asdASD123!');
 
-  await prisma.musician.upsert({
-    where: { id: resolvedMusicianId },
-    update: {},
-    create: {
-      id: resolvedMusicianId,
-      userId: resolvedMusicianId,
-      username,
-      realName: 'Song Instrument Musician',
-      instruments: []
-    }
-  });
+    await prisma.musician.upsert({
+      where: { id: resolvedMusicianId },
+      update: {},
+      create: {
+        id: resolvedMusicianId,
+        userId: resolvedMusicianId,
+        username,
+        realName: 'Song Instrument Musician',
+        instruments: []
+      }
+    });
 
-  const bandId = uuidv5(`song-instrument-band-${resolvedSongId}`, '1b671a64-40d5-491e-99b0-da01ff1f3341');
+    const bandId = uuidv5(`song-instrument-band-${resolvedSongId}`, '1b671a64-40d5-491e-99b0-da01ff1f3341');
 
-  await prisma.band.upsert({
-    where: { id: bandId },
-    update: {},
-    create: {
-      id: bandId,
-      name: 'Song Instrument Band',
-      ownerId: resolvedMusicianId
-    }
-  });
+    await prisma.band.upsert({
+      where: { id: bandId },
+      update: {},
+      create: {
+        id: bandId,
+        name: 'Song Instrument Band',
+        ownerId: resolvedMusicianId
+      }
+    });
 
-  await prisma.song.upsert({
-    where: { id: resolvedSongId },
-    update: {
-      title: 'Song Instrument Song',
-      bandId
-    },
-    create: {
-      id: resolvedSongId,
-      title: 'Song Instrument Song',
-      bandId
-    }
-  });
-});
+    await prisma.song.upsert({
+      where: { id: resolvedSongId },
+      update: {
+        title: 'Song Instrument Song',
+        bandId
+      },
+      create: {
+        id: resolvedSongId,
+        title: 'Song Instrument Song',
+        bandId
+      }
+    });
+  }
+);
 
 AfterAll(async (): Promise<void> => {
   const prismaEnvironmentArranger: Promise<EnvironmentArranger> = container.get('Shared.PrismaEnvironmentArranger');

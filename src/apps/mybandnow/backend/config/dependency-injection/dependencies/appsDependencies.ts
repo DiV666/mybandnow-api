@@ -9,14 +9,16 @@ import { register as registerMusicianGetByIdController } from '../controllers/mu
 import { register as registerProfileGetController } from '../controllers/musician/profileGet.dependency.js';
 import { register as registerProfilePostController } from '../controllers/musician/profilePost.dependency.js';
 import { register as registerSongInstrumentPostCreateController } from '../controllers/songInstrument/songInstrumentPostCreate.dependency.js';
-import { register as registerTrackPostUploadController } from '../controllers/track/trackPostUpload.dependency.js';
+import { register as registerSongInstrumentUploadPostUploadController } from '../controllers/songInstrumentUpload/songInstrumentUploadPostUpload.dependency.js';
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 import ContinuationLocalStorageExpress from '../../../middlewares/ContinuationLocalStorageExpress.js';
 import CorrelationIdHeader from '../../../middlewares/CorrelationIdHeader.js';
 import { RequireMusicianProfileMiddleware } from '../../../middlewares/RequireMusicianProfileMiddleware.js';
 import TraceReqAndRes from '../../../middlewares/TraceReqAndRes.js';
 import { RabbitMQConfigFactory } from '@Contexts/Mybandnow/Shared/infrastructure/EventBus/RabbitMQ/RabbitMQConfigFactory.js';
-import { ValidateTrackOnUploadRequested } from '../../../subscribers/ValidateTrackOnUploadRequested.js';
+import { ValidateSongInstrumentUploadOnUploadRequested } from '../../../subscribers/ValidateSongInstrumentUploadOnUploadRequested.js';
+import { CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted } from '../../../subscribers/CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted.js';
+import { CreateSongInstrumentVideoOnSongInstrumentUploadCompleted } from '../../../subscribers/CreateSongInstrumentVideoOnSongInstrumentUploadCompleted.js';
 import type { CommandBus } from '@Contexts/Shared/domain/CommandBus.js';
 import { MultipartFileParser } from '@Contexts/Shared/infrastructure/Express/MultipartFileParser.js';
 
@@ -36,7 +38,7 @@ export function registerAppsDependencies(container: ContainerBuilder) {
   registerProfileGetController(container);
   registerProfilePostController(container);
   registerSongInstrumentPostCreateController(container);
-  registerTrackPostUploadController(container);
+  registerSongInstrumentUploadPostUploadController(container);
 
   // Middlewares
   container.register('Shared.Express.MultipartFileParser', MultipartFileParser);
@@ -57,8 +59,31 @@ export function registerAppsDependencies(container: ContainerBuilder) {
 
   // Subscribers
   container
-    .register('Apps.Mybandnow.Backend.subscribers.ValidateTrackOnUploadRequested', ValidateTrackOnUploadRequested)
-    .addArgument('moat.track.upload_requested')
+    .register(
+      'Apps.Mybandnow.Backend.subscribers.ValidateSongInstrumentUploadOnUploadRequested',
+      ValidateSongInstrumentUploadOnUploadRequested
+    )
+    .addArgument('moat.song_instrument_upload.upload_requested')
+    .addArgument(new Reference('Shared.BunyanLogger'))
+    .addArgument(() => container.get<CommandBus>('Shared.CommandBus'))
+    .addTag('domainEventSubscriber');
+
+  container
+    .register(
+      'Apps.Mybandnow.Backend.subscribers.CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted',
+      CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted
+    )
+    .addArgument('orchestrator.song_instrument_process.completed')
+    .addArgument(new Reference('Shared.BunyanLogger'))
+    .addArgument(() => container.get<CommandBus>('Shared.CommandBus'))
+    .addTag('domainEventSubscriber');
+
+  container
+    .register(
+      'Apps.Mybandnow.Backend.subscribers.CreateSongInstrumentVideoOnSongInstrumentUploadCompleted',
+      CreateSongInstrumentVideoOnSongInstrumentUploadCompleted
+    )
+    .addArgument('moat.song_instrument_upload.completed')
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(() => container.get<CommandBus>('Shared.CommandBus'))
     .addTag('domainEventSubscriber');

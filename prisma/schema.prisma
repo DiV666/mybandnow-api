@@ -62,7 +62,7 @@ model Song {
   title     String
   band      Band       @relation(fields: [bandId], references: [id], onDelete: Cascade)
   bandId    String
-  tracks    Track[]
+  songInstrumentUploads SongInstrumentUpload[]
   songInstruments SongInstrument[]
   videoclip Videoclip?
 }
@@ -75,11 +75,22 @@ model SongInstrument {
   songId         String
   musician       Musician @relation(fields: [musicianId], references: [id], onDelete: Cascade)
   musicianId     String
-  tracks         Track[]
+  songInstrumentUploads SongInstrumentUpload[]
+  songInstrumentVideo SongInstrumentVideo?
   createdAt      DateTime @default(now())
 }
 
-model Track {
+model SongInstrumentVideo {
+  id               String         @id @default(uuid())
+  songInstrument   SongInstrument @relation(fields: [songInstrumentId], references: [id], onDelete: Cascade)
+  songInstrumentId String         @unique
+  url              String
+  duration         Int
+  size             Int
+  createdAt        DateTime       @default(now())
+}
+
+model SongInstrumentUpload {
   id             String   @id @default(uuid())
   instrumentName String
   status         String   @default("PENDING") // PENDING | READY | PROCESSING | FAILED
@@ -105,8 +116,8 @@ model Videoclip {
 // 3. CONTEXTO ORCHESTRATOR (Infraestructura Técnica / Saga Asíncrona)
 // =========================================================================
 
-model TrackProcess {
-  id            String   @id // Comparte exactamente el ID del modelo Track (Moat)
+model SongInstrumentProcess {
+  id            String   @id // Comparte exactamente el ID del modelo SongInstrumentUpload (Moat)
   status        String   @default("COMPLETED") // COMPLETED | FAILED
   gcsPath       String?  // Ruta en GCS (e.g. bands/:bandId/songs/:songId/tracks/:trackId.mp4)
   fileSize      Int?

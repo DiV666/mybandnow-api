@@ -251,11 +251,11 @@
         "/v1/songs/{songId}/instruments/{instrumentId}/upload": {
             "post": {
                 "tags": [
-                    "Track"
+                    "SongInstrumentUpload"
                 ],
-                "summary": "Upload a track video for asynchronous validation",
+                "summary": "Upload a song instrument video for asynchronous validation",
                 "description": "Send the multipart/form-data field named video with an MP4 file for a specific song instrument participation.",
-                "operationId": "trackPostUpload",
+                "operationId": "songInstrumentUploadPostUpload",
                 "security": [
                     {
                         "BearerAuth": []

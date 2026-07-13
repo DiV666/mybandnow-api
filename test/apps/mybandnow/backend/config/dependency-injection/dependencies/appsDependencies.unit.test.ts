@@ -13,19 +13,47 @@ describe('registerAppsDependencies', () => {
 
     // Assert
     expect(subscriberIds).not.toContain('Apps.Mybandnow.Backend.subscribers.CreateMusicianOnUserRegistered');
-    expect(subscriberIds).toContain('Apps.Mybandnow.Backend.subscribers.ValidateTrackOnUploadRequested');
+    expect(subscriberIds).toContain('Apps.Mybandnow.Backend.subscribers.ValidateSongInstrumentUploadOnUploadRequested');
+    expect(subscriberIds).toContain(
+      'Apps.Mybandnow.Backend.subscribers.CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted'
+    );
+    expect(subscriberIds).toContain(
+      'Apps.Mybandnow.Backend.subscribers.CreateSongInstrumentVideoOnSongInstrumentUploadCompleted'
+    );
   });
 
-  it('injects a lazy command bus resolver into the track upload subscriber', () => {
+  it('injects a lazy command bus resolver into the song instrument upload subscriber', () => {
     // Arrange
     const container = new ContainerBuilder();
 
     // Act
     registerAppsDependencies(container);
-    const definition = container.getDefinition('Apps.Mybandnow.Backend.subscribers.ValidateTrackOnUploadRequested');
+    const definition = container.getDefinition(
+      'Apps.Mybandnow.Backend.subscribers.ValidateSongInstrumentUploadOnUploadRequested'
+    );
 
     // Assert
     expect(definition.args).toHaveLength(3);
     expect(definition.args[2]).toEqual(expect.any(Function));
+  });
+
+  it('injects lazy command bus resolvers into the completion subscribers', () => {
+    // Arrange
+    const container = new ContainerBuilder();
+
+    // Act
+    registerAppsDependencies(container);
+    const technicalDefinition = container.getDefinition(
+      'Apps.Mybandnow.Backend.subscribers.CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted'
+    );
+    const businessDefinition = container.getDefinition(
+      'Apps.Mybandnow.Backend.subscribers.CreateSongInstrumentVideoOnSongInstrumentUploadCompleted'
+    );
+
+    // Assert
+    expect(technicalDefinition.args).toHaveLength(3);
+    expect(technicalDefinition.args[2]).toEqual(expect.any(Function));
+    expect(businessDefinition.args).toHaveLength(3);
+    expect(businessDefinition.args[2]).toEqual(expect.any(Function));
   });
 });
