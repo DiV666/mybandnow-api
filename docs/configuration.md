@@ -21,12 +21,12 @@ Consideraciones:
 
 ### API
 
-| Variable           | Valor por defecto | Descripción                          |
-| ------------------ | ----------------- | ------------------------------------ |
-| `NODE_ENV`         | `development`     | Entorno de ejecución                                 |
-| `PORT`             | `4008`            | Puerto HTTP                                          |
-| `TIMEOUT`          | `120000`          | Timeout por petición en milisegundos                 |
-| `MAX_PAYLOAD_SIZE` | `256kb`           | Límite de payload de Express                         |
+| Variable           | Valor por defecto | Descripción                                                                   |
+| ------------------ | ----------------- | ----------------------------------------------------------------------------- |
+| `NODE_ENV`         | `development`     | Entorno de ejecución                                                          |
+| `PORT`             | `4008`            | Puerto HTTP                                                                   |
+| `TIMEOUT`          | `120000`          | Timeout por petición en milisegundos                                          |
+| `MAX_PAYLOAD_SIZE` | `256kb`           | Límite de payload de Express                                                  |
 | `BASE_PATH`        | `/api`            | Valor de configuración disponible, hoy no aplicado a las rutas públicas `/v1` |
 
 ### Logging y CORS

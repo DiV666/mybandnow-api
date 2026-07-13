@@ -75,16 +75,16 @@ Si el usuario autenticado no tiene perfil musical, la API responde `403 Forbidde
 
 ## Otras reglas visibles en OpenAPI
 
-| Endpoint | Regla de acceso |
-| --------------------------------------- | ------------------- |
-| `POST /v1/profile` | Usuario autenticado |
-| `GET /v1/profile` | Usuario autenticado |
-| `GET /v1/musicians/{id}` | Público |
-| `POST /v1/bands` | Usuario autenticado |
-| `GET /v1/bands` | Usuario autenticado |
-| `GET /v1/bands/{id}` | Usuario autenticado |
-| `PUT /v1/bands/{id}` | Usuario autenticado |
-| `DELETE /v1/bands/{id}` | Usuario autenticado |
+| Endpoint                 | Regla de acceso     |
+| ------------------------ | ------------------- |
+| `POST /v1/profile`       | Usuario autenticado |
+| `GET /v1/profile`        | Usuario autenticado |
+| `GET /v1/musicians/{id}` | Público             |
+| `POST /v1/bands`         | Usuario autenticado |
+| `GET /v1/bands`          | Usuario autenticado |
+| `GET /v1/bands/{id}`     | Usuario autenticado |
+| `PUT /v1/bands/{id}`     | Usuario autenticado |
+| `DELETE /v1/bands/{id}`  | Usuario autenticado |
 
 ## Ficheros clave
 
