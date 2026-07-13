@@ -44,6 +44,8 @@ model Band {
   songs     Song[]
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
+
+  @@index([ownerId])
 }
 
 model BandMember {

@@ -7,6 +7,7 @@ import { SongInstrumentVideo } from '../../domain/SongInstrumentVideo.js';
 import { SongInstrumentVideoExistException } from '../../domain/exception/SongInstrumentVideoExistException.js';
 import { SongInstrumentVideoPersistenceRepository } from '../../domain/repository/SongInstrumentVideoPersistenceRepository.js';
 import { SongInstrumentVideoId } from '../../domain/value-object/SongInstrumentVideoId.js';
+import { SongInstrumentVideoSongInstrumentId } from '../../domain/value-object/SongInstrumentVideoSongInstrumentId.js';
 
 export class SongInstrumentVideoPrismaRepository implements SongInstrumentVideoPersistenceRepository {
   private client = PrismaClientFactory.createClient();
@@ -70,6 +71,27 @@ export class SongInstrumentVideoPrismaRepository implements SongInstrumentVideoP
   async search(id: SongInstrumentVideoId): Promise<Nullable<SongInstrumentVideo>> {
     const document = await this.client.songInstrumentVideo.findUnique({
       where: { id: id.value }
+    });
+
+    if (!document) {
+      return null;
+    }
+
+    return SongInstrumentVideo.fromPrimitives({
+      id: document.id,
+      songInstrumentId: document.songInstrumentId,
+      url: document.url,
+      duration: document.duration,
+      size: document.size,
+      createdAt: document.createdAt
+    });
+  }
+
+  async searchBySongInstrumentId(
+    songInstrumentId: SongInstrumentVideoSongInstrumentId
+  ): Promise<Nullable<SongInstrumentVideo>> {
+    const document = await this.client.songInstrumentVideo.findUnique({
+      where: { songInstrumentId: songInstrumentId.value }
     });
 
     if (!document) {

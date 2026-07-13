@@ -100,4 +100,31 @@ export class SongInstrumentPrismaRepository
 
     return song !== null;
   }
+
+  async isBandMember(songId: SongInstrumentSongId, musicianId: SongInstrumentMusicianId): Promise<boolean> {
+    const song = await this.client.song.findFirst({
+      where: {
+        id: songId.value,
+        band: {
+          OR: [
+            {
+              ownerId: musicianId.value
+            },
+            {
+              members: {
+                some: {
+                  musicianId: musicianId.value
+                }
+              }
+            }
+          ]
+        }
+      },
+      select: {
+        id: true
+      }
+    });
+
+    return song !== null;
+  }
 }
