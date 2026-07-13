@@ -25,7 +25,7 @@ El stack operativo actual combina:
 | Método   | Ruta                                                   | Descripción                                                       | Auth |
 | -------- | ------------------------------------------------------ | ----------------------------------------------------------------- | ---- |
 | `POST`   | `/v1/users/register`                                   | Registra un usuario local                                         | No   |
-| `POST`   | `/v1/users/login`                                      | Devuelve un JWT local para consumo de la API                      | No   |
+| `POST`   | `/v1/auth/login`                                       | Devuelve un JWT local para consumo de la API                      | No   |
 | `POST`   | `/v1/profile`                                          | Crea el perfil `Musician` del usuario autenticado                 | Sí   |
 | `GET`    | `/v1/profile`                                          | Devuelve el perfil del usuario autenticado                        | Sí   |
 | `GET`    | `/v1/musicians/{id}`                                   | Consulta pública de un músico por identificador                   | No   |

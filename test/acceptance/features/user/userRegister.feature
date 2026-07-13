@@ -35,3 +35,39 @@ Feature: register User
         "message": "Profile not found"
       }
       """
+
+  Scenario: A register attempt with malformed email
+    Given I send a POST request to "/v1/users/register" with body:
+    """
+    {
+      "id": "9a7ce57c-d0ad-4919-abcd-ccbe3480fbf7",
+      "email": "invalid-email",
+      "password": "mypassword"
+    }
+    """
+    Then the response status code should be 400
+    And the response should be:
+    """
+    {
+      "code": "INVALID_ARGUMENT",
+      "message": "El campo <email> debe estar en formato <email>."
+    }
+    """
+
+  Scenario: A register attempt with too-short password
+    Given I send a POST request to "/v1/users/register" with body:
+    """
+    {
+      "id": "4c6e0e7b-5a1c-45d9-bad6-6a8ddae8c4dc",
+      "email": "shortregister@example.com",
+      "password": "short"
+    }
+    """
+    Then the response status code should be 400
+    And the response should be:
+    """
+    {
+      "code": "INVALID_ARGUMENT",
+      "message": "El campo <password> debe tener al menos <8> caracteres."
+    }
+    """

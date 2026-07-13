@@ -48,7 +48,9 @@ export default class ApiExceptionListener {
 
     const exceptionWithCode = handledException as Error & { code?: string };
     const responseMessage =
-      statusCode === httpStatus.INTERNAL_SERVER_ERROR ? 'Internal server error' : handledException.message;
+      statusCode === httpStatus.INTERNAL_SERVER_ERROR
+        ? 'Internal server error'
+        : this.publicMessageFor(handledException);
 
     res
       .status(statusCode)
@@ -58,6 +60,20 @@ export default class ApiExceptionListener {
         message: responseMessage
       });
     next();
+  }
+
+  private publicMessageFor(exception: Error): string {
+    if (exception instanceof InvalidArgumentException) {
+      if (exception.publicMessage) {
+        return exception.publicMessage;
+      }
+
+      if (/^<[^>]+> does not allow the value </.test(exception.message)) {
+        return 'Invalid argument';
+      }
+    }
+
+    return exception.message;
   }
 
   private isOpenApiPayloadException(exception: unknown): exception is { openapi: boolean; errors: unknown[] } {

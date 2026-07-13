@@ -59,6 +59,41 @@ describe('ApiExceptionListener', () => {
       expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ message: 'bad input' }));
     });
 
+    it('maps UserEmail invalid format to the public email validation message', () => {
+      const exception = new InvalidArgumentException({
+        code: 'INVALID_ARGUMENT',
+        message: '<UserEmail> does not allow the value <invalid-email>',
+        publicMessage: 'El campo <email> debe estar en formato <email>.'
+      });
+
+      listener.onException(exception, req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.BAD_REQUEST);
+      expect(res.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'INVALID_ARGUMENT',
+          message: 'El campo <email> debe estar en formato <email>.'
+        })
+      );
+    });
+
+    it('sanitizes raw value-object invalid argument messages without a public message', () => {
+      const exception = new InvalidArgumentException({
+        code: 'INVALID_ARGUMENT',
+        message: '<SecretValueObject> does not allow the value <top-secret>'
+      });
+
+      listener.onException(exception, req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(httpStatus.BAD_REQUEST);
+      expect(res.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'INVALID_ARGUMENT',
+          message: 'Invalid argument'
+        })
+      );
+    });
+
     it('responds 403 for ForbiddenException', () => {
       const exception = new ForbiddenException('access denied');
       listener.onException(exception, req, res, next);

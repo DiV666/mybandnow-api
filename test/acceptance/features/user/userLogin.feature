@@ -12,7 +12,7 @@ Feature: login User
       "password": "mypassword"
     }
     """
-    And I send a POST request to "/v1/users/login" with body:
+    And I send a POST request to "/v1/auth/login" with body:
     """
     {
       "email": "test@mybandnow.com",
@@ -21,6 +21,10 @@ Feature: login User
     """
     Then the response status code should be 200
     And the response should contain "accessToken"
+    And the response with ignored fields "accessToken" should be:
+      """
+      {}
+      """
 
   Scenario: A login attempt with wrong password
     Given I send a POST request to "/v1/users/register" with body:
@@ -31,7 +35,7 @@ Feature: login User
       "password": "correctpassword"
     }
     """
-    When I send a POST request to "/v1/users/login" with body:
+    When I send a POST request to "/v1/auth/login" with body:
     """
     {
       "email": "wrongpass@mybandnow.com",
@@ -48,7 +52,7 @@ Feature: login User
     """
 
   Scenario: A login attempt with non-existent user
-    When I send a POST request to "/v1/users/login" with body:
+    When I send a POST request to "/v1/auth/login" with body:
     """
     {
       "email": "nonexistent@mybandnow.com",
@@ -64,11 +68,86 @@ Feature: login User
     }
     """
 
-  Scenario: A login attempt with missing fields
-    When I send a POST request to "/v1/users/login" with body:
+  Scenario: A login attempt with unexpected fields
+    When I send a POST request to "/v1/auth/login" with body:
+    """
+    {
+      "email": "test@mybandnow.com",
+      "password": "mypassword",
+      "role": "admin"
+    }
+    """
+    Then the response status code should be 400
+    And the response should contain "message"
+    And the response with ignored fields "message" should be:
+      """
+      {
+        "code": "INVALID_ARGUMENT"
+      }
+      """
+
+  Scenario: A login attempt with missing email
+    When I send a POST request to "/v1/auth/login" with body:
+    """
+    {
+      "password": "mypassword"
+    }
+    """
+    Then the response status code should be 400
+    And the response should be:
+    """
+    {
+      "code": "INVALID_ARGUMENT",
+      "message": "El campo <email> es requerido."
+    }
+    """
+
+  Scenario: A login attempt with missing password
+    When I send a POST request to "/v1/auth/login" with body:
     """
     {
       "email": "missingpass@mybandnow.com"
     }
     """
     Then the response status code should be 400
+    And the response should be:
+    """
+    {
+      "code": "INVALID_ARGUMENT",
+      "message": "El campo <password> es requerido."
+    }
+    """
+
+  Scenario: A login attempt with malformed email
+    When I send a POST request to "/v1/auth/login" with body:
+    """
+    {
+      "email": "invalid-email",
+      "password": "mypassword"
+    }
+    """
+    Then the response status code should be 400
+    And the response should be:
+    """
+    {
+      "code": "INVALID_ARGUMENT",
+      "message": "El campo <email> debe estar en formato <email>."
+    }
+    """
+
+  Scenario: A login attempt with too-short password
+    When I send a POST request to "/v1/auth/login" with body:
+    """
+    {
+      "email": "shortpass@mybandnow.com",
+      "password": "short"
+    }
+    """
+    Then the response status code should be 400
+    And the response should be:
+    """
+    {
+      "code": "INVALID_ARGUMENT",
+      "message": "El campo <password> debe tener al menos <8> caracteres."
+    }
+    """
