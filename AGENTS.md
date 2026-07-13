@@ -30,6 +30,21 @@ Use these skills for detailed patterns on-demand:
 | `test-unit`  | Unit testing with vitest-mock-extended and Object Mothers (Domain/App layers) | [SKILL.md](.agents/skills/test-unit/SKILL.md)  |
 | `tdd`        | Test-Driven Development workflow                                              | [SKILL.md](.agents/skills/tdd/SKILL.md)        |
 
+### Kloding Scaffold-First Workflow
+
+For scaffoldable structural changes, agents MUST prefer `rb` commands and the matching `kloding-*` skills before hand-editing files. Use manual edits only when `rb` cannot express the change or for follow-up refinement after scaffolding.
+
+| Intent | Prefer |
+| --- | --- |
+| Add or remove a full CRUD module slice | `rb g m` / `rb d m` + `kloding-generate-module` / `kloding-destroy-module` |
+| Add or remove a single HTTP controller | `rb g c` / `rb d c` + `kloding-generate-controller` / `kloding-destroy-controller` |
+| Add or remove a single use case action | `rb g uc` / `rb d uc` + `kloding-generate-use-case` / `kloding-destroy-use-case` |
+| Add or remove a domain aggregate layer | `rb g a` / `rb d a` + `kloding-generate-aggregate` / `kloding-destroy-aggregate` |
+| Add or remove a domain parameter / VO or controller parameter | `rb g p` / `rb d p` + `kloding-generate-parameter` / `kloding-destroy-parameter` |
+| Add or remove a global module parameter | `rb g gp` / `rb d gp` + `kloding-generate-parameter` / `kloding-destroy-parameter` |
+| Add or remove a domain event subscriber | `rb g sub` / `rb d sub` + `kloding-generate-subscriber` / `kloding-destroy-subscriber` |
+| Add or remove a shared HTTP infrastructure service | `rb g s` / `rb d s` + `kloding-generate-service` / `kloding-destroy-service` |
+
 ### Project-Specific Skills (mybandnow)
 
 | Skill                | Description                                                               | URL                                                    |
