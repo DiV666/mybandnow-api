@@ -6,6 +6,7 @@ import { SecurityHandlerException } from '@Contexts/Shared/infrastructure/except
 import { env } from '@Contexts/Shared/infrastructure/config/env.js';
 
 export interface LocalJwtPayload extends jsonwebtoken.JwtPayload {
+  sub?: string;
   userId: string;
   email: string;
   roles?: string[];
@@ -18,7 +19,13 @@ export class LocalJwtBearerToken implements JWTVerifier {
         algorithms: ['HS256']
       });
 
-      if (typeof decoded === 'string' || !decoded.userId || !decoded.email) {
+      if (typeof decoded === 'string') {
+        throw new ForbiddenException('JWT claims are incomplete.');
+      }
+
+      const userId = decoded.sub ?? decoded.userId;
+
+      if (!userId || !decoded.email) {
         throw new ForbiddenException('JWT claims are incomplete.');
       }
 
@@ -34,7 +41,7 @@ export class LocalJwtBearerToken implements JWTVerifier {
 
       return {
         ...decoded,
-        userId: decoded.userId as string,
+        userId,
         email: decoded.email as string
       };
     } catch (error: unknown) {
