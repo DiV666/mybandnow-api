@@ -58,7 +58,8 @@ describe('SongInstrumentPersistenceRepository', () => {
       data: {
         id: songId,
         title: 'Song Instrument Song',
-        bandId
+        bandId,
+        originalVideoclipUrl: `https://cdn.example.com/songs/${songId}/original.mp4`
       }
     });
   }

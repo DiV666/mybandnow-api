@@ -362,7 +362,8 @@ Given('a {string} track with id {string} exists', async function (status: string
     create: {
       id: songId,
       title: 'Song Instrument Upload Song',
-      bandId
+      bandId,
+      originalVideoclipUrl: 'https://cdn.example.com/song-instrument-upload-source.mp4'
     }
   });
 
@@ -424,12 +425,14 @@ Given(
       where: { id: resolvedSongId },
       update: {
         title: 'Song Instrument Upload Song',
-        bandId
+        bandId,
+        originalVideoclipUrl: 'https://cdn.example.com/song-instrument-upload-source.mp4'
       },
       create: {
         id: resolvedSongId,
         title: 'Song Instrument Upload Song',
-        bandId
+        bandId,
+        originalVideoclipUrl: 'https://cdn.example.com/song-instrument-upload-source.mp4'
       }
     });
 
@@ -494,12 +497,14 @@ Given(
       where: { id: resolvedSongId },
       update: {
         title: 'Song Instrument Upload Song',
-        bandId
+        bandId,
+        originalVideoclipUrl: 'https://cdn.example.com/song-instrument-upload-source.mp4'
       },
       create: {
         id: resolvedSongId,
         title: 'Song Instrument Upload Song',
-        bandId
+        bandId,
+        originalVideoclipUrl: 'https://cdn.example.com/song-instrument-upload-source.mp4'
       }
     });
 
@@ -559,6 +564,71 @@ Then(
 );
 
 Given(
+  'An existing band with id {string}, owner {string}, and member {string}',
+  async function (this: MybandnowWorld, bandId: string, ownerId: string, memberId: string) {
+    const prisma = PrismaClientFactory.createClient();
+    const resolvedBandId = this.dataUtil.replaceTokensWithCustomOrFakerValues(bandId) as string;
+    const resolvedOwnerId = this.dataUtil.replaceTokensWithCustomOrFakerValues(ownerId) as string;
+    const resolvedMemberId = this.dataUtil.replaceTokensWithCustomOrFakerValues(memberId) as string;
+
+    await prisma.band.upsert({
+      where: { id: resolvedBandId },
+      update: {
+        name: 'Acceptance Band',
+        ownerId: resolvedOwnerId
+      },
+      create: {
+        id: resolvedBandId,
+        name: 'Acceptance Band',
+        ownerId: resolvedOwnerId
+      }
+    });
+
+    await prisma.bandMember.upsert({
+      where: {
+        musicianId_bandId: {
+          musicianId: resolvedMemberId,
+          bandId: resolvedBandId
+        }
+      },
+      update: {
+        role: 'MEMBER'
+      },
+      create: {
+        id: uuidv5(`band-member-${resolvedBandId}-${resolvedMemberId}`, '1b671a64-40d5-491e-99b0-da01ff1f3341'),
+        musicianId: resolvedMemberId,
+        bandId: resolvedBandId,
+        role: 'MEMBER'
+      }
+    });
+  }
+);
+
+Given(
+  'An existing song with id {string}, band {string}, and title {string}',
+  async function (this: MybandnowWorld, songId: string, bandId: string, title: string) {
+    const prisma = PrismaClientFactory.createClient();
+    const resolvedSongId = this.dataUtil.replaceTokensWithCustomOrFakerValues(songId) as string;
+    const resolvedBandId = this.dataUtil.replaceTokensWithCustomOrFakerValues(bandId) as string;
+
+    await prisma.song.upsert({
+      where: { id: resolvedSongId },
+      update: {
+        title,
+        bandId: resolvedBandId,
+        originalVideoclipUrl: 'https://cdn.example.com/original.mp4'
+      },
+      create: {
+        id: resolvedSongId,
+        title,
+        bandId: resolvedBandId,
+        originalVideoclipUrl: 'https://cdn.example.com/original.mp4'
+      }
+    });
+  }
+);
+
+Given(
   'An existing song with id {string} and musician {string}',
   async function (this: MybandnowWorld, songId: string, musicianId: string) {
     const prisma = PrismaClientFactory.createClient();
@@ -596,12 +666,14 @@ Given(
       where: { id: resolvedSongId },
       update: {
         title: 'Song Instrument Song',
-        bandId
+        bandId,
+        originalVideoclipUrl: 'https://cdn.example.com/song-instrument-source.mp4'
       },
       create: {
         id: resolvedSongId,
         title: 'Song Instrument Song',
-        bandId
+        bandId,
+        originalVideoclipUrl: 'https://cdn.example.com/song-instrument-source.mp4'
       }
     });
   }

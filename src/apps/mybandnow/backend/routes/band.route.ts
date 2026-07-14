@@ -26,6 +26,28 @@ export async function bandPutUpdate(
   ]);
 }
 
+export async function bandSongPostCreate(
+  context: OpenAPIContext,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  await runController('Apps.Mybandnow.Backend.controllers.BandSongPostCreateController', context, req, res, next, [
+    ...requireMusicianProfile
+  ]);
+}
+
+export async function bandSongGetByBand(
+  context: OpenAPIContext,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  await runController('Apps.Mybandnow.Backend.controllers.BandSongGetByBandController', context, req, res, next, [
+    ...requireMusicianProfile
+  ]);
+}
+
 export async function bandDeleteRemove(
   context: OpenAPIContext,
   req: Request,

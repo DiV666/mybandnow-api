@@ -22,7 +22,7 @@ async function seedSong(songId: string) {
   });
   await prisma.musician.upsert({
     where: { id: musicianId },
-    create: { id: musicianId, userId, username: 'testuser' },
+    create: { id: musicianId, userId, username: 'testuser', realName: 'Test User' },
     update: {}
   });
   await prisma.band.upsert({
@@ -32,7 +32,12 @@ async function seedSong(songId: string) {
   });
   await prisma.song.upsert({
     where: { id: songId },
-    create: { id: songId, title: 'Song', bandId },
+    create: {
+      id: songId,
+      title: 'Song',
+      bandId,
+      originalVideoclipUrl: `https://cdn.example.com/songs/${songId}/original.mp4`
+    },
     update: {}
   });
 }

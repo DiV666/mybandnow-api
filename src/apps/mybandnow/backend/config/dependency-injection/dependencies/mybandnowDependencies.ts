@@ -18,6 +18,13 @@ import { register as registerSongInstrumentVideoCreator } from '@Apps/moat/backe
 import { register as registerSongInstrumentUploadUploader } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-upload/songInstrumentUploadUploader.dependency.js';
 import { register as registerSongInstrumentUploadStatusUpdater } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-upload/songInstrumentUploadStatusUpdater.dependency.js';
 import { BandPrismaRepository } from '@Contexts/Moat/Band/infrastructure/persistence/BandPrismaRepository.js';
+import { SongPrismaRepository } from '@Contexts/Moat/Song/infrastructure/persistence/SongPrismaRepository.js';
+import { SongCheckBandMembership } from '@Contexts/Moat/Song/application/checkBandMembership/SongCheckBandMembership.js';
+import { SongCheckBandMembershipQueryHandler } from '@Contexts/Moat/Song/application/checkBandMembership/SongCheckBandMembershipQueryHandler.js';
+import { SongCreator } from '@Contexts/Moat/Song/application/create/SongCreator.js';
+import { CreateSongCommandHandler } from '@Contexts/Moat/Song/application/create/CreateSongCommandHandler.js';
+import { SongListByBand } from '@Contexts/Moat/Song/application/listByBand/SongListByBand.js';
+import { SongListByBandQueryHandler } from '@Contexts/Moat/Song/application/listByBand/SongListByBandQueryHandler.js';
 import { SongInstrumentPrismaRepository } from '@Contexts/Moat/SongInstrument/infrastructure/persistence/SongInstrumentPrismaRepository.js';
 import { SongInstrumentVideoPrismaRepository } from '@Contexts/Moat/SongInstrumentVideo/infrastructure/persistence/SongInstrumentVideoPrismaRepository.js';
 import { SongInstrumentCheckSongOwnership } from '@Contexts/Moat/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnership.js';
@@ -46,6 +53,7 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   container.register('Mybandnow.User.UserRepository', UserPrismaRepository).addArgument(new Reference('Shared.Outbox'));
   container.register('Moat.Musician.MusicianRepository', PrismaMusicianRepository);
   container.register('Moat.Band.BandRepository', BandPrismaRepository).addArgument(new Reference('Shared.Outbox'));
+  container.register('Moat.Song.SongRepository', SongPrismaRepository).addArgument(new Reference('Shared.Outbox'));
   container
     .register('Moat.SongInstrument.SongInstrumentRepository', SongInstrumentPrismaRepository)
     .addArgument(new Reference('Shared.Outbox'));
@@ -68,6 +76,17 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   registerBandRemover(container);
   registerBandFinder(container);
   registerBandMatcher(container);
+  container
+    .register('Moat.Song.SongCreator', SongCreator)
+    .addArgument(new Reference('Shared.BunyanLogger'))
+    .addArgument(new Reference('Moat.Song.SongRepository'))
+    .addArgument(new Reference('Shared.EventBus'));
+
+  container
+    .register('Moat.Song.CreateSongCommandHandler', CreateSongCommandHandler)
+    .addArgument(new Reference('Moat.Song.SongCreator'))
+    .addTag('commandHandler');
+
   registerSongInstrumentCreator(container);
   registerSongInstrumentFindById(container);
   registerSongInstrumentVideoCreator(container);
@@ -81,6 +100,25 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   container
     .register('Moat.Musician.MusicianSearchByUserIdQueryHandler', MusicianSearchByUserIdQueryHandler)
     .addArgument(new Reference('Moat.Musician.MusicianSearchByUserId'))
+    .addTag('queryHandler');
+
+  container
+    .register('Moat.Song.SongCheckBandMembership', SongCheckBandMembership)
+    .addArgument(new Reference('Moat.Song.SongRepository'));
+
+  container
+    .register('Moat.Song.SongCheckBandMembershipQueryHandler', SongCheckBandMembershipQueryHandler)
+    .addArgument(new Reference('Moat.Song.SongCheckBandMembership'))
+    .addTag('queryHandler');
+
+  container
+    .register('Moat.Song.SongListByBand', SongListByBand)
+    .addArgument(new Reference('Moat.Song.SongRepository'))
+    .addArgument(new Reference('Moat.Song.SongRepository'));
+
+  container
+    .register('Moat.Song.SongListByBandQueryHandler', SongListByBandQueryHandler)
+    .addArgument(new Reference('Moat.Song.SongListByBand'))
     .addTag('queryHandler');
 
   container

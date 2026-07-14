@@ -69,7 +69,8 @@ async function createDependencies(songInstrumentId: string) {
     data: {
       id: songId,
       title: 'Song Instrument Video Song',
-      bandId
+      bandId,
+      originalVideoclipUrl: `https://cdn.example.com/songs/${songId}/original.mp4`
     }
   });
 

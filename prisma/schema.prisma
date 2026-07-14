@@ -7,39 +7,36 @@ datasource db {
 }
 
 // =========================================================================
-// 1. CONTEXTO IDENTITY & AUTENTICACIÓN (Local para MVP)
+// 1. CONTEXTO MYBANDNOW (Aplicación principal / autenticación)
 // =========================================================================
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  password  String    // Almacenada localmente con hash robusto (Argon2id / bcrypt)
-  musician  Musician? // Relación 1:1 con su perfil artístico
-  createdAt DateTime  @default(now())
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  musician  Musician?
 }
 
 // =========================================================================
-// 2. CONTEXTO MOAT (Reglas de Negocio / Core Artístico)
+// 2. CONTEXTO MOAT (Core de negocio musical)
 // =========================================================================
 model Musician {
-  id            String       @id @default(uuid())
-  userId        String       @unique
-  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  username      String       @unique // Nombre de usuario (antes stageName)
-  realName      String?
-  profilePicUrl String?      // Ruta inmutable del avatar en GCS
-  bio           String?
-  instruments   String[]     // ["Guitar", "Vocals", "Drums"] - Postgres nativo
-   
-  memberships   BandMember[] 
-  ownedBands    Band[]       @relation("BandOwner")
+  id           String     @id @default(uuid())
+  username     String     @unique
+  realName     String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String     @unique
+  instruments  String[]
+  bandsOwned   Band[]     @relation("BandOwner")
+  bandMembers  BandMember[]
   songInstruments SongInstrument[]
 }
 
 model Band {
   id        String       @id @default(uuid())
   name      String
-  ownerId   String
   owner     Musician     @relation("BandOwner", fields: [ownerId], references: [id])
+  ownerId   String
   members   BandMember[]
   songs     Song[]
   createdAt DateTime     @default(now())
@@ -60,26 +57,27 @@ model BandMember {
 }
 
 model Song {
-  id        String     @id @default(uuid())
-  title     String
-  band      Band       @relation(fields: [bandId], references: [id], onDelete: Cascade)
-  bandId    String
+  id                   String               @id @default(uuid())
+  title                String
+  band                 Band                 @relation(fields: [bandId], references: [id], onDelete: Cascade)
+  bandId               String
+  originalVideoclipUrl String
   songInstrumentUploads SongInstrumentUpload[]
-  songInstruments SongInstrument[]
-  videoclip Videoclip?
+  songInstruments      SongInstrument[]
+  videoclip            Videoclip?
 }
 
 model SongInstrument {
-  id             String   @id @default(uuid())
-  name           String
-  instrumentType String
-  song           Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
-  songId         String
-  musician       Musician @relation(fields: [musicianId], references: [id], onDelete: Cascade)
-  musicianId     String
+  id                    String                @id @default(uuid())
+  name                  String
+  instrumentType        String
+  song                  Song                  @relation(fields: [songId], references: [id], onDelete: Cascade)
+  songId                String
+  musician              Musician              @relation(fields: [musicianId], references: [id], onDelete: Cascade)
+  musicianId            String
   songInstrumentUploads SongInstrumentUpload[]
-  songInstrumentVideo SongInstrumentVideo?
-  createdAt      DateTime @default(now())
+  songInstrumentVideo   SongInstrumentVideo?
+  createdAt             DateTime              @default(now())
 }
 
 model SongInstrumentVideo {
@@ -93,14 +91,14 @@ model SongInstrumentVideo {
 }
 
 model SongInstrumentUpload {
-  id             String   @id @default(uuid())
-  instrumentName String
-  status         String   @default("PENDING") // PENDING | READY | PROCESSING | FAILED
-  song           Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
-  songId         String
+  id               String         @id @default(uuid())
+  instrumentName   String
+  status           String         @default("PENDING") // PENDING | READY | PROCESSING | FAILED
+  song             Song           @relation(fields: [songId], references: [id], onDelete: Cascade)
+  songId           String
   songInstrument   SongInstrument @relation(fields: [songInstrumentId], references: [id], onDelete: Cascade)
   songInstrumentId String         @unique
-  createdAt      DateTime @default(now())
+  createdAt        DateTime       @default(now())
 }
 
 model Videoclip {
@@ -141,26 +139,26 @@ model VideoclipProcess {
 // =========================================================================
 // 4. CONTEXTO SHARED (RabbitMQ Failover & Outbox)
 // =========================================================================
-model DomainEventFailover {
-  eventId    String   @id
-  aggregateId String
-  eventName  String
-  payload    Json
-  occurredOn DateTime @default(now())
-}
-
 model Outbox {
-  id           String    @id @default(uuid())
-  eventId      String
-  eventName    String
-  aggregateId  String
-  payload      Json
-  status       String    @default("pending") // pending | published | failed
-  attempts     Int       @default(0)
+  id          String   @id @default(uuid())
+  eventId     String
+  eventName   String
+  aggregateId String
+  occurredOn  DateTime
+  payload     Json
+  status      String   @default("pending")
+  attempts    Int      @default(0)
+  createdAt   DateTime @default(now())
+  publishedAt DateTime?
   errorMessage String?
-  publishedAt  DateTime?
-  occurredOn   DateTime
-  createdAt    DateTime  @default(now())
 
   @@index([status, createdAt])
+}
+
+model DomainEventFailover {
+  eventId     String   @id
+  aggregateId String
+  eventName   String
+  payload     Json
+  occurredOn  DateTime @default(now())
 }
