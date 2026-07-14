@@ -4,6 +4,18 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 ## [No publicado]
 
+## [0.2.0] - 2026-07-14
+
+### Añadido
+
+- Endpoints anidados `POST /v1/bands/{bandId}/songs` y `GET /v1/bands/{bandId}/songs` para crear y listar canciones por banda con validación de pertenencia.
+- Nuevo contexto `Song` con agregados, casos de uso, controladores, wiring de DI y cobertura unitaria/aceptación para creación y listado.
+
+### Arreglado
+
+- Restauración de compatibilidad del esquema Prisma para tests y runtime, incluyendo `Outbox`, `User.createdAt` y la sincronización del esquema de prueba antes de integración y aceptación.
+- Corrección del contrato de persistencia de canciones para evitar sobrescrituras en creaciones duplicadas y conservar el conflicto esperado.
+
 ## [0.1.2] - 2026-07-14
 
 ### Cambiado
