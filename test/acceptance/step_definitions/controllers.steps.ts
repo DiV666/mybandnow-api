@@ -59,8 +59,12 @@ Given('they have a musician profile', async function (this: MybandnowWorld) {
   if (!this.authToken)
     throw new Error('No auth token found. Cannot create musician profile without an authenticated user.');
   const payload = jsonwebtoken.decode(this.authToken) as jsonwebtoken.JwtPayload;
-  const username = payload.preferred_username;
-  const userIdValue = payload.userId;
+  const username = payload.preferred_username as string | undefined;
+  const userIdValue = authenticatedUserIdFromPayload(payload);
+
+  if (!username) {
+    throw new Error('No preferred_username found. Cannot create musician profile without a username.');
+  }
 
   await saveMusicianProfile({ username, userIdValue });
 });
@@ -250,6 +254,13 @@ Then('the response should contain {string}', function (this: MybandnowWorld, fie
   assert.ok(this.response.body[field] !== undefined, `Response does not contain field: ${field}`);
 });
 
+Then('I use the response access token for authenticated requests', function (this: MybandnowWorld) {
+  const accessToken = this.response.body.accessToken;
+
+  assert.equal(typeof accessToken, 'string', 'Response accessToken must be a string');
+  this.setAuthToken(accessToken);
+});
+
 Then('the response should be empty', function (this: MybandnowWorld) {
   assert.deepStrictEqual(this.response.body, {});
 });
@@ -269,14 +280,16 @@ async function getToken(username: string, _password?: string, userIdValue?: stri
   const { v5: uuidv5 } = await import('uuid');
   const subId = userIdValue || uuidv5(username, '1b671a64-40d5-491e-99b0-da01ff1f3341');
   const payload = {
-    sub: subId,
-    userId: subId,
     email: `${username}@example.com`,
     roles: ['admin', 'user:create', 'user:read', 'user:update', 'user:delete'],
     preferred_username: username
   };
 
-  return jsonwebtoken.sign(payload, env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '1h' });
+  return jsonwebtoken.sign(payload, env.JWT_SECRET, {
+    algorithm: 'HS256',
+    expiresIn: '1h',
+    subject: subId
+  });
 }
 
 async function savePersistedUser(username: string, userIdValue: string, password: string): Promise<void> {
@@ -627,10 +640,11 @@ async function getAuthenticatedMusician(thisWorld: MybandnowWorld): Promise<{ id
   }
 
   const payload = jsonwebtoken.decode(thisWorld.authToken) as jsonwebtoken.JwtPayload;
+  const userId = authenticatedUserIdFromPayload(payload);
   const prisma = PrismaClientFactory.createClient();
   const musician = await prisma.musician.findFirst({
     where: {
-      userId: payload.userId as string
+      userId
     },
     select: {
       id: true,
@@ -639,8 +653,18 @@ async function getAuthenticatedMusician(thisWorld: MybandnowWorld): Promise<{ id
   });
 
   if (!musician) {
-    throw new Error(`No musician profile found for user ${payload.userId as string}`);
+    throw new Error(`No musician profile found for user ${userId}`);
   }
 
   return musician;
+}
+
+function authenticatedUserIdFromPayload(payload: jsonwebtoken.JwtPayload): string {
+  const userId = payload.sub ?? payload.userId;
+
+  if (typeof userId !== 'string' || userId.length === 0) {
+    throw new Error('No authenticated user id found in token payload.');
+  }
+
+  return userId;
 }

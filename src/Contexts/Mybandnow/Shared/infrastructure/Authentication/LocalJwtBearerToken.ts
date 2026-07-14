@@ -4,16 +4,16 @@ import { UnauthorizedException } from '@Contexts/Shared/domain/exceptions/Unauth
 import { ForbiddenException } from '@Contexts/Shared/domain/exceptions/ForbiddenException.js';
 import { SecurityHandlerException } from '@Contexts/Shared/infrastructure/exceptions/SecurityHandlerException.js';
 import { env } from '@Contexts/Shared/infrastructure/config/env.js';
+import { AuthenticatedUserContext } from '@Contexts/Shared/application/security/AuthenticatedUserContext.js';
 
-export interface LocalJwtPayload extends jsonwebtoken.JwtPayload {
+interface LocalJwtClaims extends jsonwebtoken.JwtPayload {
   sub?: string;
-  userId: string;
-  email: string;
-  roles?: string[];
+  userId?: string;
+  roles?: unknown;
 }
 
 export class LocalJwtBearerToken implements JWTVerifier {
-  async verifyJWT(token: string, requiredScopes: string[]): Promise<LocalJwtPayload> {
+  async verifyJWT(token: string, requiredScopes: string[]): Promise<AuthenticatedUserContext> {
     try {
       const decoded = jsonwebtoken.verify(token, env.JWT_SECRET, {
         algorithms: ['HS256']
@@ -23,15 +23,17 @@ export class LocalJwtBearerToken implements JWTVerifier {
         throw new ForbiddenException('JWT claims are incomplete.');
       }
 
-      const userId = decoded.sub ?? decoded.userId;
+      const claims = decoded as LocalJwtClaims;
+      const id = claims.sub ?? claims.userId;
 
-      if (!userId || !decoded.email) {
+      if (!id) {
         throw new ForbiddenException('JWT claims are incomplete.');
       }
 
+      const roles = this.normalizeRoles(claims.roles);
+
       if (requiredScopes.length > 0) {
-        const userRoles = (decoded.roles as string[]) || [];
-        const hasAllScopes = requiredScopes.every((scope) => userRoles.includes(scope));
+        const hasAllScopes = requiredScopes.every((scope) => roles.includes(scope));
         if (!hasAllScopes) {
           throw new ForbiddenException(
             `Forbidden. User does not include one of the required roles permissions: ${requiredScopes.join(', ')}`
@@ -39,11 +41,7 @@ export class LocalJwtBearerToken implements JWTVerifier {
         }
       }
 
-      return {
-        ...decoded,
-        userId,
-        email: decoded.email as string
-      };
+      return { id, roles };
     } catch (error: unknown) {
       if (error instanceof ForbiddenException) {
         throw new SecurityHandlerException(403, error, { cause: error.message });
@@ -52,5 +50,13 @@ export class LocalJwtBearerToken implements JWTVerifier {
         cause: `Token is not a valid local JWT. ${error instanceof Error ? error.message : String(error)}`
       });
     }
+  }
+
+  private normalizeRoles(roles: unknown): string[] {
+    if (!Array.isArray(roles)) {
+      return [];
+    }
+
+    return roles.filter((role): role is string => typeof role === 'string');
   }
 }

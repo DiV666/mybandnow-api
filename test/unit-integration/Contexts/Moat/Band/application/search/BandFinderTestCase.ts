@@ -12,9 +12,7 @@ import { AuthenticatedUserContext } from '@Contexts/Shared/application/security/
 import { Criteria } from '@Contexts/Shared/domain/criteria/Criteria.js';
 
 const defaultAuthenticatedUser: AuthenticatedUserContext = {
-  userId: 'test-user-id',
-  companyId: 'test-company-id',
-  partnerId: 'test-partner-id',
+  id: 'test-user-id',
   roles: ['admin-scope']
 };
 

@@ -15,7 +15,8 @@ Implementación actual:
 - la API extrae el token desde la cabecera `Authorization`
 - `openapi-backend` delega la verificación al security handler configurado en `src/apps/mybandnow/backend/routes/openapiSecurity.ts`
 - `LocalJwtBearerToken` valida la firma con `JWT_SECRET` usando `HS256`
-- el token debe incluir al menos `userId` y `email`
+- el token debe incluir al menos un identificador autenticado: `sub` (preferido) o `userId` por compatibilidad
+- la API normaliza ese token a un contexto interno mínimo `{ id, roles }` antes de llegar a controladores o casos de uso
 - si el endpoint declara scopes, el token debe incluir todos los roles requeridos en `roles[]`
 
 Comportamiento HTTP:

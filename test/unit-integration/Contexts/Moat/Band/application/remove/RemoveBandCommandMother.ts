@@ -4,9 +4,7 @@ import { Band } from '@Contexts/Moat/Band/domain/Band.js';
 import { AuthenticatedUserContext } from '@Contexts/Shared/application/security/AuthenticatedUserContext.js';
 
 const defaultAuthenticatedUser: AuthenticatedUserContext = {
-  userId: 'test-user-id',
-  companyId: 'test-company-id',
-  partnerId: 'test-partner-id',
+  id: 'test-user-id',
   roles: ['admin-scope']
 };
 

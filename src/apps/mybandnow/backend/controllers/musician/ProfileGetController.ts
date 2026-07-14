@@ -8,7 +8,7 @@ import { MusicianSearchByUserIdResponse } from '../../../../../Contexts/Moat/Mus
 
 export default class ProfileGetController extends ApiController {
   async run(context: Context, req: Request, res: Response): Promise<void> {
-    const userId = context.security.BearerAuth.userId;
+    const userId = context.security.BearerAuth.id;
     const response = await this.queryBus.ask<MusicianSearchByUserIdResponse>(new MusicianSearchByUserIdQuery(userId));
     if (!response.musician) {
       res.status(httpStatus.NOT_FOUND).json({ message: 'Profile not found' });

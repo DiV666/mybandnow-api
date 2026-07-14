@@ -11,24 +11,16 @@ import { FilterValue } from '../../../../../../src/Contexts/Shared/domain/criter
 import { Order } from '../../../../../../src/Contexts/Shared/domain/criteria/Order.js';
 
 describe('CriteriaScopeSecurity', () => {
-  it('replaces existing scope filters with the authenticated partner scope filter', () => {
+  it('replaces any user scope filter with the authenticated user id while preserving non-scope filters', () => {
     // Arrange
     const security = new CriteriaScopeSecurity();
     const criteria = new Criteria(
-      new Filters([
-        createFilter('companyId', 'other-company'),
-        createFilter('userId', 'other-user'),
-        createFilter('status', 'ACTIVE')
-      ]),
+      new Filters([createFilter('userId', 'other-user'), createFilter('status', 'ACTIVE')]),
       Order.none(),
       25,
       10
     );
-
-    const user = createUser({
-      partnerId: 'partner-123',
-      roles: ['partner-scope']
-    });
+    const user = createUser({ id: 'user-999', roles: ['band:read'] });
 
     // Act
     const securedCriteria = security.apply(criteria, user);
@@ -44,9 +36,9 @@ describe('CriteriaScopeSecurity', () => {
           sensitive: false
         },
         {
-          field: 'partnerId',
+          field: 'userId',
           operator: 'EQUAL',
-          value: 'partner-123',
+          value: 'user-999',
           type: 'string',
           sensitive: false
         }
@@ -71,42 +63,11 @@ describe('CriteriaScopeSecurity', () => {
     expect(securedCriteria).toBe(criteria);
   });
 
-  it('applies the authenticated company scope filter and preserves non-scope filters', () => {
+  it('falls back to the authenticated user scope filter when roles are omitted', () => {
     // Arrange
     const security = new CriteriaScopeSecurity();
-    const criteria = new Criteria(
-      new Filters([createFilter('partnerId', 'other-partner'), createFilter('status', 'PENDING')]),
-      Order.none()
-    );
-    const user = createUser({ companyId: 'company-999', roles: ['company-scope'] });
-
-    // Act
-    const securedCriteria = security.apply(criteria, user);
-
-    // Assert
-    expect(securedCriteria.toPrimitives().filters).toEqual([
-      {
-        field: 'status',
-        operator: 'EQUAL',
-        value: 'PENDING',
-        type: 'string',
-        sensitive: false
-      },
-      {
-        field: 'companyId',
-        operator: 'EQUAL',
-        value: 'company-999',
-        type: 'string',
-        sensitive: false
-      }
-    ]);
-  });
-
-  it('falls back to the authenticated user scope filter when no broader scope role is present', () => {
-    // Arrange
-    const security = new CriteriaScopeSecurity();
-    const criteria = new Criteria(new Filters([createFilter('companyId', 'other-company')]), Order.none());
-    const user = createUser({ userId: 'user-999', roles: ['some-other-role'] });
+    const criteria = new Criteria(new Filters([]), Order.none());
+    const user = createUser({ id: 'user-321', roles: [] });
 
     // Act
     const securedCriteria = security.apply(criteria, user);
@@ -116,7 +77,7 @@ describe('CriteriaScopeSecurity', () => {
       {
         field: 'userId',
         operator: 'EQUAL',
-        value: 'user-999',
+        value: 'user-321',
         type: 'string',
         sensitive: false
       }
@@ -130,9 +91,7 @@ function createFilter(field: string, value: string): Filter {
 
 function createUser(params?: Partial<AuthenticatedUserContext>): AuthenticatedUserContext {
   return {
-    userId: 'user-123',
-    companyId: 'company-123',
-    partnerId: 'partner-123',
+    id: 'user-123',
     roles: [],
     ...params
   };

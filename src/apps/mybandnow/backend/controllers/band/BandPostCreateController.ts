@@ -8,7 +8,7 @@ export default class BandPostCreateController extends ApiController {
   async run(context: Context, req: Request, res: Response): Promise<void> {
     const id: string = req.body.id;
     const name: string = req.body.name;
-    const ownerId = context.security.BearerAuth.userId;
+    const ownerId = context.security.BearerAuth.id;
 
     const command = new CreateBandCommand(id, ownerId, name);
     await this.commandBus.dispatch(command);

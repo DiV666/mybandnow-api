@@ -50,7 +50,7 @@ function authenticatedContext(userId: string): Context {
   return {
     security: {
       BearerAuth: {
-        userId
+        id: userId
       }
     }
   } as unknown as Context;

@@ -3,7 +3,7 @@ services:
     container_name: kloding-mybandnow-database
     image: postgres:16-alpine
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_DB: devDB
       POSTGRES_USER: devUser
@@ -11,7 +11,7 @@ services:
     networks:
       - kloding
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U devUser -d devDB" ]
+      test: ['CMD-SHELL', 'pg_isready -U devUser -d devDB']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -28,7 +28,7 @@ services:
     networks:
       - kloding
     healthcheck:
-      test: [ 'CMD', 'rabbitmq-diagnostics', '-q', 'ping' ]
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
       interval: 10s
       timeout: 30s
       retries: 15
@@ -40,6 +40,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    ports:
+      - 4008:4008
     volumes:
       - ./:/opt/mybandnow
     environment:

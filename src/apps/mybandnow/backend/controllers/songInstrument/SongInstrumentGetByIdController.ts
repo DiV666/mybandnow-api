@@ -11,7 +11,7 @@ import ApiController from '@Contexts/Shared/infrastructure/Express/ApiController
 
 export default class SongInstrumentGetByIdController extends ApiController {
   async run(context: Context, _req: Request, res: Response): Promise<void> {
-    const authenticatedUserId = context.security.BearerAuth.userId as string;
+    const authenticatedUserId = context.security.BearerAuth.id as string;
     const songId = context.request.params.songId as string;
     const instrumentId = context.request.params.instrumentId as string;
 

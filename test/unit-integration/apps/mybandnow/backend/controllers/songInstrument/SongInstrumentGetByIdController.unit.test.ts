@@ -29,7 +29,7 @@ describe('SongInstrumentGetByIdController', () => {
     const context = {
       security: {
         BearerAuth: {
-          userId: 'authenticated-user-id'
+          id: 'authenticated-user-id'
         }
       },
       request: {
@@ -77,7 +77,7 @@ describe('SongInstrumentGetByIdController', () => {
     const context = {
       security: {
         BearerAuth: {
-          userId: 'authenticated-user-id'
+          id: 'authenticated-user-id'
         }
       },
       request: {

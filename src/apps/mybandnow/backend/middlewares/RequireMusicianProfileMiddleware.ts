@@ -7,7 +7,7 @@ export class RequireMusicianProfileMiddleware {
   constructor(private readonly musicianSearchByUserId: MusicianSearchByUserId) {}
 
   async run(context: Context): Promise<void> {
-    const userId = context.security.BearerAuth.userId as string;
+    const userId = context.security.BearerAuth.id as string;
     const response = await this.musicianSearchByUserId.run(new MusicianSearchByUserIdQuery(userId));
 
     if (!response.musician) {

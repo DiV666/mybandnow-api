@@ -3,7 +3,7 @@ import { SongInstrument } from '../../domain/SongInstrument.js';
 import { SongInstrumentVideo } from '@Contexts/Moat/SongInstrumentVideo/domain/SongInstrumentVideo.js';
 import { Primitives } from '@Contexts/Shared/domain/Primitives.js';
 
-interface SongInstrumentWithVideoResponse extends Primitives<SongInstrument> {
+export interface SongInstrumentWithVideoResponse extends Primitives<SongInstrument> {
   video: Primitives<SongInstrumentVideo> | null;
 }
 

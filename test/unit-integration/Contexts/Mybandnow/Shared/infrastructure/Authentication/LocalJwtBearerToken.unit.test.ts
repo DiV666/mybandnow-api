@@ -19,11 +19,11 @@ describe('LocalJwtBearerToken', () => {
     process.env = { ...originalEnv };
   });
 
-  it('returns the JWT subject as userId when the token only contains standard sub and email claims', async () => {
+  it('returns the project auth context using the JWT subject as id and empty roles by default', async () => {
     // Arrange
     process.env = createValidEnv();
     const { LocalJwtBearerToken } = await import(freshLocalJwtBearerTokenModuleUrl());
-    const token = jsonwebtoken.sign({ email: 'user@example.com' }, process.env.JWT_SECRET as string, {
+    const token = jsonwebtoken.sign({}, process.env.JWT_SECRET as string, {
       algorithm: 'HS256',
       subject: 'user-123'
     });
@@ -32,16 +32,18 @@ describe('LocalJwtBearerToken', () => {
     const payload = await new LocalJwtBearerToken().verifyJWT(token, []);
 
     // Assert
-    expect(payload.userId).toBe('user-123');
-    expect(payload.email).toBe('user@example.com');
+    expect(payload).toEqual({
+      id: 'user-123',
+      roles: []
+    });
   });
 
-  it('prefers the standard JWT subject when both sub and userId claims are present', async () => {
+  it('prefers the standard JWT subject and preserves valid role claims in the project auth context', async () => {
     // Arrange
     process.env = createValidEnv();
     const { LocalJwtBearerToken } = await import(freshLocalJwtBearerTokenModuleUrl());
     const token = jsonwebtoken.sign(
-      { userId: 'legacy-user-456', email: 'legacy@example.com' },
+      { userId: 'legacy-user-456', roles: ['admin-scope', 'band:read'] },
       process.env.JWT_SECRET as string,
       {
         algorithm: 'HS256',
@@ -53,21 +55,58 @@ describe('LocalJwtBearerToken', () => {
     const payload = await new LocalJwtBearerToken().verifyJWT(token, []);
 
     // Assert
-    expect(payload.userId).toBe('standard-user-789');
-    expect(payload.email).toBe('legacy@example.com');
+    expect(payload).toEqual({
+      id: 'standard-user-789',
+      roles: ['admin-scope', 'band:read']
+    });
+  });
+
+  it('filters malformed roles from untrusted jwt claims during auth-context normalization', async () => {
+    // Arrange
+    process.env = createValidEnv();
+    const { LocalJwtBearerToken } = await import(freshLocalJwtBearerTokenModuleUrl());
+    const token = jsonwebtoken.sign(
+      { roles: ['band:read', 123, null, 'band:write'] },
+      process.env.JWT_SECRET as string,
+      {
+        algorithm: 'HS256',
+        subject: 'user-123'
+      }
+    );
+
+    // Act
+    const payload = await new LocalJwtBearerToken().verifyJWT(token, []);
+
+    // Assert
+    expect(payload).toEqual({
+      id: 'user-123',
+      roles: ['band:read', 'band:write']
+    });
+  });
+
+  it('rejects the token with 403 when required scopes are missing from the normalized roles', async () => {
+    // Arrange
+    process.env = createValidEnv();
+    const { LocalJwtBearerToken } = await import(freshLocalJwtBearerTokenModuleUrl());
+    const token = jsonwebtoken.sign({ roles: ['band:read'] }, process.env.JWT_SECRET as string, {
+      algorithm: 'HS256',
+      subject: 'user-123'
+    });
+
+    // Act + Assert
+    await expect(new LocalJwtBearerToken().verifyJWT(token, ['band:write'])).rejects.toMatchObject({
+      status: 403,
+      cause: 'Forbidden. User does not include one of the required roles permissions: band:write'
+    });
   });
 
   it('rejects the token when sub is present but empty even if a legacy userId claim exists', async () => {
     // Arrange
     process.env = createValidEnv();
     const { LocalJwtBearerToken } = await import(freshLocalJwtBearerTokenModuleUrl());
-    const token = jsonwebtoken.sign(
-      { userId: 'legacy-user-456', sub: '', email: 'legacy@example.com' },
-      process.env.JWT_SECRET as string,
-      {
-        algorithm: 'HS256'
-      }
-    );
+    const token = jsonwebtoken.sign({ userId: 'legacy-user-456', sub: '' }, process.env.JWT_SECRET as string, {
+      algorithm: 'HS256'
+    });
 
     // Act + Assert
     await expect(new LocalJwtBearerToken().verifyJWT(token, [])).rejects.toMatchObject({
@@ -76,24 +115,38 @@ describe('LocalJwtBearerToken', () => {
     });
   });
 
-  it('keeps supporting tokens that already carry an explicit userId claim', async () => {
+  it('rejects the token with 401 when the JWT signature is invalid', async () => {
     // Arrange
     process.env = createValidEnv();
     const { LocalJwtBearerToken } = await import(freshLocalJwtBearerTokenModuleUrl());
-    const token = jsonwebtoken.sign(
-      { userId: 'legacy-user-456', email: 'legacy@example.com' },
-      process.env.JWT_SECRET as string,
-      {
-        algorithm: 'HS256'
-      }
-    );
+    const token = jsonwebtoken.sign({}, `${process.env.JWT_SECRET as string}-invalid`, {
+      algorithm: 'HS256',
+      subject: 'user-123'
+    });
+
+    // Act + Assert
+    await expect(new LocalJwtBearerToken().verifyJWT(token, [])).rejects.toMatchObject({
+      status: 401,
+      cause: expect.stringContaining('invalid signature')
+    });
+  });
+
+  it('keeps supporting tokens that already carry an explicit legacy userId claim', async () => {
+    // Arrange
+    process.env = createValidEnv();
+    const { LocalJwtBearerToken } = await import(freshLocalJwtBearerTokenModuleUrl());
+    const token = jsonwebtoken.sign({ userId: 'legacy-user-456' }, process.env.JWT_SECRET as string, {
+      algorithm: 'HS256'
+    });
 
     // Act
     const payload = await new LocalJwtBearerToken().verifyJWT(token, []);
 
     // Assert
-    expect(payload.userId).toBe('legacy-user-456');
-    expect(payload.email).toBe('legacy@example.com');
+    expect(payload).toEqual({
+      id: 'legacy-user-456',
+      roles: []
+    });
   });
 });
 

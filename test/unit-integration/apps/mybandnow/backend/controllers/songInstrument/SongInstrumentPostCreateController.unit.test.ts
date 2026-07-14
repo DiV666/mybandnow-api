@@ -27,7 +27,7 @@ describe('SongInstrumentPostCreateController', () => {
     const context = {
       security: {
         BearerAuth: {
-          userId: 'authenticated-user-id'
+          id: 'authenticated-user-id'
         }
       },
       request: {
@@ -84,7 +84,7 @@ describe('SongInstrumentPostCreateController', () => {
     const context = {
       security: {
         BearerAuth: {
-          userId: 'authenticated-user-id'
+          id: 'authenticated-user-id'
         }
       },
       request: {
@@ -141,7 +141,7 @@ describe('SongInstrumentPostCreateController', () => {
     const context = {
       security: {
         BearerAuth: {
-          userId: 'authenticated-user-id'
+          id: 'authenticated-user-id'
         }
       },
       request: {

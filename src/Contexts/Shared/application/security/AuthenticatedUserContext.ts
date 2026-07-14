@@ -1,6 +1,4 @@
 export type AuthenticatedUserContext = {
-  userId: string;
-  companyId: string;
-  partnerId: string;
+  id: string;
   roles: string[];
 };

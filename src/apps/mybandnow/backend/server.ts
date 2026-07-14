@@ -119,10 +119,10 @@ export class Server {
       handlers: createDefaultHandlers(this.logger),
       securityHandlers: {
         BearerAuth: createSecurityHandler('BearerAuth', async (token, c) => {
-          const idServerService: JWTVerifier = container.get('Mybandnow.Shared.LocalJwtBearerToken');
+          const localJwtVerifier: JWTVerifier = container.get('Mybandnow.Shared.LocalJwtBearerToken');
           const requiredScopes =
             (c.operation?.security ?? []).find((requirement) => requirement.BearerAuth)?.BearerAuth ?? [];
-          return await idServerService.verifyJWT(token, requiredScopes);
+          return await localJwtVerifier.verifyJWT(token, requiredScopes);
         }),
         InternalAuth: createSecurityHandler('InternalAuth', async (token) => {
           const internalAuthentication: JWTVerifier = container.get('Mybandnow.Shared.InternalAuthentication');
@@ -134,7 +134,7 @@ export class Server {
       customizeAjv: (ajv) => {
         addFormats.default(ajv, {
           mode: 'fast',
-          formats: ['uuid']
+          formats: ['uuid', 'email', 'date-time']
         });
 
         return ajv;

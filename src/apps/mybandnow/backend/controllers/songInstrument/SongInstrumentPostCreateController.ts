@@ -20,7 +20,7 @@ interface SongInstrumentCreateRequestBody {
 
 export default class SongInstrumentPostCreateController extends ApiController {
   async run(context: Context, req: Request, res: Response): Promise<void> {
-    const authenticatedUserId = context.security.BearerAuth.userId as string;
+    const authenticatedUserId = context.security.BearerAuth.id as string;
     const songId = context.request.params.songId as string;
     const { id, name, instrumentType, musicianId } = req.body as SongInstrumentCreateRequestBody;
 

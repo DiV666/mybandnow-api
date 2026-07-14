@@ -6,7 +6,7 @@ import ApiController from '../../../../../Contexts/Shared/infrastructure/Express
 
 export default class ProfilePostController extends ApiController {
   async run(context: Context, req: Request, res: Response): Promise<void> {
-    const userId = context.security.BearerAuth.userId as string;
+    const userId = context.security.BearerAuth.id as string;
     const { id, name, username } = req.body;
 
     const command = new CreateMusicianCommand(id, username, name, userId);

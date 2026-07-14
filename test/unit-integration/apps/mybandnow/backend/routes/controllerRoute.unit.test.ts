@@ -25,7 +25,7 @@ describe('runController', () => {
     req = mock<Request>();
     res = mock<Response>();
     next = vi.fn() as unknown as MockProxy<NextFunction>;
-    context = { security: { BearerAuth: { userId: 'user-123' } } } as unknown as Context;
+    context = { security: { BearerAuth: { id: 'user-123' } } } as unknown as Context;
     vi.clearAllMocks();
   });
 

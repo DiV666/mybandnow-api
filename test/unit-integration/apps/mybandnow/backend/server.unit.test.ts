@@ -20,6 +20,7 @@ interface OpenApiBackendOptions {
     BearerAuth: OpenApiSecurityHandler;
     InternalAuth: OpenApiSecurityHandler;
   };
+  customizeAjv?: (ajv: unknown) => unknown;
 }
 
 function createRequest(headers: Request['headers']): Request {
@@ -92,6 +93,71 @@ describe('Server — stop()', () => {
     await expect(server.stop()).rejects.toThrow('close failed');
   });
 });
+
+describe('Server — AJV format registration', () => {
+  it('registers the uuid, email, and date-time formats used by the OpenAPI schema', async () => {
+    const { addFormats, capturedOptions } = await initializeServerWithAjvFormatsSpy();
+
+    capturedOptions?.customizeAjv?.({});
+
+    expect(addFormats).toHaveBeenCalledWith(
+      {},
+      expect.objectContaining({
+        mode: 'fast',
+        formats: ['uuid', 'email', 'date-time']
+      })
+    );
+  });
+
+  it('returns the same ajv instance after registering the required formats', async () => {
+    const { capturedOptions } = await initializeServerWithAjvFormatsSpy();
+    const ajv = { brand: 'ajv-instance' };
+
+    const result = capturedOptions?.customizeAjv?.(ajv);
+
+    expect(result).toBe(ajv);
+  });
+});
+
+async function initializeServerWithAjvFormatsSpy(): Promise<{
+  addFormats: ReturnType<typeof vi.fn>;
+  capturedOptions: OpenApiBackendOptions | undefined;
+}> {
+  const addFormats = vi.fn();
+  let capturedOptions: OpenApiBackendOptions | undefined;
+
+  vi.doMock('ajv-formats', () => ({
+    default: {
+      default: addFormats
+    }
+  }));
+  vi.doMock('openapi-backend', () => ({
+    OpenAPIBackend: class OpenAPIBackendMock {
+      constructor(options: OpenApiBackendOptions) {
+        capturedOptions = options;
+      }
+
+      register(): void {
+        return undefined;
+      }
+
+      async init(): Promise<void> {
+        return undefined;
+      }
+
+      handleRequest(): void {
+        return undefined;
+      }
+    }
+  }));
+
+  const Server = await loadServerModule();
+  const server = new Server(0, mock<Logger>(), healthStatus);
+
+  await server.oastools();
+
+  return { addFormats, capturedOptions };
+}
 
 describe('Server — auth security handlers', () => {
   it('delegates BearerAuth using the extracted bearer token and required scopes', async () => {
