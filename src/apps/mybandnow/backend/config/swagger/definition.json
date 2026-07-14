@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": {
         "description": "Collaborative platform for the automated creation of music videos for music groups.",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "title": "Mybandnow API",
         "termsOfService": "https://kloding.com",
         "contact": {

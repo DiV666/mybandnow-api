@@ -4,6 +4,20 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 ## [No publicado]
 
+## [0.1.2] - 2026-07-14
+
+### Cambiado
+
+- Normalización del contexto interno de autenticación Bearer a `{ id, roles }`, desacoplando controladores y casos de uso del shape crudo del JWT.
+- Actualización de la skill `commit` para exigir la validación completa `make build-project && make build-tests && make acceptance-tests` antes de cada commit.
+
+### Arreglado
+
+- Corrección del uso de tokens JWT locales para que `sub` se mapee al identificador autenticado y los endpoints protegidos funcionen con el token real emitido por login.
+- Eliminación del error `500` en `GET /v1/bands` causado por desalineación entre el token autenticado y el contexto esperado por la lógica de scope.
+- Cobertura de aceptación real para login + endpoints protegidos, junto con ajustes de fixtures y tests backend al nuevo contrato `BearerAuth.id`.
+- Exportación del tipo `SongInstrumentWithVideoResponse` para eliminar la advertencia restante de Typedoc en la build.
+
 ## [0.1.1] - 2026-07-14
 
 ### Arreglado
