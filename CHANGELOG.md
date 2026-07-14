@@ -4,6 +4,15 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 ## [No publicado]
 
+## [0.1.1] - 2026-07-14
+
+### Arreglado
+
+- Alineación de los contratos OpenAPI de autenticación y perfil con el comportamiento real del runtime.
+- Cambio del endpoint público de login de `POST /v1/users/login` a `POST /v1/auth/login`.
+- Cobertura de aceptación y validación para email malformado, contraseñas cortas y guardas del perfil autenticado.
+- Normalización en minúsculas de emails de usuario y exposición segura de mensajes públicos de validación.
+
 ## [0.1.0] - 2026-07-13
 
 ### Añadido
