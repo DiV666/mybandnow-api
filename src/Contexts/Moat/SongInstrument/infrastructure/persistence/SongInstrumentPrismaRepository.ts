@@ -9,11 +9,14 @@ import { SongInstrumentPersistenceRepository } from '../../domain/repository/Son
 import { SongInstrumentId } from '../../domain/value-object/SongInstrumentId.js';
 import { SongInstrumentMusicianId } from '../../domain/value-object/SongInstrumentMusicianId.js';
 import { SongInstrumentSongId } from '../../domain/value-object/SongInstrumentSongId.js';
+import { Criteria } from '@Contexts/Shared/domain/criteria/Criteria.js';
+import { PrismaCriteriaConverter } from '@Contexts/Shared/infrastructure/persistence/prisma/PrismaCriteriaConverter.js';
 
 export class SongInstrumentPrismaRepository
   implements SongInstrumentPersistenceRepository, SongInstrumentAuthorizationRepository
 {
   private client = PrismaClientFactory.createClient();
+  private converter = new PrismaCriteriaConverter();
 
   constructor(private readonly outbox: Outbox) {}
 
@@ -83,6 +86,28 @@ export class SongInstrumentPrismaRepository
       musicianId: document.musicianId,
       createdAt: document.createdAt
     });
+  }
+
+  async matching(criteria: Criteria): Promise<Array<SongInstrument>> {
+    const prismaQuery = this.converter.convert(criteria);
+    const documents = await this.client.songInstrument.findMany(prismaQuery);
+
+    return documents.map((document) =>
+      SongInstrument.fromPrimitives({
+        id: document.id,
+        name: document.name,
+        songId: document.songId,
+        instrumentType: document.instrumentType,
+        musicianId: document.musicianId,
+        createdAt: document.createdAt
+      })
+    );
+  }
+
+  async matchingCount(criteria: Criteria): Promise<number> {
+    const prismaQuery = this.converter.convert(criteria);
+
+    return this.client.songInstrument.count({ where: prismaQuery.where });
   }
 
   async isSongOwnedBy(songId: SongInstrumentSongId, musicianId: SongInstrumentMusicianId): Promise<boolean> {

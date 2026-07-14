@@ -1,8 +1,11 @@
+import { Prisma } from '@prisma/client';
 import { Nullable } from '@Contexts/Shared/domain/Nullable.js';
 import { Outbox, TransactionSession } from '@Contexts/Shared/domain/Outbox.js';
 import { PrismaClientFactory } from '@Contexts/Shared/infrastructure/persistence/prisma/PrismaClientFactory.js';
 import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
 import { Primitives } from '@Contexts/Shared/domain/Primitives.js';
+import { Criteria } from '@Contexts/Shared/domain/criteria/Criteria.js';
+import { PrismaCriteriaConverter } from '@Contexts/Shared/infrastructure/persistence/prisma/PrismaCriteriaConverter.js';
 import { Song } from '../../domain/Song.js';
 import { SongExistException } from '../../domain/exception/SongExistException.js';
 import { SongAuthorizationRepository } from '../../domain/repository/SongAuthorizationRepository.js';
@@ -13,6 +16,7 @@ import { SongMusicianId } from '../../domain/value-object/SongMusicianId.js';
 
 export class SongPrismaRepository implements SongPersistenceRepository, SongAuthorizationRepository {
   private client = PrismaClientFactory.createClient();
+  private converter = new PrismaCriteriaConverter();
 
   constructor(private readonly outbox: Outbox) {}
 
@@ -66,6 +70,24 @@ export class SongPrismaRepository implements SongPersistenceRepository, SongAuth
     });
   }
 
+  async matching(criteria: Criteria, musicianId: SongMusicianId): Promise<Array<Song>> {
+    const prismaQuery = this.converter.convert(criteria);
+    const documents = await this.client.song.findMany({
+      ...prismaQuery,
+      where: this.applyMembershipScope(prismaQuery.where, musicianId)
+    });
+
+    return documents.map((document) => Song.fromPrimitives(document as Parameters<typeof Song.fromPrimitives>[0]));
+  }
+
+  async matchingCount(criteria: Criteria, musicianId: SongMusicianId): Promise<number> {
+    const prismaQuery = this.converter.convert(criteria);
+
+    return this.client.song.count({
+      where: this.applyMembershipScope(prismaQuery.where, musicianId)
+    });
+  }
+
   async save(song: Song): Promise<void> {
     const primitives = song.toPrimitives();
     const events = song.pullDomainEvents({ drain: false });
@@ -106,5 +128,33 @@ export class SongPrismaRepository implements SongPersistenceRepository, SongAuth
     });
 
     return band !== null;
+  }
+
+  private applyMembershipScope(
+    where: Prisma.SongWhereInput | undefined,
+    musicianId: SongMusicianId
+  ): Prisma.SongWhereInput {
+    const membershipScope: Prisma.SongWhereInput = {
+      band: {
+        OR: [
+          { ownerId: musicianId.value },
+          {
+            members: {
+              some: {
+                musicianId: musicianId.value
+              }
+            }
+          }
+        ]
+      }
+    };
+
+    if (!where || Object.keys(where).length === 0) {
+      return membershipScope;
+    }
+
+    return {
+      AND: [where, membershipScope]
+    };
   }
 }

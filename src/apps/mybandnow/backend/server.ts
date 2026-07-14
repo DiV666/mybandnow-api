@@ -134,7 +134,7 @@ export class Server {
       customizeAjv: (ajv) => {
         addFormats.default(ajv, {
           mode: 'fast',
-          formats: ['uuid', 'email', 'date-time']
+          formats: ['uuid', 'email', 'date-time', 'uri']
         });
 
         return ajv;

@@ -4,6 +4,16 @@ import { SongInstrumentPersistenceRepository } from '@Contexts/Moat/SongInstrume
 import { EnvironmentArranger } from '@Test/utils/arranger/EnvironmentArranger.js';
 import { SongInstrumentMother } from '../../domain/SongInstrumentMother.js';
 import { SongInstrumentPersistenceRepositoryTestCase } from './SongInstrumentPersistenceRepositoryTestCase.js';
+import { Criteria } from '@Contexts/Shared/domain/criteria/Criteria.js';
+import { Filters } from '@Contexts/Shared/domain/criteria/Filters.js';
+import { Filter } from '@Contexts/Shared/domain/criteria/Filter.js';
+import { FilterField } from '@Contexts/Shared/domain/criteria/FilterField.js';
+import { FilterOperator } from '@Contexts/Shared/domain/criteria/FilterOperator.js';
+import { FilterValue } from '@Contexts/Shared/domain/criteria/FilterValue.js';
+import { Order } from '@Contexts/Shared/domain/criteria/Order.js';
+import { SongInstrumentInstrumentType } from '@Contexts/Moat/SongInstrument/domain/value-object/SongInstrumentInstrumentType.js';
+import { SongInstrumentMusicianId } from '@Contexts/Moat/SongInstrument/domain/value-object/SongInstrumentMusicianId.js';
+import { SongInstrumentSongId } from '@Contexts/Moat/SongInstrument/domain/value-object/SongInstrumentSongId.js';
 
 const persistenceRepository: SongInstrumentPersistenceRepository = container.get(
   'Moat.SongInstrument.SongInstrumentRepository'
@@ -87,6 +97,64 @@ describe('SongInstrumentPersistenceRepository', () => {
       await persistenceRepository.save(model);
       const found = await persistenceRepository.search(model.id);
       expect(found).not.toBeNull();
+    });
+  });
+  describe('#matching', () => {
+    it('should return an existing songinstrument by criteria', async () => {
+      const expectedModel = SongInstrumentMother.create();
+      await createDependencies(expectedModel.songId.value, expectedModel.musicianId.value);
+      await persistenceRepository.save(expectedModel);
+
+      const filters = new Filters([
+        new Filter(new FilterField('_id'), FilterOperator.equal(), new FilterValue(expectedModel.id.value))
+      ]);
+      const criteria = new Criteria(filters, Order.none());
+
+      const models = await persistenceRepository.matching(criteria);
+      testCase.assertSimilar(models[0], expectedModel);
+    });
+
+    it('should count songinstruments by criteria', async () => {
+      const songId = '5ff847a3-d345-4cb1-8fc0-1f5545285a19';
+      const musicianId = '4fd5813f-9b71-49fb-882f-435f3e2b8dc4';
+      const firstModel = SongInstrumentMother.create({
+        songId: new SongInstrumentSongId(songId),
+        musicianId: new SongInstrumentMusicianId(musicianId),
+        instrumentType: new SongInstrumentInstrumentType('guitar')
+      });
+      const secondModel = SongInstrumentMother.create({
+        songId: new SongInstrumentSongId(songId),
+        musicianId: new SongInstrumentMusicianId(musicianId),
+        instrumentType: new SongInstrumentInstrumentType('guitar')
+      });
+      const thirdModel = SongInstrumentMother.create({
+        songId: new SongInstrumentSongId(songId),
+        musicianId: new SongInstrumentMusicianId(musicianId),
+        instrumentType: new SongInstrumentInstrumentType('bass')
+      });
+
+      await createDependencies(songId, musicianId);
+      await persistenceRepository.save(firstModel);
+      await persistenceRepository.save(secondModel);
+      await persistenceRepository.save(thirdModel);
+
+      const filters = new Filters([
+        new Filter(new FilterField('songId'), FilterOperator.equal(), new FilterValue(songId)),
+        new Filter(new FilterField('instrumentType'), FilterOperator.equal(), new FilterValue('guitar'))
+      ]);
+      const criteria = new Criteria(filters, Order.none());
+
+      const total = await persistenceRepository.matchingCount(criteria);
+
+      expect(total).toBe(2);
+    });
+  });
+  describe('#create', () => {
+    // eslint-disable-next-line sonarjs/assertions-in-tests
+    it('should save a songinstrument', async () => {
+      const model = SongInstrumentMother.random();
+      await createDependencies(model.songId.value, model.musicianId.value);
+      await persistenceRepository.save(model);
     });
   });
 });

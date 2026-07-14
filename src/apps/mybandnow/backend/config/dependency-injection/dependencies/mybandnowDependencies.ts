@@ -14,6 +14,7 @@ import { register as registerBandFinder } from '@Apps/moat/backend/config/depend
 import { register as registerBandMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandMatcher.dependency.js';
 import { register as registerSongInstrumentCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentCreator.dependency.js';
 import { register as registerSongInstrumentFindById } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentFindById.dependency.js';
+import { register as registerSongInstrumentMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentMatcher.dependency.js';
 import { register as registerSongInstrumentVideoCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-video/songInstrumentVideoCreator.dependency.js';
 import { register as registerSongInstrumentUploadUploader } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-upload/songInstrumentUploadUploader.dependency.js';
 import { register as registerSongInstrumentUploadStatusUpdater } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-upload/songInstrumentUploadStatusUpdater.dependency.js';
@@ -25,6 +26,7 @@ import { SongCreator } from '@Contexts/Moat/Song/application/create/SongCreator.
 import { CreateSongCommandHandler } from '@Contexts/Moat/Song/application/create/CreateSongCommandHandler.js';
 import { SongListByBand } from '@Contexts/Moat/Song/application/listByBand/SongListByBand.js';
 import { SongListByBandQueryHandler } from '@Contexts/Moat/Song/application/listByBand/SongListByBandQueryHandler.js';
+import { register as registerSongMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/song/songMatcher.dependency.js';
 import { SongInstrumentPrismaRepository } from '@Contexts/Moat/SongInstrument/infrastructure/persistence/SongInstrumentPrismaRepository.js';
 import { SongInstrumentVideoPrismaRepository } from '@Contexts/Moat/SongInstrumentVideo/infrastructure/persistence/SongInstrumentVideoPrismaRepository.js';
 import { SongInstrumentCheckSongOwnership } from '@Contexts/Moat/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnership.js';
@@ -89,6 +91,7 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
 
   registerSongInstrumentCreator(container);
   registerSongInstrumentFindById(container);
+  registerSongInstrumentMatcher(container);
   registerSongInstrumentVideoCreator(container);
   registerSongInstrumentUploadUploader(container);
   registerSongInstrumentUploadStatusUpdater(container);
@@ -120,6 +123,8 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
     .register('Moat.Song.SongListByBandQueryHandler', SongListByBandQueryHandler)
     .addArgument(new Reference('Moat.Song.SongListByBand'))
     .addTag('queryHandler');
+
+  registerSongMatcher(container);
 
   container
     .register('Moat.SongInstrument.SongInstrumentCheckSongOwnership', SongInstrumentCheckSongOwnership)

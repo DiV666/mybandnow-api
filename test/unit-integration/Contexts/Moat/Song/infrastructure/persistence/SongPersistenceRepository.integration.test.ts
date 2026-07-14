@@ -4,12 +4,20 @@ import { SongPersistenceRepository } from '@Contexts/Moat/Song/domain/repository
 import { SongBandId } from '@Contexts/Moat/Song/domain/value-object/SongBandId.js';
 import { SongId } from '@Contexts/Moat/Song/domain/value-object/SongId.js';
 import { SongMusicianId } from '@Contexts/Moat/Song/domain/value-object/SongMusicianId.js';
+import { SongTitle } from '@Contexts/Moat/Song/domain/value-object/SongTitle.js';
 import container from '@Test/apps/mybandnow/backend/config/dependency-injection/index.js';
 import { EnvironmentArranger } from '@Test/utils/arranger/EnvironmentArranger.js';
 import { PrismaClientFactory } from '@Contexts/Shared/infrastructure/persistence/prisma/PrismaClientFactory.js';
 import { SongMother } from '../../domain/SongMother.js';
 import { SongExistException } from '@Contexts/Moat/Song/domain/exception/SongExistException.js';
 import { SongPersistenceRepositoryTestCase } from './SongPersistenceRepositoryTestCase.js';
+import { Criteria } from '@Contexts/Shared/domain/criteria/Criteria.js';
+import { Filter } from '@Contexts/Shared/domain/criteria/Filter.js';
+import { FilterField } from '@Contexts/Shared/domain/criteria/FilterField.js';
+import { FilterOperator } from '@Contexts/Shared/domain/criteria/FilterOperator.js';
+import { Filters } from '@Contexts/Shared/domain/criteria/Filters.js';
+import { FilterValue } from '@Contexts/Shared/domain/criteria/FilterValue.js';
+import { Order } from '@Contexts/Shared/domain/criteria/Order.js';
 
 const persistenceRepository: SongPersistenceRepository = container.get('Moat.Song.SongRepository');
 const authorizationRepository: SongAuthorizationRepository = container.get('Moat.Song.SongRepository');
@@ -173,6 +181,52 @@ describe('SongPersistenceRepository', () => {
 
       const songs = await persistenceRepository.searchByBandId(new SongBandId(bandId));
       const total = await persistenceRepository.countByBandId(new SongBandId(bandId));
+
+      expect(songs.map((song) => song.id.value)).toEqual([firstSong.id.value, secondSong.id.value]);
+      expect(total).toBe(2);
+    });
+  });
+
+  describe('#matching and #matchingCount', () => {
+    it('should return only the songs visible to the authenticated musician', async () => {
+      const ownerId = '123e4567-e89b-12d3-a456-426614174130';
+      const memberId = '123e4567-e89b-12d3-a456-426614174131';
+      const outsiderOwnerId = '123e4567-e89b-12d3-a456-426614174132';
+      const outsiderMemberId = '123e4567-e89b-12d3-a456-426614174133';
+      const accessibleBandId = '123e4567-e89b-12d3-a456-426614174134';
+      const inaccessibleBandId = '123e4567-e89b-12d3-a456-426614174135';
+      const firstSong = SongMother.create({
+        id: new SongId('123e4567-e89b-12d3-a456-426614174136'),
+        bandId: new SongBandId(accessibleBandId),
+        title: new SongTitle('Alpha Song')
+      });
+      const secondSong = SongMother.create({
+        id: new SongId('123e4567-e89b-12d3-a456-426614174137'),
+        bandId: new SongBandId(accessibleBandId),
+        title: new SongTitle('Beta Song')
+      });
+      const hiddenSong = SongMother.create({
+        id: new SongId('123e4567-e89b-12d3-a456-426614174138'),
+        bandId: new SongBandId(inaccessibleBandId),
+        title: new SongTitle('Hidden Song')
+      });
+      const criteria = new Criteria(
+        new Filters([
+          new Filter(new FilterField('title'), FilterOperator.fromValue('CONTAINS'), new FilterValue('Song'))
+        ]),
+        Order.asc('title'),
+        10,
+        0
+      );
+
+      await createBandDependencies(accessibleBandId, ownerId, memberId);
+      await createBandDependencies(inaccessibleBandId, outsiderOwnerId, outsiderMemberId);
+      await persistenceRepository.save(firstSong);
+      await persistenceRepository.save(secondSong);
+      await persistenceRepository.save(hiddenSong);
+
+      const songs = await persistenceRepository.matching(criteria, new SongMusicianId(memberId));
+      const total = await persistenceRepository.matchingCount(criteria, new SongMusicianId(memberId));
 
       expect(songs.map((song) => song.id.value)).toEqual([firstSong.id.value, secondSong.id.value]);
       expect(total).toBe(2);

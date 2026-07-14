@@ -10,10 +10,10 @@ datasource db {
 // 1. CONTEXTO MYBANDNOW (Aplicación principal / autenticación)
 // =========================================================================
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
+  id        String    @id @default(uuid())
+  email     String    @unique
   password  String
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   musician  Musician?
 }
 
@@ -21,14 +21,14 @@ model User {
 // 2. CONTEXTO MOAT (Core de negocio musical)
 // =========================================================================
 model Musician {
-  id           String     @id @default(uuid())
-  username     String     @unique
-  realName     String
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId       String     @unique
-  instruments  String[]
-  bandsOwned   Band[]     @relation("BandOwner")
-  bandMembers  BandMember[]
+  id              String           @id @default(uuid())
+  username        String           @unique
+  realName        String
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String           @unique
+  instruments     String[]
+  bandsOwned      Band[]           @relation("BandOwner")
+  bandMembers     BandMember[]
   songInstruments SongInstrument[]
 }
 
@@ -57,27 +57,37 @@ model BandMember {
 }
 
 model Song {
-  id                   String               @id @default(uuid())
-  title                String
-  band                 Band                 @relation(fields: [bandId], references: [id], onDelete: Cascade)
-  bandId               String
-  originalVideoclipUrl String
+  id                    String                 @id @default(uuid())
+  title                 String
+  band                  Band                   @relation(fields: [bandId], references: [id], onDelete: Cascade)
+  bandId                String
+  originalVideoclipUrl  String
   songInstrumentUploads SongInstrumentUpload[]
-  songInstruments      SongInstrument[]
-  videoclip            Videoclip?
+  songInstruments       SongInstrument[]
+  videoclip             Videoclip?
+
+  @@index([bandId])
+  @@index([title])
+  @@index([bandId, title])
 }
 
 model SongInstrument {
-  id                    String                @id @default(uuid())
+  id                    String                 @id @default(uuid())
   name                  String
   instrumentType        String
-  song                  Song                  @relation(fields: [songId], references: [id], onDelete: Cascade)
+  song                  Song                   @relation(fields: [songId], references: [id], onDelete: Cascade)
   songId                String
-  musician              Musician              @relation(fields: [musicianId], references: [id], onDelete: Cascade)
+  musician              Musician               @relation(fields: [musicianId], references: [id], onDelete: Cascade)
   musicianId            String
   songInstrumentUploads SongInstrumentUpload[]
   songInstrumentVideo   SongInstrumentVideo?
-  createdAt             DateTime              @default(now())
+  createdAt             DateTime               @default(now())
+
+  @@index([songId])
+  @@index([songId, musicianId])
+  @@index([songId, instrumentType])
+  @@index([songId, name])
+  @@index([songId, createdAt])
 }
 
 model SongInstrumentVideo {
@@ -106,9 +116,9 @@ model Videoclip {
   song      Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
   songId    String   @unique
   isPublic  Boolean  @default(false)
-  url       String   // GCS path to the final video
-  duration  Int      // Duration in seconds
-  size      Int      // File size in bytes
+  url       String // GCS path to the final video
+  duration  Int // Duration in seconds
+  size      Int // File size in bytes
   createdAt DateTime @default(now())
 }
 
@@ -117,39 +127,39 @@ model Videoclip {
 // =========================================================================
 
 model SongInstrumentProcess {
-  id            String   @id // Comparte exactamente el ID del modelo SongInstrumentUpload (Moat)
-  status        String   @default("COMPLETED") // COMPLETED | FAILED
-  gcsPath       String?  // Ruta en GCS (e.g. bands/:bandId/songs/:songId/tracks/:trackId.mp4)
-  fileSize      Int?
-  codec         String?  // Extraído por ffprobe (debe ser h264)
-  ffprobeLog    Json?    // Metadatos y logs técnicos estructurados
-  updatedAt     DateTime @updatedAt
+  id         String   @id // Comparte exactamente el ID del modelo SongInstrumentUpload (Moat)
+  status     String   @default("COMPLETED") // COMPLETED | FAILED
+  gcsPath    String? // Ruta en GCS (e.g. bands/:bandId/songs/:songId/tracks/:trackId.mp4)
+  fileSize   Int?
+  codec      String? // Extraído por ffprobe (debe ser h264)
+  ffprobeLog Json? // Metadatos y logs técnicos estructurados
+  updatedAt  DateTime @updatedAt
 }
 
 model VideoclipProcess {
-  id            String   @id // Comparte exactamente el ID del modelo Videoclip (Moat)
-  status        String   @default("PENDING") // PENDING | MIXING | SUCCESS | FAILED | TIMEOUT
-  aiPayload     Json?    // Snapshot denormalizado enviado al worker de IA
-  aiResponse    Json?    // Registro de logs e intercambio con la IA
-  finalGcsPath  String?  // Ruta inmutable del videoclip generado en GCS
-  startedAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String   @id // Comparte exactamente el ID del modelo Videoclip (Moat)
+  status       String   @default("PENDING") // PENDING | MIXING | SUCCESS | FAILED | TIMEOUT
+  aiPayload    Json? // Snapshot denormalizado enviado al worker de IA
+  aiResponse   Json? // Registro de logs e intercambio con la IA
+  finalGcsPath String? // Ruta inmutable del videoclip generado en GCS
+  startedAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 // =========================================================================
 // 4. CONTEXTO SHARED (RabbitMQ Failover & Outbox)
 // =========================================================================
 model Outbox {
-  id          String   @id @default(uuid())
-  eventId     String
-  eventName   String
-  aggregateId String
-  occurredOn  DateTime
-  payload     Json
-  status      String   @default("pending")
-  attempts    Int      @default(0)
-  createdAt   DateTime @default(now())
-  publishedAt DateTime?
+  id           String    @id @default(uuid())
+  eventId      String
+  eventName    String
+  aggregateId  String
+  occurredOn   DateTime
+  payload      Json
+  status       String    @default("pending")
+  attempts     Int       @default(0)
+  createdAt    DateTime  @default(now())
+  publishedAt  DateTime?
   errorMessage String?
 
   @@index([status, createdAt])

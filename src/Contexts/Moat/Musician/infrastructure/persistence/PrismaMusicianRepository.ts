@@ -54,9 +54,14 @@ export class PrismaMusicianRepository implements MusicianRepository {
     fieldName: string
   ): boolean {
     const target = error.meta?.target;
+
+    if (target !== undefined) {
+      return this.matchesTargetValue(target, fieldName);
+    }
+
     const driverConstraintFields = error.meta?.driverAdapterError?.cause?.constraint?.fields;
 
-    return this.matchesTargetValue(target, fieldName) || this.matchesTargetValue(driverConstraintFields, fieldName);
+    return this.matchesTargetValue(driverConstraintFields, fieldName);
   }
 
   private throwTranslatedPersistenceError(primitives: Primitives<Musician>, error: unknown): never {

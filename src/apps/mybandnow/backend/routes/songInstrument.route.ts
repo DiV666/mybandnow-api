@@ -11,6 +11,21 @@ export async function songInstrumentPostCreate(
   await runController('Apps.Mybandnow.Backend.controllers.SongInstrumentPostCreateController', context, req, res, next);
 }
 
+export async function songInstrumentGetMatchByCriteria(
+  context: OpenAPIContext,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  await runController(
+    'Apps.Mybandnow.Backend.controllers.SongInstrumentGetMatchByCriteriaController',
+    context,
+    req,
+    res,
+    next
+  );
+}
+
 export async function songInstrumentGetById(
   context: OpenAPIContext,
   req: Request,

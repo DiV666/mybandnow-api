@@ -27,7 +27,9 @@ describe('SongInstrumentUploadUploader', () => {
     } as SongInstrumentUploadPersistenceRepository;
     songInstrumentRepository = {
       save: vi.fn(),
-      search: vi.fn()
+      search: vi.fn(),
+      matching: vi.fn(),
+      matchingCount: vi.fn()
     } as SongInstrumentPersistenceRepository;
     eventBus = {
       publish: vi.fn()

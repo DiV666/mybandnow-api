@@ -95,7 +95,7 @@ describe('Server — stop()', () => {
 });
 
 describe('Server — AJV format registration', () => {
-  it('registers the uuid, email, and date-time formats used by the OpenAPI schema', async () => {
+  it('registers the uuid, email, date-time, and uri formats used by the OpenAPI schema', async () => {
     const { addFormats, capturedOptions } = await initializeServerWithAjvFormatsSpy();
 
     capturedOptions?.customizeAjv?.({});
@@ -104,7 +104,7 @@ describe('Server — AJV format registration', () => {
       {},
       expect.objectContaining({
         mode: 'fast',
-        formats: ['uuid', 'email', 'date-time']
+        formats: ['uuid', 'email', 'date-time', 'uri']
       })
     );
   });

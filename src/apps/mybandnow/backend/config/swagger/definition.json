@@ -1,1242 +1,1268 @@
 {
-    "openapi": "3.1.0",
-    "info": {
-        "description": "Collaborative platform for the automated creation of music videos for music groups.",
-        "version": "0.2.0",
-        "title": "Mybandnow API",
-        "termsOfService": "https://kloding.com",
-        "contact": {
-            "email": "developers@kloding.com"
-        },
-        "license": {
-            "name": "No license",
-            "url": "https://choosealicense.com/no-permission/"
-        }
+  "openapi": "3.1.0",
+  "info": {
+    "description": "Collaborative platform for the automated creation of music videos for music groups.",
+    "version": "0.2.0",
+    "title": "Mybandnow API",
+    "termsOfService": "https://kloding.com",
+    "contact": {
+      "email": "developers@kloding.com"
     },
-    "tags": [
-        {
-            "name": "Mybandnow",
-            "description": "REST API that allows you to do a mybandnow"
+    "license": {
+      "name": "No license",
+      "url": "https://choosealicense.com/no-permission/"
+    }
+  },
+  "tags": [
+    {
+      "name": "Mybandnow",
+      "description": "REST API that allows you to do a mybandnow"
+    }
+  ],
+  "servers": [
+    {
+      "url": "{protocol}://{host}:{port}",
+      "description": "Dynamic server to multiples environments",
+      "variables": {
+        "protocol": {
+          "default": "http",
+          "enum": ["http", "https"],
+          "description": "The protocol to use"
+        },
+        "host": {
+          "default": "localhost",
+          "description": "The host to use"
+        },
+        "port": {
+          "default": "4008",
+          "description": "The port to use"
         }
-    ],
-    "servers": [
-        {
-            "url": "{protocol}://{host}:{port}",
-            "description": "Dynamic server to multiples environments",
-            "variables": {
-                "protocol": {
-                    "default": "http",
-                    "enum": [
-                        "http",
-                        "https"
-                    ],
-                    "description": "The protocol to use"
+      }
+    }
+  ],
+  "paths": {
+    "/v1/users/register": {
+      "post": {
+        "security": [],
+        "operationId": "userPostRegister",
+        "tags": ["User"],
+        "summary": "Custom action userPostRegister",
+        "description": "Execute userPostRegister",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8
+                  }
                 },
-                "host": {
-                    "default": "localhost",
-                    "description": "The host to use"
-                },
-                "port": {
-                    "default": "4008",
-                    "description": "The port to use"
-                }
+                "required": ["id", "email", "password"]
+              }
             }
-        }
-    ],
-    "paths": {
-        "/v1/users/register": {
-            "post": {
-                "security": [],
-                "operationId": "userPostRegister",
-                "tags": [
-                    "User"
-                ],
-                "summary": "Custom action userPostRegister",
-                "description": "Execute userPostRegister",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "id": {
-                                        "type": "string",
-                                        "format": "uuid"
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "minLength": 8
-                                    }
-                                },
-                                "required": [
-                                    "id",
-                                    "email",
-                                    "password"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Created"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/BadRequest"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/Forbidden"
-                    },
-                    "409": {
-                        "$ref": "#/components/responses/Conflict"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/Unknown"
-                    }
-                }
-            }
-        },
-        "/v1/auth/login": {
-            "post": {
-                "security": [],
-                "operationId": "userPostLogin",
-                "tags": [
-                    "User"
-                ],
-                "summary": "Custom action userPostLogin",
-                "description": "Execute userPostLogin",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "minLength": 8
-                                    }
-                                },
-                                "required": [
-                                    "email",
-                                    "password"
-                                ],
-                                "additionalProperties": false
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/LoginUserResponse"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/BadRequest"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/Unauthorized"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/Forbidden"
-                    },
-                    "409": {
-                        "$ref": "#/components/responses/Conflict"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/Unknown"
-                    }
-                }
-            }
-        },
-        "/v1/profile": {
-            "post": {
-                "tags": [
-                    "Mybandnow"
-                ],
-                "summary": "Create musician profile",
-                "operationId": "profilePost",
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/MusicianCreateRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Created"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/BadRequest"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/Forbidden"
-                    },
-                    "409": {
-                        "$ref": "#/components/responses/Conflict"
-                    }
-                }
-            },
-            "get": {
-                "tags": [
-                    "Mybandnow"
-                ],
-                "summary": "Get authenticated user profile",
-                "operationId": "profileGet",
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProfileResponse"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/Unauthorized"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ProfileNotFound"
-                    }
-                }
-            }
-        },
-        "/v1/musicians/{id}": {
-            "get": {
-                "tags": [
-                    "Mybandnow"
-                ],
-                "summary": "Get musician by id",
-                "operationId": "musicianGetById",
-                "security": [],
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/Id"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/MusicianResponse"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFound"
-                    }
-                }
-            }
-        },
-        "/v1/songs/{songId}/instruments/{instrumentId}": {
-            "get": {
-                "tags": [
-                    "SongInstrument"
-                ],
-                "summary": "Get a song instrument",
-                "description": "Get a song instrument for a song when the authenticated musician belongs to the song band.",
-                "operationId": "songInstrumentGetById",
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "songId",
-                        "in": "path",
-                        "required": true,
-                        "description": "Song identifier",
-                        "schema": {
-                            "$ref": "#/components/schemas/UUID"
-                        }
-                    },
-                    {
-                        "name": "instrumentId",
-                        "in": "path",
-                        "required": true,
-                        "description": "Song instrument identifier",
-                        "schema": {
-                            "$ref": "#/components/schemas/UUID"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "The song instrument",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/SongInstrumentResponse"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/Forbidden"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/Forbidden"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFound"
-                    }
-                }
-            }
-        },
-        "/v1/songs/{songId}/instruments/{instrumentId}/upload": {
-            "post": {
-                "tags": [
-                    "SongInstrumentUpload"
-                ],
-                "summary": "Upload a song instrument video for asynchronous validation",
-                "description": "Send the multipart/form-data field named video with an MP4 file for a specific song instrument participation.",
-                "operationId": "songInstrumentUploadPostUpload",
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "songId",
-                        "in": "path",
-                        "required": true,
-                        "description": "Song identifier",
-                        "schema": {
-                            "$ref": "#/components/schemas/UUID"
-                        }
-                    },
-                    {
-                        "name": "instrumentId",
-                        "in": "path",
-                        "required": true,
-                        "description": "Song instrument identifier",
-                        "schema": {
-                            "$ref": "#/components/schemas/UUID"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "type": "object",
-                                "additionalProperties": false,
-                                "required": [
-                                    "video"
-                                ],
-                                "properties": {
-                                    "video": {
-                                        "type": "string",
-                                        "format": "binary",
-                                        "description": "MP4 video file uploaded in the video field"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Accepted"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/BadRequest"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/Forbidden"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/Forbidden"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFound"
-                    }
-                }
-            }
-        },
-        "/v1/songs/{songId}/instruments": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "operationId": "songInstrumentPostCreate",
-                "tags": [
-                    "SongInstrument"
-                ],
-                "summary": "Create a song instrument",
-                "description": "Create a song instrument for a song owned by the authenticated musician. The song owner may assign any existing musicianId.",
-                "parameters": [
-                    {
-                        "name": "songId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/components/schemas/UUID"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/SongInstrumentCreateRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "The song instrument has been created"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/BadRequest"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/Forbidden"
-                    },
-                    "409": {
-                        "$ref": "#/components/responses/Conflict"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/Unknown"
-                    }
-                }
-            }
-        },
-        "/v1/bands": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "operationId": "bandPostCreate",
-                "tags": [
-                    "Band"
-                ],
-                "summary": "Create a band",
-                "description": "Create a band",
-                "requestBody": {
-                    "description": "A JSON object containing band information",
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "id": {
-                                        "$ref": "#/components/schemas/UUID"
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": [
-                                    "id",
-                                    "name"
-                                ],
-                                "additionalProperties": false
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "The band has been created"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/BadRequest"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/Forbidden"
-                    },
-                    "409": {
-                        "$ref": "#/components/responses/Conflict"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/Unknown"
-                    }
-                }
-            },
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "operationId": "bandGetMatchByCriteria",
-                "tags": [
-                    "Band"
-                ],
-                "summary": "Get a list of band by criteria",
-                "description": "Get a list of band by criteria",
-                "parameters": [
-                    {
-                        "name": "criteria",
-                        "in": "query",
-                        "required": false,
-                        "description": "A JSON object for filtering, sorting, and pagination. Example: `{\"filters\":[{\"field\":\"name\",\"operator\":\"CONTAINS\",\"value\":\"test\"}],\"orderBy\":\"name\",\"order\":\"asc\",\"limit\":10,\"offset\":0}`",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "A list of band",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BandListResponse"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/Unknown"
-                    }
-                }
-            }
-        },
-        "/v1/bands/{bandId}/songs": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "operationId": "bandSongGetByBand",
-                "tags": [
-                    "Band"
-                ],
-                "summary": "List the songs of a band",
-                "description": "List the songs of a band when the authenticated musician is a member.",
-                "parameters": [
-                    {
-                        "name": "bandId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/components/schemas/UUID"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "The songs of the band",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/SongListResponse"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/Unauthorized"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/Forbidden"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/Unknown"
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "operationId": "bandSongPostCreate",
-                "tags": [
-                    "Band"
-                ],
-                "summary": "Create a song under a band",
-                "description": "Create a song for a band where the authenticated musician is a member.",
-                "parameters": [
-                    {
-                        "name": "bandId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/components/schemas/UUID"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "id": {
-                                        "$ref": "#/components/schemas/UUID"
-                                    },
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "originalVideoclipUrl": {
-                                        "type": "string",
-                                        "format": "uri"
-                                    }
-                                },
-                                "required": [
-                                    "id",
-                                    "title",
-                                    "originalVideoclipUrl"
-                                ],
-                                "additionalProperties": false
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "The song has been created"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/BadRequest"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/Unauthorized"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/Forbidden"
-                    },
-                    "409": {
-                        "$ref": "#/components/responses/Conflict"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/Unknown"
-                    }
-                }
-            }
-        },
-        "/v1/bands/{id}": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "operationId": "bandPutUpdate",
-                "tags": [
-                    "Band"
-                ],
-                "summary": "Update a band",
-                "description": "Update a band",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/components/schemas/UUID"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "description": "A JSON object containing the fields to update",
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": [
-                                    "name"
-                                ],
-                                "additionalProperties": false
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "The band has been updated"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/BadRequest"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/Forbidden"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFound"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/Unknown"
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "operationId": "bandDeleteRemove",
-                "tags": [
-                    "Band"
-                ],
-                "summary": "Remove a band",
-                "description": "Remove a band by ID",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/components/schemas/UUID"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "The band has been removed"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/BadRequest"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/Forbidden"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFound"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/Unknown"
-                    }
-                }
-            },
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "operationId": "bandGetSearch",
-                "tags": [
-                    "Band"
-                ],
-                "summary": "Get a band by ID",
-                "description": "Get a band by ID",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/components/schemas/UUID"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "The band found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BandResponse"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFound"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/Unknown"
-                    }
-                }
-            }
-        }
-    },
-    "components": {
-        "securitySchemes": {
-            "BearerAuth": {
-                "type": "http",
-                "scheme": "bearer",
-                "bearerFormat": "JWT"
-            },
-            "InternalAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-internal-auth"
-            }
+          }
         },
         "responses": {
-            "BadRequest": {
-                "description": "Bad request. Invalid data received.",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "$ref": "#/components/schemas/Error"
-                        }
-                    }
-                }
-            },
-            "NotFound": {
-                "description": "The specified resource was not found.",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "$ref": "#/components/schemas/Error"
-                        }
-                    }
-                }
-            },
-            "Conflict": {
-                "description": "The specified resource has a conflict.",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "$ref": "#/components/schemas/Error"
-                        }
-                    }
-                }
-            },
-            "Forbidden": {
-                "description": "Forbidden.",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "$ref": "#/components/schemas/Error"
-                        }
-                    }
-                }
-            },
-            "Unauthorized": {
-                "description": "Unauthorized. Invalid or missing credentials.",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "$ref": "#/components/schemas/Error"
-                        }
-                    }
-                }
-            },
-            "ProfileNotFound": {
-                "description": "The authenticated user does not have a musician profile yet.",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "$ref": "#/components/schemas/ProfileNotFoundResponse"
-                        }
-                    }
-                }
-            },
-            "Unknown": {
-                "description": "Unknown error",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "$ref": "#/components/schemas/Error"
-                        }
-                    }
-                }
-            }
-        },
-        "requestBodies": {},
-        "parameters": {
-            "Criteria": {
-                "name": "criteria",
-                "in": "query",
-                "schema": {
-                    "type": "string",
-                    "example": "{\"filters\":[{\"field\":\"name\",\"operator\":\"CONTAINS\",\"type\":\"array\",\"value\":[\"John\"]}],\"orderBy\":\"role\",\"order\":\"asc\",\"limit\":3}"
-                }
-            },
-            "Id": {
-                "name": "id",
-                "in": "path",
-                "required": true,
-                "description": "The UUID id",
-                "schema": {
-                    "$ref": "#/components/schemas/UUID"
-                }
-            }
-        },
-        "schemas": {
-            "UUID": {
-                "type": "string",
-                "format": "uuid",
-                "example": "30437b49-faac-4ab1-9809-037ce93cb6d0"
-            },
-            "Error": {
-                "title": "The error object",
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                    "code",
-                    "message"
-                ],
-                "properties": {
-                    "code": {
-                        "type": "string"
-                    },
-                    "message": {
-                        "type": "string"
-                    }
-                }
-            },
-            "LoginUserResponse": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                    "accessToken"
-                ],
-                "properties": {
-                    "accessToken": {
-                        "type": "string"
-                    }
-                }
-            },
-            "BandMemberResponse": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                    "id",
-                    "musicianId",
-                    "role"
-                ],
-                "properties": {
-                    "id": {
-                        "$ref": "#/components/schemas/UUID"
-                    },
-                    "musicianId": {
-                        "$ref": "#/components/schemas/UUID"
-                    },
-                    "role": {
-                        "type": "string"
-                    }
-                }
-            },
-            "BandResponse": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                    "id",
-                    "ownerId",
-                    "name",
-                    "members",
-                    "createdAt"
-                ],
-                "properties": {
-                    "id": {
-                        "$ref": "#/components/schemas/UUID"
-                    },
-                    "ownerId": {
-                        "$ref": "#/components/schemas/UUID"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "members": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/BandMemberResponse"
-                        }
-                    },
-                    "createdAt": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
-                }
-            },
-            "BandListResponse": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                    "items",
-                    "total"
-                ],
-                "properties": {
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/BandResponse"
-                        }
-                    },
-                    "total": {
-                        "type": "integer"
-                    }
-                }
-            },
-            "SongResponse": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                    "id",
-                    "bandId",
-                    "title",
-                    "originalVideoclipUrl"
-                ],
-                "properties": {
-                    "id": {
-                        "$ref": "#/components/schemas/UUID"
-                    },
-                    "bandId": {
-                        "$ref": "#/components/schemas/UUID"
-                    },
-                    "title": {
-                        "type": "string"
-                    },
-                    "originalVideoclipUrl": {
-                        "type": "string",
-                        "format": "uri"
-                    }
-                }
-            },
-            "SongListResponse": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                    "items",
-                    "total"
-                ],
-                "properties": {
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/SongResponse"
-                        }
-                    },
-                    "total": {
-                        "type": "integer"
-                    }
-                }
-            },
-            "MusicianCreateRequest": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                    "id",
-                    "name",
-                    "username"
-                ],
-                "properties": {
-                    "id": {
-                        "$ref": "#/components/schemas/UUID"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "username": {
-                        "type": "string"
-                    }
-                }
-            },
-            "MusicianResponse": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                    "id",
-                    "name",
-                    "username"
-                ],
-                "properties": {
-                    "id": {
-                        "$ref": "#/components/schemas/UUID"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "username": {
-                        "type": "string"
-                    }
-                }
-            },
-            "ProfileResponse": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                    "id",
-                    "userId",
-                    "name",
-                    "username"
-                ],
-                "properties": {
-                    "id": {
-                        "$ref": "#/components/schemas/UUID"
-                    },
-                    "userId": {
-                        "$ref": "#/components/schemas/UUID"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "username": {
-                        "type": "string"
-                    }
-                }
-            },
-            "ProfileNotFoundResponse": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                    "message"
-                ],
-                "properties": {
-                    "message": {
-                        "type": "string",
-                        "example": "Profile not found"
-                    }
-                }
-            },
-            "SongInstrumentVideoResponse": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                    "id",
-                    "songInstrumentId",
-                    "url",
-                    "duration",
-                    "size",
-                    "createdAt"
-                ],
-                "properties": {
-                    "id": {
-                        "$ref": "#/components/schemas/UUID"
-                    },
-                    "songInstrumentId": {
-                        "$ref": "#/components/schemas/UUID"
-                    },
-                    "url": {
-                        "type": "string"
-                    },
-                    "duration": {
-                        "type": "integer"
-                    },
-                    "size": {
-                        "type": "integer"
-                    },
-                    "createdAt": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
-                }
-            },
-            "SongInstrumentResponse": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                    "id",
-                    "name",
-                    "instrumentType",
-                    "songId",
-                    "musicianId",
-                    "createdAt",
-                    "video"
-                ],
-                "properties": {
-                    "id": {
-                        "$ref": "#/components/schemas/UUID"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "instrumentType": {
-                        "type": "string"
-                    },
-                    "songId": {
-                        "$ref": "#/components/schemas/UUID"
-                    },
-                    "musicianId": {
-                        "$ref": "#/components/schemas/UUID"
-                    },
-                    "createdAt": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "video": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/SongInstrumentVideoResponse"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    }
-                }
-            },
-            "SongInstrumentCreateRequest": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                    "id",
-                    "name",
-                    "instrumentType",
-                    "musicianId"
-                ],
-                "properties": {
-                    "id": {
-                        "$ref": "#/components/schemas/UUID"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "instrumentType": {
-                        "type": "string"
-                    },
-                    "musicianId": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/UUID"
-                            }
-                        ],
-                        "description": "Must reference an existing musician. The authenticated song owner may assign their own musician profile or another existing musician."
-                    }
-                }
-            }
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/Unknown"
+          }
         }
+      }
+    },
+    "/v1/auth/login": {
+      "post": {
+        "security": [],
+        "operationId": "userPostLogin",
+        "tags": ["User"],
+        "summary": "Custom action userPostLogin",
+        "description": "Execute userPostLogin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8
+                  }
+                },
+                "required": ["email", "password"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginUserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/Unknown"
+          }
+        }
+      }
+    },
+    "/v1/profile": {
+      "post": {
+        "tags": ["Mybandnow"],
+        "summary": "Create musician profile",
+        "operationId": "profilePost",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MusicianCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      },
+      "get": {
+        "tags": ["Mybandnow"],
+        "summary": "Get authenticated user profile",
+        "operationId": "profileGet",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/ProfileNotFound"
+          }
+        }
+      }
+    },
+    "/v1/musicians/{id}": {
+      "get": {
+        "tags": ["Mybandnow"],
+        "summary": "Get musician by id",
+        "operationId": "musicianGetById",
+        "security": [],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MusicianResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/songs/{songId}/instruments/{instrumentId}": {
+      "get": {
+        "tags": ["SongInstrument"],
+        "summary": "Get a song instrument",
+        "description": "Get a song instrument for a song when the authenticated musician belongs to the song band.",
+        "operationId": "songInstrumentGetById",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "songId",
+            "in": "path",
+            "required": true,
+            "description": "Song identifier",
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          },
+          {
+            "name": "instrumentId",
+            "in": "path",
+            "required": true,
+            "description": "Song instrument identifier",
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The song instrument",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SongInstrumentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/songs/{songId}/instruments/{instrumentId}/upload": {
+      "post": {
+        "tags": ["SongInstrumentUpload"],
+        "summary": "Upload a song instrument video for asynchronous validation",
+        "description": "Send the multipart/form-data field named video with an MP4 file for a specific song instrument participation.",
+        "operationId": "songInstrumentUploadPostUpload",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "songId",
+            "in": "path",
+            "required": true,
+            "description": "Song identifier",
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          },
+          {
+            "name": "instrumentId",
+            "in": "path",
+            "required": true,
+            "description": "Song instrument identifier",
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["video"],
+                "properties": {
+                  "video": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "MP4 video file uploaded in the video field"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/songs": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "songGetMatchByCriteria",
+        "tags": ["Song"],
+        "summary": "List songs by criteria",
+        "description": "List songs that belong to bands where the authenticated musician is the owner or a member.",
+        "parameters": [
+          {
+            "name": "criteria",
+            "in": "query",
+            "required": false,
+            "description": "A JSON string for filtering, sorting, and pagination. Supported song fields include id, bandId, and title.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The songs visible to the authenticated musician",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SongListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/Unknown"
+          }
+        }
+      }
+    },
+    "/v1/songs/{songId}/instruments": {
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "songInstrumentPostCreate",
+        "tags": ["SongInstrument"],
+        "summary": "Create a song instrument",
+        "description": "Create a song instrument for a song owned by the authenticated musician. The song owner may assign any existing musicianId.",
+        "parameters": [
+          {
+            "name": "songId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SongInstrumentCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The song instrument has been created"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/Unknown"
+          }
+        }
+      },
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "songInstrumentGetMatchByCriteria",
+        "tags": ["SongInstrument"],
+        "summary": "List song instruments by criteria",
+        "description": "List song instruments for a song when the authenticated musician belongs to the song band.",
+        "parameters": [
+          {
+            "name": "songId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          },
+          {
+            "name": "criteria",
+            "in": "query",
+            "required": false,
+            "description": "A JSON string for filtering, sorting, and pagination. The song scope is always forced from the path songId.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The song instruments of the song",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SongInstrumentListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/Unknown"
+          }
+        }
+      }
+    },
+    "/v1/bands": {
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "bandPostCreate",
+        "tags": ["Band"],
+        "summary": "Create a band",
+        "description": "Create a band",
+        "requestBody": {
+          "description": "A JSON object containing band information",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "$ref": "#/components/schemas/UUID"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "name"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The band has been created"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/Unknown"
+          }
+        }
+      },
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "bandGetMatchByCriteria",
+        "tags": ["Band"],
+        "summary": "Get a list of band by criteria",
+        "description": "Get a list of band by criteria",
+        "parameters": [
+          {
+            "name": "criteria",
+            "in": "query",
+            "required": false,
+            "description": "A JSON object for filtering, sorting, and pagination. Example: `{\"filters\":[{\"field\":\"name\",\"operator\":\"CONTAINS\",\"value\":\"test\"}],\"orderBy\":\"name\",\"order\":\"asc\",\"limit\":10,\"offset\":0}`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of band",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BandListResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/Unknown"
+          }
+        }
+      }
+    },
+    "/v1/bands/{bandId}/songs": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "bandSongGetByBand",
+        "tags": ["Band"],
+        "summary": "List the songs of a band",
+        "description": "List the songs of a band when the authenticated musician is a member.",
+        "parameters": [
+          {
+            "name": "bandId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The songs of the band",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SongListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/Unknown"
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "bandSongPostCreate",
+        "tags": ["Band"],
+        "summary": "Create a song under a band",
+        "description": "Create a song for a band where the authenticated musician is a member.",
+        "parameters": [
+          {
+            "name": "bandId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "$ref": "#/components/schemas/UUID"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "originalVideoclipUrl": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                },
+                "required": ["id", "title", "originalVideoclipUrl"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The song has been created"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/Unknown"
+          }
+        }
+      }
+    },
+    "/v1/bands/{id}": {
+      "put": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "bandPutUpdate",
+        "tags": ["Band"],
+        "summary": "Update a band",
+        "description": "Update a band",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "A JSON object containing the fields to update",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": ["name"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The band has been updated"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Unknown"
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "bandDeleteRemove",
+        "tags": ["Band"],
+        "summary": "Remove a band",
+        "description": "Remove a band by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The band has been removed"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Unknown"
+          }
+        }
+      },
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "bandGetSearch",
+        "tags": ["Band"],
+        "summary": "Get a band by ID",
+        "description": "Get a band by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The band found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BandResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Unknown"
+          }
+        }
+      }
     }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "InternalAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-internal-auth"
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request. Invalid data received.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "The specified resource was not found.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "The specified resource has a conflict.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Forbidden.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized. Invalid or missing credentials.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "ProfileNotFound": {
+        "description": "The authenticated user does not have a musician profile yet.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProfileNotFoundResponse"
+            }
+          }
+        }
+      },
+      "Unknown": {
+        "description": "Unknown error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "requestBodies": {},
+    "parameters": {
+      "Criteria": {
+        "name": "criteria",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "example": "{\"filters\":[{\"field\":\"name\",\"operator\":\"CONTAINS\",\"type\":\"array\",\"value\":[\"John\"]}],\"orderBy\":\"role\",\"order\":\"asc\",\"limit\":3}"
+        }
+      },
+      "Id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "The UUID id",
+        "schema": {
+          "$ref": "#/components/schemas/UUID"
+        }
+      }
+    },
+    "schemas": {
+      "UUID": {
+        "type": "string",
+        "format": "uuid",
+        "example": "30437b49-faac-4ab1-9809-037ce93cb6d0"
+      },
+      "Error": {
+        "title": "The error object",
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "message"],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "LoginUserResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["accessToken"],
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          }
+        }
+      },
+      "BandMemberResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "musicianId", "role"],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "musicianId": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "role": {
+            "type": "string"
+          }
+        }
+      },
+      "BandResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "ownerId", "name", "members", "createdAt"],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "ownerId": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "name": {
+            "type": "string"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BandMemberResponse"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BandListResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["items", "total"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BandResponse"
+            }
+          },
+          "total": {
+            "type": "integer"
+          }
+        }
+      },
+      "SongResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "bandId", "title", "originalVideoclipUrl"],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "bandId": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "title": {
+            "type": "string"
+          },
+          "originalVideoclipUrl": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "SongListResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["items", "total"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SongResponse"
+            }
+          },
+          "total": {
+            "type": "integer"
+          }
+        }
+      },
+      "MusicianCreateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "username"],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "MusicianResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "username"],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "ProfileResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "userId", "name", "username"],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "userId": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "ProfileNotFoundResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["message"],
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Profile not found"
+          }
+        }
+      },
+      "SongInstrumentVideoResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "songInstrumentId", "url", "duration", "size", "createdAt"],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "songInstrumentId": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "url": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "integer"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SongInstrumentResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "instrumentType", "songId", "musicianId", "createdAt", "video"],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "name": {
+            "type": "string"
+          },
+          "instrumentType": {
+            "type": "string"
+          },
+          "songId": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "musicianId": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "video": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SongInstrumentVideoResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "SongInstrumentCreateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "instrumentType", "musicianId"],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "name": {
+            "type": "string"
+          },
+          "instrumentType": {
+            "type": "string"
+          },
+          "musicianId": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UUID"
+              }
+            ],
+            "description": "Must reference an existing musician. The authenticated song owner may assign their own musician profile or another existing musician."
+          }
+        }
+      },
+      "SongInstrumentListItemResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "instrumentType", "songId", "musicianId", "createdAt"],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "name": {
+            "type": "string"
+          },
+          "instrumentType": {
+            "type": "string"
+          },
+          "songId": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "musicianId": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SongInstrumentListResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["items", "total"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SongInstrumentListItemResponse"
+            }
+          },
+          "total": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
 }

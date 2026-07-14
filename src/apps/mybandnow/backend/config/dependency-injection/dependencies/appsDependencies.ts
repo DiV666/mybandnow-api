@@ -10,7 +10,9 @@ import { register as registerUserPostRegisterController } from '../controllers/u
 import { register as registerMusicianGetByIdController } from '../controllers/musician/musicianGetById.dependency.js';
 import { register as registerProfileGetController } from '../controllers/musician/profileGet.dependency.js';
 import { register as registerProfilePostController } from '../controllers/musician/profilePost.dependency.js';
+import { register as registerSongGetMatchByCriteriaController } from '../controllers/song/songGetMatchByCriteria.dependency.js';
 import { register as registerSongInstrumentGetByIdController } from '../controllers/songInstrument/songInstrumentGetById.dependency.js';
+import { register as registerSongInstrumentGetMatchByCriteriaController } from '../controllers/songInstrument/songInstrumentGetMatchByCriteria.dependency.js';
 import { register as registerSongInstrumentPostCreateController } from '../controllers/songInstrument/songInstrumentPostCreate.dependency.js';
 import { register as registerSongInstrumentUploadPostUploadController } from '../controllers/songInstrumentUpload/songInstrumentUploadPostUpload.dependency.js';
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
@@ -42,7 +44,9 @@ export function registerAppsDependencies(container: ContainerBuilder) {
   registerMusicianGetByIdController(container);
   registerProfileGetController(container);
   registerProfilePostController(container);
+  registerSongGetMatchByCriteriaController(container);
   registerSongInstrumentGetByIdController(container);
+  registerSongInstrumentGetMatchByCriteriaController(container);
   registerSongInstrumentPostCreateController(container);
   registerSongInstrumentUploadPostUploadController(container);
 
