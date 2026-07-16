@@ -1,11 +1,19 @@
 FROM node:24.16.0-slim
 LABEL maintainer=developers@kloding.com
 
-# Update packages.
-RUN apt update && apt upgrade -y
-
-# Install git to initialize husky and devcontainer
-RUN apt install -y git wget curl procps bash-completion make jq
+# Update packages and install system dependencies
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        git \
+        wget \
+        curl \
+        procps \
+        bash-completion \
+        make \
+        jq \
+        ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install nodemon globally
 RUN npm install -g nodemon

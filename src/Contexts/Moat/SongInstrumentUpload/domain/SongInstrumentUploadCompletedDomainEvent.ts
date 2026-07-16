@@ -2,6 +2,7 @@ import { DomainEvent } from '@Contexts/Shared/domain/DomainEvent.js';
 
 export type SongInstrumentUploadCompletedDomainEventAttributes = {
   readonly id: string;
+  readonly attemptId: string;
   readonly songInstrumentId: string;
   readonly url: string;
   readonly duration: number;
@@ -12,6 +13,7 @@ export class SongInstrumentUploadCompletedDomainEvent extends DomainEvent {
   static readonly EVENT_NAME = 'moat.song_instrument_upload.completed';
 
   readonly id: string;
+  readonly attemptId: string;
   readonly songInstrumentId: string;
   readonly url: string;
   readonly duration: number;
@@ -20,6 +22,7 @@ export class SongInstrumentUploadCompletedDomainEvent extends DomainEvent {
   constructor({
     aggregateId,
     id,
+    attemptId,
     songInstrumentId,
     url,
     duration,
@@ -29,6 +32,7 @@ export class SongInstrumentUploadCompletedDomainEvent extends DomainEvent {
   }: {
     aggregateId: string;
     id: string;
+    attemptId?: string;
     songInstrumentId: string;
     url: string;
     duration: number;
@@ -38,12 +42,14 @@ export class SongInstrumentUploadCompletedDomainEvent extends DomainEvent {
   }) {
     super({ eventName: SongInstrumentUploadCompletedDomainEvent.EVENT_NAME, aggregateId, eventId, occurredOn });
     this.id = id;
+    this.attemptId = attemptId ?? aggregateId;
     this.songInstrumentId = songInstrumentId;
     this.url = url;
     this.duration = duration;
     this.size = size;
     this.attributes = {
       id: this.id,
+      attemptId: this.attemptId,
       songInstrumentId: this.songInstrumentId,
       url: this.url,
       duration: this.duration,
@@ -54,6 +60,7 @@ export class SongInstrumentUploadCompletedDomainEvent extends DomainEvent {
   toPrimitives(): SongInstrumentUploadCompletedDomainEventAttributes {
     return {
       id: this.id,
+      attemptId: this.attemptId,
       songInstrumentId: this.songInstrumentId,
       url: this.url,
       duration: this.duration,
@@ -72,6 +79,7 @@ export class SongInstrumentUploadCompletedDomainEvent extends DomainEvent {
     return new SongInstrumentUploadCompletedDomainEvent({
       aggregateId: params.aggregateId,
       id: attrs.id,
+      attemptId: attrs.attemptId,
       songInstrumentId: attrs.songInstrumentId,
       url: attrs.url,
       duration: attrs.duration,

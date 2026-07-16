@@ -16,10 +16,13 @@ import {
 } from './SongInstrumentUploadUpdateStatusCommand.js';
 
 import { EventBus } from '@Contexts/Shared/domain/EventBus.js';
+import { SongInstrumentPersistenceRepository } from '@Contexts/Moat/SongInstrument/domain/repository/SongInstrumentPersistenceRepository.js';
+import { SongInstrumentId } from '@Contexts/Moat/SongInstrument/domain/value-object/SongInstrumentId.js';
 
 export class SongInstrumentUploadStatusUpdater {
   constructor(
     private readonly repository: SongInstrumentUploadPersistenceRepository,
+    private readonly songInstrumentRepository: SongInstrumentPersistenceRepository,
     private readonly eventBus: EventBus
   ) {}
 
@@ -31,11 +34,34 @@ export class SongInstrumentUploadStatusUpdater {
       throw new SongInstrumentUploadNotExistException(songInstrumentUploadId.value);
     }
 
+    const songInstrument = await this.songInstrumentRepository.search(
+      new SongInstrumentId(songInstrumentUpload.songInstrumentId.value)
+    );
+
+    if (!songInstrument?.hasActiveUploadAttempt(songInstrumentUpload.id.value)) {
+      return;
+    }
+
     const newStatus = SongInstrumentUploadStatus.fromString(command.status);
 
     if (newStatus.value === SongInstrumentUploadStatusValues.COMPLETED) {
+      if (
+        songInstrumentUpload.status.value === SongInstrumentUploadStatusValues.COMPLETED ||
+        songInstrumentUpload.status.value === SongInstrumentUploadStatusValues.FAILED
+      ) {
+        return;
+      }
+
       songInstrumentUpload.markAsCompleted(this.ensureCompletionData(command));
     } else if (newStatus.value === SongInstrumentUploadStatusValues.FAILED) {
+      if (songInstrumentUpload.status.value === SongInstrumentUploadStatusValues.COMPLETED) {
+        return;
+      }
+
+      if (songInstrumentUpload.status.value === SongInstrumentUploadStatusValues.FAILED) {
+        return;
+      }
+
       songInstrumentUpload.markAsFailed();
     } else {
       throw new InvalidArgumentException({

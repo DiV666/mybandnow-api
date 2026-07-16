@@ -18,6 +18,9 @@ describe('registerAppsDependencies', () => {
       'Apps.Mybandnow.Backend.subscribers.CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted'
     );
     expect(subscriberIds).toContain(
+      'Apps.Mybandnow.Backend.subscribers.FailSongInstrumentUploadOnSongInstrumentProcessFailed'
+    );
+    expect(subscriberIds).toContain(
       'Apps.Mybandnow.Backend.subscribers.CreateSongInstrumentVideoOnSongInstrumentUploadCompleted'
     );
   });
@@ -46,6 +49,9 @@ describe('registerAppsDependencies', () => {
     const technicalDefinition = container.getDefinition(
       'Apps.Mybandnow.Backend.subscribers.CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted'
     );
+    const failedDefinition = container.getDefinition(
+      'Apps.Mybandnow.Backend.subscribers.FailSongInstrumentUploadOnSongInstrumentProcessFailed'
+    );
     const businessDefinition = container.getDefinition(
       'Apps.Mybandnow.Backend.subscribers.CreateSongInstrumentVideoOnSongInstrumentUploadCompleted'
     );
@@ -53,6 +59,8 @@ describe('registerAppsDependencies', () => {
     // Assert
     expect(technicalDefinition.args).toHaveLength(3);
     expect(technicalDefinition.args[2]).toEqual(expect.any(Function));
+    expect(failedDefinition.args).toHaveLength(3);
+    expect(failedDefinition.args[2]).toEqual(expect.any(Function));
     expect(businessDefinition.args).toHaveLength(3);
     expect(businessDefinition.args[2]).toEqual(expect.any(Function));
   });

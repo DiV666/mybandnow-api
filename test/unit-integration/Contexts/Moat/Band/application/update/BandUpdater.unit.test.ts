@@ -23,10 +23,13 @@ describe('BandUpdater should', () => {
 
   it('update a valid band with different properties', async () => {
     const model = BandMother.create();
-    const command = UpdateBandCommandMother.create({ id: model.id.value });
+    const command = UpdateBandCommandMother.create({
+      id: model.id.value,
+      name: `${model.name.value}updated`
+    });
 
-    testCase.shouldMatching(model); // Mock search returns model
-    testCase.shouldSaveWithId(command.id); // Save called with command ID (assuming command has same ID via matching logic, wait matching doesn't enforce ID in test, we just assume it matches)
+    testCase.shouldMatching(model);
+    testCase.shouldSaveWithId(command.id);
 
     await testCase.dispatch(command, commandHandler);
     testCase.assertSave(null);

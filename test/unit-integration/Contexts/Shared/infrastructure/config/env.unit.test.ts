@@ -28,11 +28,7 @@ describe('env config bootstrap logging', () => {
 
     expect(writeSyncSpy).toHaveBeenCalledTimes(1);
 
-    const logEntry = JSON.parse(String(writeSyncSpy.mock.calls[0]?.[1]).trim()) as {
-      context: { errors: Record<string, string[]> };
-      level: string;
-      msg: string;
-    };
+    const logEntry = parseLogEntry(String(writeSyncSpy.mock.calls[0]?.[1]).trim());
 
     expect(logEntry.level).toBe('error');
     expect(logEntry.msg).toBe('Invalid environment variables');
@@ -56,6 +52,9 @@ function createValidEnv(): NodeJS.ProcessEnv {
     LOG_TYPES: 'console',
     MAX_PAYLOAD_SIZE: '256kb',
     DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/mybandnow',
+    GCS_BUCKET_APIKEY: 'service-account@example.com',
+    GCS_BUCKET_TMP_NAME: 'mybandnow-tmp',
+    GCS_BUCKET_SECRET_BASE64: Buffer.from('private-key').toString('base64'),
     NODE_ENV: 'test',
     PORT: '4008',
     RABBITMQ_EXCHANGE_NAME: 'domain_events',
@@ -77,4 +76,20 @@ function createValidEnv(): NodeJS.ProcessEnv {
 function freshEnvModuleUrl(): string {
   moduleNonce += 1;
   return `${envModuleUrl}?t=${moduleNonce}`;
+}
+
+function parseLogEntry(rawLogEntry: string): {
+  context: { errors: Record<string, string[]> };
+  level: string;
+  msg: string;
+} {
+  try {
+    return JSON.parse(rawLogEntry) as {
+      context: { errors: Record<string, string[]> };
+      level: string;
+      msg: string;
+    };
+  } catch (error) {
+    throw new Error(`Failed to parse log entry: ${error instanceof Error ? error.message : String(error)}`);
+  }
 }

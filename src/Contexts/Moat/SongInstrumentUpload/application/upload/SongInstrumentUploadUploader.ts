@@ -39,21 +39,20 @@ export class SongInstrumentUploadUploader {
     const fileReference = new FileReference(command.fileReference);
     const trackSongInstrumentId = new SongInstrumentUploadSongInstrumentId(songInstrument.id.value);
     const trackSongId = new SongInstrumentUploadSongId(songInstrument.songId.value);
-    const songInstrumentUpload =
-      (await this.repository.searchBySongInstrumentId(trackSongInstrumentId)) ??
-      SongInstrumentUpload.create(
-        {
-          id: SongInstrumentUploadId.random(),
-          instrumentName: songInstrument.name.value,
-          songInstrumentId: trackSongInstrumentId.value,
-          songId: trackSongId.value
-        },
-        this.clock
-      );
+    const songInstrumentUpload = SongInstrumentUpload.create(
+      {
+        id: SongInstrumentUploadId.random(),
+        instrumentName: songInstrument.name.value,
+        songInstrumentId: trackSongInstrumentId.value,
+        songId: trackSongId.value
+      },
+      this.clock
+    );
 
     songInstrumentUpload.processUpload(fileReference);
+    songInstrument.activateUploadAttempt(songInstrumentUpload.id.value);
 
-    await this.repository.save(songInstrumentUpload);
+    await this.repository.saveWithSongInstrument(songInstrumentUpload, songInstrument);
     await this.eventBus.publish(songInstrumentUpload.pullDomainEvents());
   }
 }

@@ -6,6 +6,7 @@ export function register(container: ContainerBuilder) {
   container
     .register('Moat.SongInstrumentUpload.SongInstrumentUploadStatusUpdater', SongInstrumentUploadStatusUpdater)
     .addArgument(new Reference('Moat.SongInstrumentUpload.SongInstrumentUploadRepository'))
+    .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'))
     .addArgument(new Reference('Shared.EventBus'));
 
   container

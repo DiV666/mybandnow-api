@@ -8,6 +8,7 @@ import { SongInstrumentName } from './value-object/SongInstrumentName.js';
 import { SongInstrumentSongId } from './value-object/SongInstrumentSongId.js';
 import { SongInstrumentInstrumentType } from './value-object/SongInstrumentInstrumentType.js';
 import { SongInstrumentMusicianId } from './value-object/SongInstrumentMusicianId.js';
+import { SongInstrumentActiveUploadAttemptId } from './value-object/SongInstrumentActiveUploadAttemptId.js';
 
 export class SongInstrument extends AggregateRoot {
   constructor(
@@ -16,7 +17,8 @@ export class SongInstrument extends AggregateRoot {
     readonly instrumentType: SongInstrumentInstrumentType,
     readonly songId: SongInstrumentSongId,
     readonly name: SongInstrumentName,
-    readonly createdAt: SongInstrumentCreatedAt
+    readonly createdAt: SongInstrumentCreatedAt,
+    public activeUploadAttemptId: SongInstrumentActiveUploadAttemptId | null
   ) {
     super();
   }
@@ -29,7 +31,8 @@ export class SongInstrument extends AggregateRoot {
 
     const model = SongInstrument.fromPrimitives({
       ...params,
-      createdAt: createdAt
+      createdAt: createdAt,
+      activeUploadAttemptId: null
     });
 
     const { id, createdAt: createdAtRaw, ...primitives } = model.toPrimitives();
@@ -44,25 +47,37 @@ export class SongInstrument extends AggregateRoot {
     return model;
   }
 
-  static fromPrimitives(plainData: Primitives<SongInstrument>): SongInstrument {
+  activateUploadAttempt(uploadAttemptId: string): void {
+    this.activeUploadAttemptId = new SongInstrumentActiveUploadAttemptId(uploadAttemptId);
+  }
+
+  hasActiveUploadAttempt(uploadAttemptId: string): boolean {
+    return this.activeUploadAttemptId?.value === uploadAttemptId;
+  }
+
+  static fromPrimitives(
+    plainData: Primitives<SongInstrument> & { activeUploadAttemptId?: string | null }
+  ): SongInstrument {
     return new SongInstrument(
       new SongInstrumentId(plainData.id),
       new SongInstrumentMusicianId(plainData.musicianId),
       new SongInstrumentInstrumentType(plainData.instrumentType),
       new SongInstrumentSongId(plainData.songId),
       new SongInstrumentName(plainData.name),
-      new SongInstrumentCreatedAt(plainData.createdAt)
+      new SongInstrumentCreatedAt(plainData.createdAt),
+      plainData.activeUploadAttemptId ? new SongInstrumentActiveUploadAttemptId(plainData.activeUploadAttemptId) : null
     );
   }
 
-  toPrimitives(): Primitives<SongInstrument> {
+  toPrimitives(): Primitives<SongInstrument> & { activeUploadAttemptId: string | null } {
     return {
       id: this.id.value,
       musicianId: this.musicianId.value,
       instrumentType: this.instrumentType.value,
       songId: this.songId.value,
       name: this.name.value,
-      createdAt: this.createdAt.value
+      createdAt: this.createdAt.value,
+      activeUploadAttemptId: this.activeUploadAttemptId?.value ?? null
     };
   }
 }

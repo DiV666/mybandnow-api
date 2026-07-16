@@ -546,20 +546,36 @@ Given(
   }
 );
 
+async function assertSongInstrumentUploadCount(
+  world: MybandnowWorld,
+  total: number,
+  songId: string,
+  songInstrumentId: string
+): Promise<void> {
+  const prisma = PrismaClientFactory.createClient();
+  const resolvedSongId = world.dataUtil.replaceTokensWithCustomOrFakerValues(songId) as string;
+  const resolvedSongInstrumentId = world.dataUtil.replaceTokensWithCustomOrFakerValues(songInstrumentId) as string;
+  const tracks = await prisma.songInstrumentUpload.findMany({
+    where: {
+      songId: resolvedSongId,
+      songInstrumentId: resolvedSongInstrumentId
+    }
+  });
+
+  assert.equal(tracks.length, total);
+}
+
 Then(
   'exactly {int} internal song instrument upload should exist for song {string} and song instrument {string}',
   async function (this: MybandnowWorld, total: number, songId: string, songInstrumentId: string) {
-    const prisma = PrismaClientFactory.createClient();
-    const resolvedSongId = this.dataUtil.replaceTokensWithCustomOrFakerValues(songId) as string;
-    const resolvedSongInstrumentId = this.dataUtil.replaceTokensWithCustomOrFakerValues(songInstrumentId) as string;
-    const tracks = await prisma.songInstrumentUpload.findMany({
-      where: {
-        songId: resolvedSongId,
-        songInstrumentId: resolvedSongInstrumentId
-      }
-    });
+    await assertSongInstrumentUploadCount(this, total, songId, songInstrumentId);
+  }
+);
 
-    assert.equal(tracks.length, total);
+Then(
+  'exactly {int} internal song instrument uploads should exist for song {string} and song instrument {string}',
+  async function (this: MybandnowWorld, total: number, songId: string, songInstrumentId: string) {
+    await assertSongInstrumentUploadCount(this, total, songId, songInstrumentId);
   }
 );
 

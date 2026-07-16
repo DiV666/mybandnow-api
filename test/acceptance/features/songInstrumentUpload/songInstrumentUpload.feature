@@ -26,13 +26,13 @@ Feature: Upload a song instrument video
     And the response should be empty
     And exactly 1 internal song instrument upload should exist for song "8b0a29e5-df8d-40f5-9d57-f4ce57dbf6bb" and song instrument "674b21fd-b822-4461-84a1-4b6dce8dc14a"
 
-  Scenario: A musician reuses the same internal song instrument upload for repeated uploads on the same song instrument
+  Scenario: A musician creates a new internal song instrument upload attempt for repeated uploads on the same song instrument
     Given they have a musician profile
     And song instrument "674b21fd-b822-4461-84a1-4b6dce8dc14a" exists for song "8b0a29e5-df8d-40f5-9d57-f4ce57dbf6bb" assigned to the authenticated musician
     And an internal song instrument upload already exists for song "8b0a29e5-df8d-40f5-9d57-f4ce57dbf6bb" and song instrument "674b21fd-b822-4461-84a1-4b6dce8dc14a"
     When I send a multipart POST request to "/v1/songs/8b0a29e5-df8d-40f5-9d57-f4ce57dbf6bb/instruments/674b21fd-b822-4461-84a1-4b6dce8dc14a/upload" with a valid MP4 video
     Then the response status code should be 202
-    And exactly 1 internal song instrument upload should exist for song "8b0a29e5-df8d-40f5-9d57-f4ce57dbf6bb" and song instrument "674b21fd-b822-4461-84a1-4b6dce8dc14a"
+    And exactly 2 internal song instrument uploads should exist for song "8b0a29e5-df8d-40f5-9d57-f4ce57dbf6bb" and song instrument "674b21fd-b822-4461-84a1-4b6dce8dc14a"
 
   Scenario: Upload fails when the multipart payload does not include the video field
     Given they have a musician profile

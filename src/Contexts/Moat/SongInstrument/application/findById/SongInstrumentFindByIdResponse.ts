@@ -3,7 +3,13 @@ import { SongInstrument } from '../../domain/SongInstrument.js';
 import { SongInstrumentVideo } from '@Contexts/Moat/SongInstrumentVideo/domain/SongInstrumentVideo.js';
 import { Primitives } from '@Contexts/Shared/domain/Primitives.js';
 
-export interface SongInstrumentWithVideoResponse extends Primitives<SongInstrument> {
+export interface SongInstrumentWithVideoResponse {
+  id: string;
+  name: string;
+  instrumentType: string;
+  songId: string;
+  musicianId: string;
+  createdAt: Date;
   video: Primitives<SongInstrumentVideo> | null;
 }
 

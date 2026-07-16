@@ -48,7 +48,8 @@ export class SongInstrumentPrismaRepository
             songId: primitives.songId,
             instrumentType: primitives.instrumentType,
             musicianId: primitives.musicianId,
-            createdAt: primitives.createdAt
+            createdAt: primitives.createdAt,
+            activeUploadAttemptId: primitives.activeUploadAttemptId
           },
           create: {
             id: primitives.id,
@@ -56,7 +57,8 @@ export class SongInstrumentPrismaRepository
             songId: primitives.songId,
             instrumentType: primitives.instrumentType,
             musicianId: primitives.musicianId,
-            createdAt: primitives.createdAt
+            createdAt: primitives.createdAt,
+            activeUploadAttemptId: primitives.activeUploadAttemptId
           }
         });
 
@@ -84,7 +86,8 @@ export class SongInstrumentPrismaRepository
       songId: document.songId,
       instrumentType: document.instrumentType,
       musicianId: document.musicianId,
-      createdAt: document.createdAt
+      createdAt: document.createdAt,
+      activeUploadAttemptId: document.activeUploadAttemptId
     });
   }
 
@@ -99,7 +102,8 @@ export class SongInstrumentPrismaRepository
         songId: document.songId,
         instrumentType: document.instrumentType,
         musicianId: document.musicianId,
-        createdAt: document.createdAt
+        createdAt: document.createdAt,
+        activeUploadAttemptId: document.activeUploadAttemptId
       })
     );
   }

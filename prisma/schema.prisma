@@ -79,7 +79,9 @@ model SongInstrument {
   songId                String
   musician              Musician               @relation(fields: [musicianId], references: [id], onDelete: Cascade)
   musicianId            String
-  songInstrumentUploads SongInstrumentUpload[]
+  songInstrumentUploads SongInstrumentUpload[] @relation("SongInstrumentUploadAttempts")
+  activeUploadAttemptId String?                @unique
+  activeUploadAttempt   SongInstrumentUpload?  @relation("SongInstrumentActiveUploadAttempt", fields: [activeUploadAttemptId], references: [id], onDelete: SetNull)
   songInstrumentVideo   SongInstrumentVideo?
   createdAt             DateTime               @default(now())
 
@@ -101,14 +103,17 @@ model SongInstrumentVideo {
 }
 
 model SongInstrumentUpload {
-  id               String         @id @default(uuid())
-  instrumentName   String
-  status           String         @default("PENDING") // PENDING | READY | PROCESSING | FAILED
-  song             Song           @relation(fields: [songId], references: [id], onDelete: Cascade)
-  songId           String
-  songInstrument   SongInstrument @relation(fields: [songInstrumentId], references: [id], onDelete: Cascade)
-  songInstrumentId String         @unique
-  createdAt        DateTime       @default(now())
+  id                      String          @id @default(uuid())
+  instrumentName          String
+  status                  String          @default("PENDING") // PENDING | READY | PROCESSING | FAILED
+  song                    Song            @relation(fields: [songId], references: [id], onDelete: Cascade)
+  songId                  String
+  songInstrument          SongInstrument  @relation("SongInstrumentUploadAttempts", fields: [songInstrumentId], references: [id], onDelete: Cascade)
+  songInstrumentId        String
+  activeForSongInstrument SongInstrument? @relation("SongInstrumentActiveUploadAttempt")
+  createdAt               DateTime        @default(now())
+
+  @@index([songInstrumentId])
 }
 
 model Videoclip {
@@ -127,7 +132,7 @@ model Videoclip {
 // =========================================================================
 
 model SongInstrumentProcess {
-  id         String   @id // Comparte exactamente el ID del modelo SongInstrumentUpload (Moat)
+  id         String   @id // Shares the exact ID of the SongInstrumentUpload attempt (Moat)
   status     String   @default("COMPLETED") // COMPLETED | FAILED
   gcsPath    String? // Ruta en GCS (e.g. bands/:bandId/songs/:songId/tracks/:trackId.mp4)
   fileSize   Int?

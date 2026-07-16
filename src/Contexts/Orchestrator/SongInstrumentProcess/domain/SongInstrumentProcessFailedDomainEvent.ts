@@ -3,7 +3,15 @@ import { DomainEvent } from '../../../Shared/domain/DomainEvent.js';
 export class SongInstrumentProcessFailedDomainEvent extends DomainEvent {
   static readonly EVENT_NAME = 'orchestrator.song_instrument_process.failed';
 
-  constructor(params: { aggregateId: string; eventId?: string; occurredOn?: Date; meta?: Record<string, unknown> }) {
+  readonly attemptId: string;
+
+  constructor(params: {
+    aggregateId: string;
+    attemptId?: string;
+    eventId?: string;
+    occurredOn?: Date;
+    meta?: Record<string, unknown>;
+  }) {
     super({
       eventName: SongInstrumentProcessFailedDomainEvent.EVENT_NAME,
       aggregateId: params.aggregateId,
@@ -11,6 +19,10 @@ export class SongInstrumentProcessFailedDomainEvent extends DomainEvent {
       occurredOn: params.occurredOn,
       meta: params.meta
     });
+    this.attemptId = params.attemptId ?? params.aggregateId;
+    this.attributes = {
+      attemptId: this.attemptId
+    };
   }
 
   static fromPrimitives(params: {
@@ -22,6 +34,10 @@ export class SongInstrumentProcessFailedDomainEvent extends DomainEvent {
   }): DomainEvent {
     return new SongInstrumentProcessFailedDomainEvent({
       aggregateId: params.aggregateId,
+      attemptId:
+        typeof params.attributes.attemptId === 'string' && params.attributes.attemptId.length > 0
+          ? params.attributes.attemptId
+          : params.aggregateId,
       eventId: params.eventId,
       occurredOn: params.occurredOn,
       meta: params.meta

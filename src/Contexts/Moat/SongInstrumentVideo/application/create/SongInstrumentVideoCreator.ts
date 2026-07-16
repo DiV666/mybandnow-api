@@ -50,10 +50,54 @@ export class SongInstrumentVideoCreator {
       throw new SongInstrumentNotExistException(songInstrumentId);
     }
 
+    const currentSongInstrumentVideo = await this.persistenceRepository.searchBySongInstrumentId(
+      new SongInstrumentId(songInstrumentId)
+    );
+
+    if (currentSongInstrumentVideo) {
+      const updatedSongInstrumentVideo = SongInstrumentVideo.fromPrimitives({
+        id: currentSongInstrumentVideo.id.value,
+        size,
+        duration,
+        url,
+        songInstrumentId,
+        createdAt: currentSongInstrumentVideo.createdAt.value
+      });
+
+      await this.persistenceRepository.save(updatedSongInstrumentVideo);
+      return;
+    }
+
     const songinstrumentvideo = SongInstrumentVideo.create({ id, size, duration, url, songInstrumentId }, this.clock);
     this.logger.info({ id }, 'moat.songinstrumentvideo.create.success');
 
-    await this.persistenceRepository.save(songinstrumentvideo);
+    try {
+      await this.persistenceRepository.save(songinstrumentvideo);
+    } catch (error) {
+      if (!(error instanceof SongInstrumentVideoExistException)) {
+        throw error;
+      }
+
+      const persistedSongInstrumentVideo = await this.persistenceRepository.search(new SongInstrumentVideoId(id));
+
+      if (!persistedSongInstrumentVideo) {
+        throw error;
+      }
+
+      const currentPrimitives = persistedSongInstrumentVideo.toPrimitives();
+      const inputParams = { id, size, duration, url, songInstrumentId };
+      const hasConflicts = Object.keys(inputParams).some((key) => {
+        const typedKey = key as keyof Omit<Primitives<SongInstrumentVideo>, 'createdAt'>;
+        return JSON.stringify(currentPrimitives[typedKey]) !== JSON.stringify(inputParams[typedKey]);
+      });
+
+      if (hasConflicts) {
+        throw error;
+      }
+
+      return;
+    }
+
     await this.eventBus.publish(songinstrumentvideo.pullDomainEvents());
   }
 }

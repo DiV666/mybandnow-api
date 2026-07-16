@@ -21,6 +21,7 @@ describe('SongInstrumentUploadUploader', () => {
   beforeEach(() => {
     repository = {
       save: vi.fn(),
+      saveWithSongInstrument: vi.fn(),
       search: vi.fn(),
       searchBySongInstrumentId: vi.fn(),
       remove: vi.fn()
@@ -56,38 +57,70 @@ describe('SongInstrumentUploadUploader', () => {
     });
 
     expect(songInstrumentRepository.search).toHaveBeenCalledWith(songInstrument.id);
-    expect(repository.searchBySongInstrumentId).toHaveBeenCalledWith(songInstrument.id);
-    expect(repository.save).toHaveBeenCalledWith(
+    expect(repository.searchBySongInstrumentId).not.toHaveBeenCalled();
+    expect(repository.saveWithSongInstrument).toHaveBeenCalledWith(
       expect.objectContaining({
         status: expect.objectContaining({ value: SongInstrumentUploadStatusValues.PROCESSING }),
         songInstrumentId: expect.objectContaining({ value: songInstrument.id.value }),
         songId: expect.objectContaining({ value: songInstrument.songId.value })
+      }),
+      expect.objectContaining({
+        id: expect.objectContaining({ value: songInstrument.id.value }),
+        activeUploadAttemptId: expect.objectContaining({ value: expect.any(String) })
       })
     );
-    expect(eventBus.publish).toHaveBeenCalled();
+    expect(eventBus.publish).toHaveBeenCalledWith([
+      expect.objectContaining({
+        eventName: 'moat.song_instrument_upload.upload_requested',
+        aggregateId: expect.any(String),
+        attributes: expect.objectContaining({
+          attemptId: expect.any(String),
+          fileReference: 'path/to/file.mp3'
+        })
+      })
+    ]);
   });
 
-  it('reuses the existing internal songInstrumentUpload for the song instrument', async () => {
+  it('creates a new upload attempt instead of reusing the previous one on retry', async () => {
     const songInstrument = createSongInstrument({
-      id: 'f34fac9d-04f4-43e1-b62d-b4c09a885953',
-      songId: '4e534dfe-3525-4606-b305-d73b7680479e',
-      musicianId: '0e79ff2d-ea13-45c8-b8a3-160950f81a02'
+      id: '6b36e6e7-f31e-49d2-af12-f2330fbb6c31',
+      songId: '89e4c2fe-c859-4232-bf24-305cdb9f05f0',
+      musicianId: '9b8c66f8-3aa7-4ced-b0f6-2e2bd50d6541'
     });
-    const existingSongInstrumentUpload = SongInstrumentUploadMother.create({
-      status: SongInstrumentUploadStatusMother.pending()
+    const previousSongInstrumentUpload = SongInstrumentUploadMother.create({
+      status: SongInstrumentUploadStatusMother.create(SongInstrumentUploadStatusValues.FAILED),
+      songInstrumentId: songInstrument.id,
+      songId: songInstrument.songId
     });
     vi.mocked(songInstrumentRepository.search).mockResolvedValue(songInstrument);
-    vi.mocked(repository.searchBySongInstrumentId).mockResolvedValue(existingSongInstrumentUpload);
 
     await uploader.run({
       songId: songInstrument.songId.value,
       instrumentId: songInstrument.id.value,
       musicianId: songInstrument.musicianId.value,
-      fileReference: 'path/to/file.mp3'
+      fileReference: 'path/to/retry-file.mp4'
     });
 
-    expect(repository.save).toHaveBeenCalledWith(existingSongInstrumentUpload);
-    expect(eventBus.publish).toHaveBeenCalled();
+    expect(repository.searchBySongInstrumentId).not.toHaveBeenCalled();
+    expect(repository.saveWithSongInstrument).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: expect.not.objectContaining({ value: previousSongInstrumentUpload.id.value }),
+        status: expect.objectContaining({ value: SongInstrumentUploadStatusValues.PROCESSING })
+      }),
+      expect.objectContaining({
+        activeUploadAttemptId: expect.objectContaining({ value: expect.any(String) })
+      })
+    );
+    expect(eventBus.publish).toHaveBeenCalledWith([
+      expect.objectContaining({
+        eventName: 'moat.song_instrument_upload.upload_requested',
+        aggregateId: expect.any(String),
+        attributes: expect.objectContaining({
+          attemptId: expect.any(String),
+          fileReference: 'path/to/retry-file.mp4'
+        })
+      })
+    ]);
   });
 
   it('throws not found when the song instrument does not exist', async () => {
@@ -152,6 +185,7 @@ function createSongInstrument(params: {
     musicianId: params.musicianId,
     instrumentType: params.instrumentType ?? 'guitar',
     name: 'Lead Guitar',
-    createdAt: new Date('2026-07-12T12:00:00.000Z')
+    createdAt: new Date('2026-07-12T12:00:00.000Z'),
+    activeUploadAttemptId: null
   });
 }

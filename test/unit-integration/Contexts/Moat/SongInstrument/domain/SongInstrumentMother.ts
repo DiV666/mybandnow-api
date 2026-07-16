@@ -15,7 +15,8 @@ export class SongInstrumentMother {
       instrumentType: SongInstrumentInstrumentTypeMother.random(),
       songId: SongInstrumentSongIdMother.random(),
       name: SongInstrumentNameMother.random(),
-      createdAt: SongInstrumentCreatedAtMother.now()
+      createdAt: SongInstrumentCreatedAtMother.now(),
+      activeUploadAttemptId: null
     };
   }
 
@@ -28,7 +29,8 @@ export class SongInstrumentMother {
       instrumentType: data.instrumentType.value,
       songId: data.songId.value,
       name: data.name.value,
-      createdAt: data.createdAt.value
+      createdAt: data.createdAt.value,
+      activeUploadAttemptId: data.activeUploadAttemptId?.value ?? null
     });
   }
 

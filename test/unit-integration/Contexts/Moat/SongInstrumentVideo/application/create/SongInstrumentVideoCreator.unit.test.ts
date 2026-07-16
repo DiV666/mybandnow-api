@@ -1,4 +1,4 @@
-import { describe, it, beforeEach } from 'vitest';
+import { describe, it, beforeEach, expect, vi } from 'vitest';
 import { SongInstrumentVideoCreator } from '@Contexts/Moat/SongInstrumentVideo/application/create/SongInstrumentVideoCreator.js';
 import { SongInstrumentVideoMother } from '../../domain/SongInstrumentVideoMother.js';
 import { SongInstrumentVideoIdMother } from '../../domain/SongInstrumentVideoIdMother.js';
@@ -64,6 +64,61 @@ describe('SongInstrumentVideoCreator should', () => {
 
     testCase.shouldSearch(SongInstrumentVideoIdMother.create(command.id), songinstrumentvideo); // Mock that search by command ID returns a different model
     await testCase.assertSaveException(command, commandHandler, SongInstrumentVideoExistException);
+  });
+
+  it('updates the current song instrument video when a newer active upload completes', async () => {
+    const currentSongInstrumentVideo = SongInstrumentVideoMother.create();
+    const replacementSongInstrumentVideo = SongInstrumentVideoMother.create({
+      songInstrumentId: currentSongInstrumentVideo.songInstrumentId,
+      url: SongInstrumentVideoMother.create().url,
+      duration: SongInstrumentVideoMother.create().duration,
+      size: SongInstrumentVideoMother.create().size
+    });
+    const command = CreateSongInstrumentVideoCommandMother.fromModel(replacementSongInstrumentVideo);
+    const songInstrument = SongInstrumentMother.create({
+      id: new SongInstrumentId(replacementSongInstrumentVideo.songInstrumentId.value)
+    });
+
+    vi.mocked(testCase.persistenceRepository().search).mockResolvedValueOnce(null);
+    vi.mocked(testCase.persistenceRepository().searchBySongInstrumentId).mockResolvedValueOnce(
+      currentSongInstrumentVideo
+    );
+    vi.mocked(testCase.songInstrumentRepository().search).mockResolvedValueOnce(songInstrument);
+    vi.mocked(testCase.persistenceRepository().save).mockResolvedValueOnce(undefined);
+
+    await testCase.dispatch(command, commandHandler);
+
+    expect(testCase.persistenceRepository().save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: currentSongInstrumentVideo.id,
+        songInstrumentId: currentSongInstrumentVideo.songInstrumentId,
+        url: replacementSongInstrumentVideo.url,
+        duration: replacementSongInstrumentVideo.duration,
+        size: replacementSongInstrumentVideo.size
+      })
+    );
+    testCase.assertPublishDomainEventNotCalled();
+  });
+
+  it('return success when save races with another identical replay and the persisted video matches the command', async () => {
+    const songinstrumentvideo = SongInstrumentVideoMother.create();
+    const command = CreateSongInstrumentVideoCommandMother.fromModel(songinstrumentvideo);
+    const songInstrument = SongInstrumentMother.create({
+      id: new SongInstrumentId(songinstrumentvideo.songInstrumentId.value)
+    });
+
+    vi.mocked(testCase.persistenceRepository().search)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(songinstrumentvideo);
+    vi.mocked(testCase.songInstrumentRepository().search).mockResolvedValueOnce(songInstrument);
+    vi.mocked(testCase.persistenceRepository().save).mockRejectedValueOnce(
+      new SongInstrumentVideoExistException(songinstrumentvideo.id.value)
+    );
+
+    await testCase.dispatch(command, commandHandler);
+
+    expect(testCase.persistenceRepository().save).toHaveBeenCalledOnce();
+    testCase.assertPublishDomainEventNotCalled();
   });
 
   it('throw an exception when the song instrument does not exist', async () => {

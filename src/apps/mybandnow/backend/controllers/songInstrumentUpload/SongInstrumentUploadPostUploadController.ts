@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { Request, Response } from 'express';
 import { unlink } from 'node:fs/promises';
 import { Context } from 'openapi-backend';
@@ -14,6 +15,7 @@ import { MusicianSearchByUserIdQuery } from '@Contexts/Moat/Musician/application
 import { MusicianSearchByUserIdResponse } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
 import { ForbiddenException } from '@Contexts/Shared/domain/exceptions/ForbiddenException.js';
 import { SongInstrumentNotExistException } from '@Contexts/Moat/SongInstrument/domain/exception/SongInstrumentNotExistException.js';
+import type { StorageRepository } from '@Contexts/Orchestrator/SongInstrumentProcess/domain/StorageRepository.js';
 
 export default class SongInstrumentUploadPostUploadController extends ApiController {
   constructor(
@@ -21,7 +23,8 @@ export default class SongInstrumentUploadPostUploadController extends ApiControl
     commandBus: CommandBus,
     queryBus: QueryBus,
     exceptionHandler: ApiExceptionsHttpStatusCodeMapping,
-    private readonly fileParser: MultipartFileParser
+    private readonly fileParser: MultipartFileParser,
+    private readonly storageRepository: StorageRepository
   ) {
     super(logger, commandBus, queryBus, exceptionHandler);
   }
@@ -31,6 +34,7 @@ export default class SongInstrumentUploadPostUploadController extends ApiControl
     const songId = context.request.params.songId as string;
     const instrumentId = context.request.params.instrumentId as string;
     const { tempFilePath } = await this.fileParser.parse(req);
+    let durableFileReference: string | null = null;
 
     try {
       const musicianResponse = await this.queryBus.ask<MusicianSearchByUserIdResponse>(
@@ -41,19 +45,40 @@ export default class SongInstrumentUploadPostUploadController extends ApiControl
         throw new ForbiddenException('Profile required');
       }
 
+      durableFileReference = this.buildDurableFileReference(songId, instrumentId);
+      await this.storageRepository.uploadFile(tempFilePath, durableFileReference);
+
       await this.commandBus.dispatch(
-        new SongInstrumentUploadUploadCommand(songId, instrumentId, musicianResponse.musician.id, tempFilePath)
+        new SongInstrumentUploadUploadCommand(songId, instrumentId, musicianResponse.musician.id, durableFileReference)
       );
 
       res.status(httpStatus.ACCEPTED).end();
     } catch (error) {
-      await this.deleteTempFile(tempFilePath);
+      await this.deleteDurableFile(durableFileReference);
       throw error;
+    } finally {
+      await this.deleteTempFile(tempFilePath);
     }
+  }
+
+  private buildDurableFileReference(songId: string, instrumentId: string): string {
+    return `instrument-videos/${songId}/${instrumentId}/${randomUUID()}.mp4`;
   }
 
   private async deleteTempFile(tempFilePath: string): Promise<void> {
     await unlink(tempFilePath).catch(() => undefined);
+  }
+
+  private async deleteDurableFile(durableFileReference: string | null): Promise<void> {
+    if (!durableFileReference) {
+      return;
+    }
+
+    try {
+      await this.storageRepository.deleteFile(durableFileReference);
+    } catch {
+      return;
+    }
   }
 
   exceptions(): Record<string, number> {

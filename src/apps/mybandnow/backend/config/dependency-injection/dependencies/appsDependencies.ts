@@ -23,6 +23,7 @@ import TraceReqAndRes from '../../../middlewares/TraceReqAndRes.js';
 import { RabbitMQConfigFactory } from '@Contexts/Mybandnow/Shared/infrastructure/EventBus/RabbitMQ/RabbitMQConfigFactory.js';
 import { ValidateSongInstrumentUploadOnUploadRequested } from '../../../subscribers/ValidateSongInstrumentUploadOnUploadRequested.js';
 import { CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted } from '../../../subscribers/CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted.js';
+import { FailSongInstrumentUploadOnSongInstrumentProcessFailed } from '../../../subscribers/FailSongInstrumentUploadOnSongInstrumentProcessFailed.js';
 import { CreateSongInstrumentVideoOnSongInstrumentUploadCompleted } from '../../../subscribers/CreateSongInstrumentVideoOnSongInstrumentUploadCompleted.js';
 import type { CommandBus } from '@Contexts/Shared/domain/CommandBus.js';
 import { MultipartFileParser } from '@Contexts/Shared/infrastructure/Express/MultipartFileParser.js';
@@ -84,6 +85,16 @@ export function registerAppsDependencies(container: ContainerBuilder) {
       CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted
     )
     .addArgument('orchestrator.song_instrument_process.completed')
+    .addArgument(new Reference('Shared.BunyanLogger'))
+    .addArgument(() => container.get<CommandBus>('Shared.CommandBus'))
+    .addTag('domainEventSubscriber');
+
+  container
+    .register(
+      'Apps.Mybandnow.Backend.subscribers.FailSongInstrumentUploadOnSongInstrumentProcessFailed',
+      FailSongInstrumentUploadOnSongInstrumentProcessFailed
+    )
+    .addArgument('orchestrator.song_instrument_process.failed')
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(() => container.get<CommandBus>('Shared.CommandBus'))
     .addTag('domainEventSubscriber');
