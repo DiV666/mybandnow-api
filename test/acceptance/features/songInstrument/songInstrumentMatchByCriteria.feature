@@ -28,6 +28,10 @@ Feature: List song instruments by criteria
     """
     $uuid
     """
+    And An "uploadAttemptId" parameter with value as "string":
+    """
+    $uuid
+    """
     And An existing song with id "#songId" and musician "#musicianId"
     And An existing song with id "#anotherSongId" and musician "#musicianId"
     And A band membership exists for musician "#musicianId" in the song "#songId" band
@@ -49,14 +53,16 @@ Feature: List song instruments by criteria
             "name": "Lead Guitar",
             "instrumentType": "guitar",
             "songId": "#songId",
-            "musicianId": "#musicianId"
+            "musicianId": "#musicianId",
+            "upload": null
           },
           {
             "id": "#secondInstrumentId",
             "name": "Lead Guitar",
             "instrumentType": "guitar",
             "songId": "#songId",
-            "musicianId": "#musicianId"
+            "musicianId": "#musicianId",
+            "upload": null
           }
         ],
         "total": 2
@@ -76,14 +82,49 @@ Feature: List song instruments by criteria
             "name": "Lead Guitar",
             "instrumentType": "guitar",
             "songId": "#songId",
-            "musicianId": "#musicianId"
+            "musicianId": "#musicianId",
+            "upload": null
           },
           {
             "id": "#secondInstrumentId",
             "name": "Lead Guitar",
             "instrumentType": "guitar",
             "songId": "#songId",
-            "musicianId": "#musicianId"
+            "musicianId": "#musicianId",
+            "upload": null
+          }
+        ],
+        "total": 2
+      }
+      """
+
+  Scenario: A band member lists song instruments including a failed active upload attempt
+    Given I authenticate as user "song-owner" with id "#musicianId"
+    And An active failed song instrument upload attempt with id "#uploadAttemptId" exists for song instrument "#instrumentId"
+    When I send a GET request to "/v1/songs/#songId/instruments?criteria=%7B%22order%22%3A%7B%22orderBy%22%3A%22createdAt%22%2C%22orderType%22%3A%22asc%22%7D%7D"
+    Then the response status code should be 200
+    And the response with ignored fields "items.createdAt" should be:
+      """
+      {
+        "items": [
+          {
+            "id": "#instrumentId",
+            "name": "Lead Guitar",
+            "instrumentType": "guitar",
+            "songId": "#songId",
+            "musicianId": "#musicianId",
+            "upload": {
+              "status": "FAILED",
+              "errorMessage": "Upload processing failed. Please try again."
+            }
+          },
+          {
+            "id": "#secondInstrumentId",
+            "name": "Lead Guitar",
+            "instrumentType": "guitar",
+            "songId": "#songId",
+            "musicianId": "#musicianId",
+            "upload": null
           }
         ],
         "total": 2

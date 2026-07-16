@@ -9,7 +9,8 @@ export class SongInstrumentUploadUpdateStatusCommand extends Command {
   constructor(
     public readonly id: string,
     public readonly status: string,
-    public readonly completionData?: SongInstrumentUploadCompletionDataPayload
+    public readonly completionData?: SongInstrumentUploadCompletionDataPayload,
+    public readonly errorMessage?: string
   ) {
     super();
   }

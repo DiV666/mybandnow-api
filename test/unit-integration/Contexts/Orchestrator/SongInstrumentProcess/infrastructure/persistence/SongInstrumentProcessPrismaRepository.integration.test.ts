@@ -86,7 +86,8 @@ describe('SongInstrumentProcessPrismaRepository', () => {
       // Arrange
       const expectedModel = SongInstrumentProcess.fail(
         new SongInstrumentProcessId('12345678-1234-4234-8234-123456789012'),
-        'Invalid video'
+        'Invalid video',
+        'The uploaded file is not a valid video.'
       );
 
       // Act

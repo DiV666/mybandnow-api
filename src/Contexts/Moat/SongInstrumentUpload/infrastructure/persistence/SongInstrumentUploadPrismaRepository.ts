@@ -24,7 +24,8 @@ export class SongInstrumentUploadPrismaRepository implements SongInstrumentUploa
           instrumentName: data.instrumentName,
           songInstrumentId: data.songInstrumentId,
           status: data.status,
-          createdAt: data.createdAt
+          createdAt: data.createdAt,
+          errorMessage: data.errorMessage
         },
         create: {
           id: data.id,
@@ -32,7 +33,8 @@ export class SongInstrumentUploadPrismaRepository implements SongInstrumentUploa
           instrumentName: data.instrumentName,
           songInstrumentId: data.songInstrumentId,
           status: data.status,
-          createdAt: data.createdAt
+          createdAt: data.createdAt,
+          errorMessage: data.errorMessage
         }
       });
 
@@ -58,7 +60,8 @@ export class SongInstrumentUploadPrismaRepository implements SongInstrumentUploa
           instrumentName: data.instrumentName,
           songInstrumentId: data.songInstrumentId,
           status: data.status,
-          createdAt: data.createdAt
+          createdAt: data.createdAt,
+          errorMessage: data.errorMessage
         }
       });
 
@@ -88,7 +91,8 @@ export class SongInstrumentUploadPrismaRepository implements SongInstrumentUploa
       instrumentName: trackData.instrumentName,
       songInstrumentId: trackData.songInstrumentId,
       songId: trackData.songId,
-      createdAt: trackData.createdAt.toISOString()
+      createdAt: trackData.createdAt.toISOString(),
+      errorMessage: trackData.errorMessage
     });
   }
 
@@ -114,7 +118,8 @@ export class SongInstrumentUploadPrismaRepository implements SongInstrumentUploa
       instrumentName: trackData.instrumentName,
       songInstrumentId: trackData.songInstrumentId,
       songId: trackData.songId,
-      createdAt: trackData.createdAt.toISOString()
+      createdAt: trackData.createdAt.toISOString(),
+      errorMessage: trackData.errorMessage
     });
   }
 

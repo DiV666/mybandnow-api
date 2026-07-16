@@ -89,7 +89,8 @@ describe('SongInstrumentUploadStatusUpdater', () => {
     expect(repository.search).toHaveBeenCalledWith(songInstrumentUpload.id);
     expect(repository.save).toHaveBeenCalledWith(
       expect.objectContaining({
-        status: expect.objectContaining({ value: SongInstrumentUploadStatusValues.FAILED })
+        status: expect.objectContaining({ value: SongInstrumentUploadStatusValues.FAILED }),
+        errorMessage: expect.objectContaining({ value: 'The uploaded video could not be processed. Please try again.' })
       })
     );
     expect(eventBus.publish).toHaveBeenCalledWith([

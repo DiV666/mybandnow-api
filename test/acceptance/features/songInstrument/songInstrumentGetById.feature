@@ -24,6 +24,10 @@ Feature: Get a song instrument by id
     """
     $uuid
     """
+    And An "uploadAttemptId" parameter with value as "string":
+    """
+    $uuid
+    """
     And An existing song with id "#songId" and musician "#musicianId"
     And An existing song with id "#anotherSongId" and musician "#musicianId"
     And A band membership exists for musician "#musicianId" in the song "#songId" band
@@ -42,7 +46,8 @@ Feature: Get a song instrument by id
         "instrumentType": "guitar",
         "songId": "#songId",
         "musicianId": "#musicianId",
-        "video": null
+        "video": null,
+        "upload": null
       }
       """
 
@@ -65,6 +70,28 @@ Feature: Get a song instrument by id
           "url": "https://example.com/song-instrument-video.mp4",
           "duration": 123,
           "size": 456
+        },
+        "upload": null
+      }
+      """
+
+  Scenario: A band member gets the requested song instrument with a failed active upload attempt
+    Given I authenticate as user "song-owner" with id "#musicianId"
+    And An active failed song instrument upload attempt with id "#uploadAttemptId" exists for song instrument "#instrumentId"
+    When I send a GET request to "/v1/songs/#songId/instruments/#instrumentId"
+    Then the response status code should be 200
+    And the response with ignored fields "createdAt" should be:
+      """
+      {
+        "id": "#instrumentId",
+        "name": "Lead Guitar",
+        "instrumentType": "guitar",
+        "songId": "#songId",
+        "musicianId": "#musicianId",
+        "video": null,
+        "upload": {
+          "status": "FAILED",
+          "errorMessage": "Upload processing failed. Please try again."
         }
       }
       """

@@ -10,11 +10,15 @@ import { SongInstrumentPersistenceRepository } from '../../domain/repository/Son
 import { SongInstrumentMusicianId } from '../../domain/value-object/SongInstrumentMusicianId.js';
 import { SongInstrumentSongId } from '../../domain/value-object/SongInstrumentSongId.js';
 import { MatchByCriteriaSongInstrumentResponse } from './MatchByCriteriaSongInstrumentResponse.js';
+import { SongInstrumentUploadPersistenceRepository } from '@Contexts/Moat/SongInstrumentUpload/domain/repository/SongInstrumentUploadPersistenceRepository.js';
+import { SongInstrumentUploadId } from '@Contexts/Moat/SongInstrumentUpload/domain/value-object/SongInstrumentUploadId.js';
+import { toPublicSongInstrumentUploadResponse } from '../PublicSongInstrumentUploadResponse.js';
 
 export class SongInstrumentMatcher {
   constructor(
     private readonly repository: SongInstrumentPersistenceRepository,
-    private readonly authorizationRepository: SongInstrumentAuthorizationRepository
+    private readonly authorizationRepository: SongInstrumentAuthorizationRepository,
+    private readonly songInstrumentUploadRepository: SongInstrumentUploadPersistenceRepository
   ) {}
 
   async run(songId: string, musicianId: string, criteria: Criteria): Promise<MatchByCriteriaSongInstrumentResponse> {
@@ -29,8 +33,22 @@ export class SongInstrumentMatcher {
     const scopedCriteria = this.applySongScope(criteria, scopedSongId.value);
     const models = await this.repository.matching(scopedCriteria);
     const count = await this.repository.matchingCount(scopedCriteria);
+    const items = await Promise.all(
+      models.map(async (songInstrument) => {
+        const upload = songInstrument.activeUploadAttemptId
+          ? await this.songInstrumentUploadRepository.search(
+              new SongInstrumentUploadId(songInstrument.activeUploadAttemptId.value)
+            )
+          : null;
 
-    return new MatchByCriteriaSongInstrumentResponse(models, count);
+        return {
+          songInstrument,
+          upload: toPublicSongInstrumentUploadResponse(upload)
+        };
+      })
+    );
+
+    return new MatchByCriteriaSongInstrumentResponse(items, count);
   }
 
   private applySongScope(criteria: Criteria, songId: string): Criteria {

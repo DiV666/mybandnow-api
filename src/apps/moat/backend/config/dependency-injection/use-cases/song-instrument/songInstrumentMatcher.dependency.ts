@@ -6,7 +6,8 @@ export function register(container: ContainerBuilder) {
   container
     .register('Moat.SongInstrument.SongInstrumentMatcher', SongInstrumentMatcher)
     .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'))
-    .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'));
+    .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'))
+    .addArgument(new Reference('Moat.SongInstrumentUpload.SongInstrumentUploadRepository'));
 
   container
     .register(

@@ -111,6 +111,7 @@ model SongInstrumentUpload {
   songInstrument          SongInstrument  @relation("SongInstrumentUploadAttempts", fields: [songInstrumentId], references: [id], onDelete: Cascade)
   songInstrumentId        String
   activeForSongInstrument SongInstrument? @relation("SongInstrumentActiveUploadAttempt")
+  errorMessage            String?
   createdAt               DateTime        @default(now())
 
   @@index([songInstrumentId])

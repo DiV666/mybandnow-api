@@ -4,10 +4,12 @@ export class SongInstrumentProcessFailedDomainEvent extends DomainEvent {
   static readonly EVENT_NAME = 'orchestrator.song_instrument_process.failed';
 
   readonly attemptId: string;
+  readonly publicErrorMessage: string;
 
   constructor(params: {
     aggregateId: string;
     attemptId?: string;
+    publicErrorMessage: string;
     eventId?: string;
     occurredOn?: Date;
     meta?: Record<string, unknown>;
@@ -20,8 +22,10 @@ export class SongInstrumentProcessFailedDomainEvent extends DomainEvent {
       meta: params.meta
     });
     this.attemptId = params.attemptId ?? params.aggregateId;
+    this.publicErrorMessage = params.publicErrorMessage;
     this.attributes = {
-      attemptId: this.attemptId
+      attemptId: this.attemptId,
+      publicErrorMessage: this.publicErrorMessage
     };
   }
 
@@ -38,6 +42,10 @@ export class SongInstrumentProcessFailedDomainEvent extends DomainEvent {
         typeof params.attributes.attemptId === 'string' && params.attributes.attemptId.length > 0
           ? params.attributes.attemptId
           : params.aggregateId,
+      publicErrorMessage:
+        typeof params.attributes.publicErrorMessage === 'string' && params.attributes.publicErrorMessage.length > 0
+          ? params.attributes.publicErrorMessage
+          : 'The uploaded video could not be processed. Please try again.',
       eventId: params.eventId,
       occurredOn: params.occurredOn,
       meta: params.meta

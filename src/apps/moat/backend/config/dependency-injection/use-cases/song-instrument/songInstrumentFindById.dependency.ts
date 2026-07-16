@@ -7,7 +7,8 @@ export function register(container: ContainerBuilder) {
     .register('Moat.SongInstrument.SongInstrumentFindById', SongInstrumentFindById)
     .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'))
     .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'))
-    .addArgument(new Reference('Moat.SongInstrumentVideo.SongInstrumentVideoRepository'));
+    .addArgument(new Reference('Moat.SongInstrumentVideo.SongInstrumentVideoRepository'))
+    .addArgument(new Reference('Moat.SongInstrumentUpload.SongInstrumentUploadRepository'));
 
   container
     .register('Moat.SongInstrument.SongInstrumentFindByIdQueryHandler', SongInstrumentFindByIdQueryHandler)

@@ -77,7 +77,7 @@ export class SongInstrumentProcess extends AggregateRoot {
     return duration;
   }
 
-  static fail(id: SongInstrumentProcessId, errorMsg: string): SongInstrumentProcess {
+  static fail(id: SongInstrumentProcessId, errorMsg: string, publicErrorMessage: string): SongInstrumentProcess {
     const process = new SongInstrumentProcess(
       id,
       SongInstrumentProcessStatus.failed(),
@@ -86,7 +86,12 @@ export class SongInstrumentProcess extends AggregateRoot {
       null,
       new FfprobeLog({ error: errorMsg })
     );
-    process.record(new SongInstrumentProcessFailedDomainEvent({ aggregateId: id.value }));
+    process.record(
+      new SongInstrumentProcessFailedDomainEvent({
+        aggregateId: id.value,
+        publicErrorMessage
+      })
+    );
     return process;
   }
 

@@ -15,7 +15,8 @@ export class SongInstrumentUploadMother {
       instrumentName: SongInstrumentUploadInstrumentNameMother.random(),
       songInstrumentId: SongInstrumentUploadSongInstrumentIdMother.random(),
       songId: SongInstrumentUploadSongIdMother.random(),
-      createdAt: SongInstrumentUploadCreatedAtMother.now()
+      createdAt: SongInstrumentUploadCreatedAtMother.now(),
+      errorMessage: null
     };
   }
 
@@ -26,13 +27,16 @@ export class SongInstrumentUploadMother {
       ...params
     );
 
+    const errorMessage = typeof data.errorMessage?.value === 'string' ? data.errorMessage.value : null;
+
     return SongInstrumentUpload.fromPrimitives({
       id: data.id.value,
       status: data.status.value,
       instrumentName: data.instrumentName.value,
       songInstrumentId: data.songInstrumentId.value,
       songId: data.songId.value,
-      createdAt: data.createdAt.value.toISOString()
+      createdAt: data.createdAt.value.toISOString(),
+      errorMessage
     });
   }
 

@@ -19,6 +19,8 @@ import { EventBus } from '@Contexts/Shared/domain/EventBus.js';
 import { SongInstrumentPersistenceRepository } from '@Contexts/Moat/SongInstrument/domain/repository/SongInstrumentPersistenceRepository.js';
 import { SongInstrumentId } from '@Contexts/Moat/SongInstrument/domain/value-object/SongInstrumentId.js';
 
+const FAILED_UPLOAD_PUBLIC_ERROR_MESSAGE = 'The uploaded video could not be processed. Please try again.';
+
 export class SongInstrumentUploadStatusUpdater {
   constructor(
     private readonly repository: SongInstrumentUploadPersistenceRepository,
@@ -26,7 +28,9 @@ export class SongInstrumentUploadStatusUpdater {
     private readonly eventBus: EventBus
   ) {}
 
-  async run(command: Pick<SongInstrumentUploadUpdateStatusCommand, 'id' | 'status' | 'completionData'>): Promise<void> {
+  async run(
+    command: Pick<SongInstrumentUploadUpdateStatusCommand, 'id' | 'status' | 'completionData' | 'errorMessage'>
+  ): Promise<void> {
     const songInstrumentUploadId = new SongInstrumentUploadId(command.id);
     const songInstrumentUpload = await this.repository.search(songInstrumentUploadId);
 
@@ -62,7 +66,7 @@ export class SongInstrumentUploadStatusUpdater {
         return;
       }
 
-      songInstrumentUpload.markAsFailed();
+      songInstrumentUpload.markAsFailed(command.errorMessage ?? FAILED_UPLOAD_PUBLIC_ERROR_MESSAGE);
     } else {
       throw new InvalidArgumentException({
         message: `SongInstrumentUpload status updater only accepts COMPLETED or FAILED, received ${command.status}`

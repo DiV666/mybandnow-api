@@ -136,7 +136,8 @@ describe('SongInstrumentProcessValidator', () => {
         eventId: expect.any(String),
         occurredOn: expect.any(Date),
         attributes: {
-          attemptId: aggregateId
+          attemptId: aggregateId,
+          publicErrorMessage: 'The uploaded file is not a valid video.'
         }
       })
     ]);
@@ -229,6 +230,41 @@ describe('SongInstrumentProcessValidator', () => {
       })
     );
     expect(eventBus.publish).toHaveBeenCalledOnce();
+    expect(eventBus.publish).toHaveBeenCalledWith([
+      expect.objectContaining({
+        attributes: {
+          attemptId: aggregateId,
+          publicErrorMessage: 'The uploaded file could not be found for processing. Please upload it again.'
+        }
+      })
+    ]);
+  });
+
+  it('should publish a sanitized public error when the codec is unsupported', async () => {
+    const aggregateId = '12345678-1234-4234-8234-123456789012';
+    const fileReference = 'instrument-videos/song/instrument/upload.mp4';
+    const tempFilePath = '/workdir/tmp/song-instrument-process-fixed-uuid.mp4';
+    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference);
+
+    storageRepository.downloadFileToTemp.mockResolvedValue(tempFilePath);
+    validationService.validate.mockResolvedValue({
+      codec: 'vp9',
+      durationInSeconds: 120,
+      width: 1920,
+      height: 1080
+    });
+
+    await validator.run(command);
+
+    expect(eventBus.publish).toHaveBeenCalledWith([
+      expect.objectContaining({
+        eventName: SongInstrumentProcessFailedDomainEvent.EVENT_NAME,
+        attributes: {
+          attemptId: aggregateId,
+          publicErrorMessage: 'The uploaded video must use H.264 codec.'
+        }
+      })
+    ]);
   });
 
   it('should reject when destination cleanup fails after a successful upload instead of persisting a failed state', async () => {

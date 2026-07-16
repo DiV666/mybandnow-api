@@ -1161,10 +1161,42 @@
           }
         }
       },
+      "SongInstrumentUploadResponse": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["status"],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": ["PENDING", "READY", "PROCESSING", "COMPLETED"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["status", "errorMessage"],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": ["FAILED"]
+              },
+              "errorMessage": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
       "SongInstrumentResponse": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "name", "instrumentType", "songId", "musicianId", "createdAt", "video"],
+        "required": ["id", "name", "instrumentType", "songId", "musicianId", "createdAt", "video", "upload"],
         "properties": {
           "id": {
             "$ref": "#/components/schemas/UUID"
@@ -1194,6 +1226,9 @@
                 "type": "null"
               }
             ]
+          },
+          "upload": {
+            "$ref": "#/components/schemas/SongInstrumentUploadResponse"
           }
         }
       },
@@ -1224,7 +1259,7 @@
       "SongInstrumentListItemResponse": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "name", "instrumentType", "songId", "musicianId", "createdAt"],
+        "required": ["id", "name", "instrumentType", "songId", "musicianId", "createdAt", "upload"],
         "properties": {
           "id": {
             "$ref": "#/components/schemas/UUID"
@@ -1244,6 +1279,9 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "upload": {
+            "$ref": "#/components/schemas/SongInstrumentUploadResponse"
           }
         }
       },

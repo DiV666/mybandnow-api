@@ -9,12 +9,16 @@ import { SongInstrumentVideoPersistenceRepository } from '@Contexts/Moat/SongIns
 import { SongInstrumentVideoSongInstrumentId } from '@Contexts/Moat/SongInstrumentVideo/domain/value-object/SongInstrumentVideoSongInstrumentId.js';
 import { SongInstrumentFindByIdQuery } from './SongInstrumentFindByIdQuery.js';
 import { SongInstrumentFindByIdResponse } from './SongInstrumentFindByIdResponse.js';
+import { SongInstrumentUploadPersistenceRepository } from '@Contexts/Moat/SongInstrumentUpload/domain/repository/SongInstrumentUploadPersistenceRepository.js';
+import { SongInstrumentUploadId } from '@Contexts/Moat/SongInstrumentUpload/domain/value-object/SongInstrumentUploadId.js';
+import { toPublicSongInstrumentUploadResponse } from '../PublicSongInstrumentUploadResponse.js';
 
 export class SongInstrumentFindById {
   constructor(
     private readonly songInstrumentRepository: SongInstrumentPersistenceRepository,
     private readonly authorizationRepository: SongInstrumentAuthorizationRepository,
-    private readonly songInstrumentVideoRepository: SongInstrumentVideoPersistenceRepository
+    private readonly songInstrumentVideoRepository: SongInstrumentVideoPersistenceRepository,
+    private readonly songInstrumentUploadRepository: SongInstrumentUploadPersistenceRepository
   ) {}
 
   async run(query: SongInstrumentFindByIdQuery): Promise<SongInstrumentFindByIdResponse> {
@@ -36,7 +40,16 @@ export class SongInstrumentFindById {
     const video = await this.songInstrumentVideoRepository.searchBySongInstrumentId(
       new SongInstrumentVideoSongInstrumentId(query.instrumentId)
     );
+    const upload = songInstrument.activeUploadAttemptId
+      ? await this.songInstrumentUploadRepository.search(
+          new SongInstrumentUploadId(songInstrument.activeUploadAttemptId.value)
+        )
+      : null;
 
-    return new SongInstrumentFindByIdResponse(songInstrument.toPrimitives(), video?.toPrimitives() ?? null);
+    return new SongInstrumentFindByIdResponse(
+      songInstrument.toPrimitives(),
+      video?.toPrimitives() ?? null,
+      toPublicSongInstrumentUploadResponse(upload)
+    );
   }
 }

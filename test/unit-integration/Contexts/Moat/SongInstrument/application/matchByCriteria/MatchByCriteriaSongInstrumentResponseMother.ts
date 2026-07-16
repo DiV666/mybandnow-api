@@ -3,6 +3,9 @@ import { SongInstrument } from '@Contexts/Moat/SongInstrument/domain/SongInstrum
 
 export class MatchByCriteriaSongInstrumentResponseMother {
   static fromModelList(models: Array<SongInstrument>, total?: number): MatchByCriteriaSongInstrumentResponse {
-    return new MatchByCriteriaSongInstrumentResponse(models, total ?? models.length);
+    return new MatchByCriteriaSongInstrumentResponse(
+      models.map((songInstrument) => ({ songInstrument, upload: null })),
+      total ?? models.length
+    );
   }
 }

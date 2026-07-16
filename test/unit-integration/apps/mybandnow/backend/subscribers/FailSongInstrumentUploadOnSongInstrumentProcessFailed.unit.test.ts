@@ -7,6 +7,8 @@ import { SongInstrumentUploadStatusValues } from '../../../../../../src/Contexts
 import type { CommandBus } from '../../../../../../src/Contexts/Shared/domain/CommandBus.js';
 import type Logger from '../../../../../../src/Contexts/Shared/domain/Logger.js';
 import { InvalidArgumentException } from '../../../../../../src/Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
+import { SongInstrumentUploadNotExistException } from '../../../../../../src/Contexts/Moat/SongInstrumentUpload/domain/exception/SongInstrumentUploadNotExistException.js';
+import { NonRetryableException } from '../../../../../../src/Contexts/Shared/domain/exceptions/NonRetryableException.js';
 
 describe('FailSongInstrumentUploadOnSongInstrumentProcessFailed', () => {
   let logger: MockProxy<Logger>;
@@ -27,7 +29,8 @@ describe('FailSongInstrumentUploadOnSongInstrumentProcessFailed', () => {
       commandBusResolver
     );
     const domainEvent = new SongInstrumentProcessFailedDomainEvent({
-      aggregateId: '12345678-1234-4234-8234-123456789012'
+      aggregateId: '12345678-1234-4234-8234-123456789012',
+      publicErrorMessage: 'The uploaded video must use H.264 codec.'
     });
 
     // Act
@@ -44,8 +47,26 @@ describe('FailSongInstrumentUploadOnSongInstrumentProcessFailed', () => {
     expect(command).toMatchObject({
       id: domainEvent.aggregateId,
       status: SongInstrumentUploadStatusValues.FAILED,
-      completionData: undefined
+      completionData: undefined,
+      errorMessage: 'The uploaded video must use H.264 codec.'
     });
+  });
+
+  it('routes missing upload attempts to dead-letter without retry', () => {
+    // Arrange
+    const subscriber = new FailSongInstrumentUploadOnSongInstrumentProcessFailed(
+      'orchestrator.song_instrument_process.failed',
+      logger,
+      commandBusResolver
+    );
+    const exception = new SongInstrumentUploadNotExistException('12345678-1234-4234-8234-123456789012');
+
+    // Act / Assert
+    expect(() => subscriber.handlerException(exception)).toThrow(NonRetryableException);
+    expect(logger.warn).toHaveBeenCalledWith(
+      { code: exception.code },
+      '[FailSongInstrumentUploadOnSongInstrumentProcessFailed] Upload attempt no longer exists; routing stale failure event to dead-letter without retry.'
+    );
   });
 
   it('delegates handlerException to logger.error', () => {

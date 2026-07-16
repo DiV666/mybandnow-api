@@ -91,3 +91,47 @@ Given(
     });
   }
 );
+
+Given(
+  'An active failed song instrument upload attempt with id {string} exists for song instrument {string}',
+  async function (this: MybandnowWorld, uploadAttemptId: string, instrumentId: string) {
+    const prisma = PrismaClientFactory.createClient();
+    const resolvedUploadAttemptId = this.dataUtil.replaceTokensWithCustomOrFakerValues(uploadAttemptId) as string;
+    const resolvedInstrumentId = this.dataUtil.replaceTokensWithCustomOrFakerValues(instrumentId) as string;
+    const songInstrument = await prisma.songInstrument.findUnique({
+      where: { id: resolvedInstrumentId },
+      select: {
+        songId: true,
+        name: true
+      }
+    });
+
+    assert.ok(songInstrument, `Song instrument ${resolvedInstrumentId} not found`);
+
+    await prisma.songInstrumentUpload.upsert({
+      where: { id: resolvedUploadAttemptId },
+      update: {
+        instrumentName: songInstrument.name,
+        songId: songInstrument.songId,
+        songInstrumentId: resolvedInstrumentId,
+        status: 'FAILED',
+        errorMessage: 'Upload processing failed. Please try again.'
+      },
+      create: {
+        id: resolvedUploadAttemptId,
+        instrumentName: songInstrument.name,
+        songId: songInstrument.songId,
+        songInstrumentId: resolvedInstrumentId,
+        status: 'FAILED',
+        errorMessage: 'Upload processing failed. Please try again.'
+      }
+    });
+
+    await prisma.songInstrument.update({
+      where: { id: resolvedInstrumentId },
+      data: {
+        activeUploadAttemptId: resolvedUploadAttemptId
+      }
+    });
+  }
+);

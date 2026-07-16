@@ -4,6 +4,8 @@ import Logger from '@Contexts/Shared/domain/Logger.js';
 import { Exception } from '@Contexts/Shared/domain/Exception.js';
 import { SongInstrumentUploadUpdateStatusCommand } from '@Contexts/Moat/SongInstrumentUpload/application/updateStatus/SongInstrumentUploadUpdateStatusCommand.js';
 import { SongInstrumentUploadStatusValues } from '@Contexts/Moat/SongInstrumentUpload/domain/value-object/SongInstrumentUploadStatus.js';
+import { SongInstrumentUploadNotExistException } from '@Contexts/Moat/SongInstrumentUpload/domain/exception/SongInstrumentUploadNotExistException.js';
+import { NonRetryableException } from '@Contexts/Shared/domain/exceptions/NonRetryableException.js';
 import { CommandBusResolver } from './ValidateSongInstrumentUploadOnUploadRequested.js';
 
 export class FailSongInstrumentUploadOnSongInstrumentProcessFailed implements DomainEventSubscriber {
@@ -25,12 +27,31 @@ export class FailSongInstrumentUploadOnSongInstrumentProcessFailed implements Do
     this.logger.info(
       `[FailSongInstrumentUploadOnSongInstrumentProcessFailed] Received song instrument process failure for ${domainEvent.aggregateId}`
     );
+    const publicErrorMessage =
+      typeof domainEvent.attributes.publicErrorMessage === 'string' &&
+      domainEvent.attributes.publicErrorMessage.length > 0
+        ? domainEvent.attributes.publicErrorMessage
+        : 'The uploaded video could not be processed. Please try again.';
+
     await commandBus.dispatch(
-      new SongInstrumentUploadUpdateStatusCommand(domainEvent.aggregateId, SongInstrumentUploadStatusValues.FAILED)
+      new SongInstrumentUploadUpdateStatusCommand(
+        domainEvent.aggregateId,
+        SongInstrumentUploadStatusValues.FAILED,
+        undefined,
+        publicErrorMessage
+      )
     );
   }
 
   handlerException(ex: Exception): void {
+    if (ex instanceof SongInstrumentUploadNotExistException) {
+      this.logger.warn(
+        { code: ex.code },
+        '[FailSongInstrumentUploadOnSongInstrumentProcessFailed] Upload attempt no longer exists; routing stale failure event to dead-letter without retry.'
+      );
+      throw new NonRetryableException(ex);
+    }
+
     this.logger.error(
       ex,
       `[FailSongInstrumentUploadOnSongInstrumentProcessFailed] Exception handler caught: ${ex.message}`

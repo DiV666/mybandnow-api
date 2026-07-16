@@ -176,7 +176,11 @@ export class SongInstrumentProcessValidator {
     }
 
     try {
-      const failedProcess = SongInstrumentProcess.fail(songInstrumentProcessId, errorMsg);
+      const failedProcess = SongInstrumentProcess.fail(
+        songInstrumentProcessId,
+        errorMsg,
+        this.toPublicErrorMessage(errorMsg)
+      );
       await this.songInstrumentProcessRepository.save(failedProcess);
       await this.eventBus.publish(failedProcess.pullDomainEvents());
       this.logger.info(
@@ -195,6 +199,26 @@ export class SongInstrumentProcessValidator {
         { cause: saveError instanceof Error ? saveError : undefined }
       );
     }
+  }
+
+  private toPublicErrorMessage(errorMessage: string): string {
+    if (errorMessage.includes('Unsupported codec:')) {
+      return 'The uploaded video must use H.264 codec.';
+    }
+
+    if (errorMessage.includes('Duration exceeded:')) {
+      return 'The uploaded video exceeds the maximum duration of 190 seconds.';
+    }
+
+    if (errorMessage.includes('No such object:')) {
+      return 'The uploaded file could not be found for processing. Please upload it again.';
+    }
+
+    if (errorMessage.includes('Invalid video') || errorMessage.includes('Invalid file format')) {
+      return 'The uploaded file is not a valid video.';
+    }
+
+    return 'The uploaded video could not be processed. Please try again.';
   }
 
   private logReplayDetected(songInstrumentProcessIdentifier: string, sourceFileReference: FileReference): void {

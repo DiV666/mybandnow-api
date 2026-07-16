@@ -5,6 +5,7 @@ import { SongInstrumentFindByIdQuery } from '@Contexts/Moat/SongInstrument/appli
 import type { SongInstrumentPersistenceRepository } from '@Contexts/Moat/SongInstrument/domain/repository/SongInstrumentPersistenceRepository.js';
 import type { SongInstrumentAuthorizationRepository } from '@Contexts/Moat/SongInstrument/domain/repository/SongInstrumentAuthorizationRepository.js';
 import type { SongInstrumentVideoPersistenceRepository } from '@Contexts/Moat/SongInstrumentVideo/domain/repository/SongInstrumentVideoPersistenceRepository.js';
+import type { SongInstrumentUploadPersistenceRepository } from '@Contexts/Moat/SongInstrumentUpload/domain/repository/SongInstrumentUploadPersistenceRepository.js';
 import { SongInstrumentMother } from '@Test/unit-integration/Contexts/Moat/SongInstrument/domain/SongInstrumentMother.js';
 import { SongInstrumentId } from '@Contexts/Moat/SongInstrument/domain/value-object/SongInstrumentId.js';
 import { SongInstrumentSongId } from '@Contexts/Moat/SongInstrument/domain/value-object/SongInstrumentSongId.js';
@@ -12,6 +13,8 @@ import { SongInstrumentMusicianId } from '@Contexts/Moat/SongInstrument/domain/v
 import { SongInstrumentFindByIdResponse } from '@Contexts/Moat/SongInstrument/application/findById/SongInstrumentFindByIdResponse.js';
 import { SongInstrumentVideoSongInstrumentId } from '@Contexts/Moat/SongInstrumentVideo/domain/value-object/SongInstrumentVideoSongInstrumentId.js';
 import { SongInstrumentVideoMother } from '@Test/unit-integration/Contexts/Moat/SongInstrumentVideo/domain/SongInstrumentVideoMother.js';
+import { SongInstrumentUploadMother } from '@Test/unit-integration/Contexts/Moat/SongInstrumentUpload/domain/SongInstrumentUploadMother.js';
+import { SongInstrumentUploadStatusValues } from '@Contexts/Moat/SongInstrumentUpload/domain/value-object/SongInstrumentUploadStatus.js';
 import { SongInstrumentNotExistException } from '@Contexts/Moat/SongInstrument/domain/exception/SongInstrumentNotExistException.js';
 import { ForbiddenException } from '@Contexts/Shared/domain/exceptions/ForbiddenException.js';
 
@@ -21,10 +24,12 @@ describe('SongInstrumentFindById', () => {
     const songInstrumentRepository = mock<SongInstrumentPersistenceRepository>();
     const authorizationRepository = mock<SongInstrumentAuthorizationRepository>();
     const songInstrumentVideoRepository = mock<SongInstrumentVideoPersistenceRepository>();
+    const songInstrumentUploadRepository = mock<SongInstrumentUploadPersistenceRepository>();
     const useCase = new SongInstrumentFindById(
       songInstrumentRepository,
       authorizationRepository,
-      songInstrumentVideoRepository
+      songInstrumentVideoRepository,
+      songInstrumentUploadRepository
     );
     const songInstrument = SongInstrumentMother.create();
     const query = new SongInstrumentFindByIdQuery(
@@ -50,6 +55,7 @@ describe('SongInstrumentFindById', () => {
       new SongInstrumentVideoSongInstrumentId(query.instrumentId)
     );
     expect(response).toEqual(new SongInstrumentFindByIdResponse(songInstrument.toPrimitives(), null));
+    expect(response).toMatchObject({ upload: null });
   });
 
   it('returns the song instrument video when one exists for the requested instrument', async () => {
@@ -57,10 +63,12 @@ describe('SongInstrumentFindById', () => {
     const songInstrumentRepository = mock<SongInstrumentPersistenceRepository>();
     const authorizationRepository = mock<SongInstrumentAuthorizationRepository>();
     const songInstrumentVideoRepository = mock<SongInstrumentVideoPersistenceRepository>();
+    const songInstrumentUploadRepository = mock<SongInstrumentUploadPersistenceRepository>();
     const useCase = new SongInstrumentFindById(
       songInstrumentRepository,
       authorizationRepository,
-      songInstrumentVideoRepository
+      songInstrumentVideoRepository,
+      songInstrumentUploadRepository
     );
     const songInstrument = SongInstrumentMother.create();
     const video = SongInstrumentVideoMother.create({
@@ -83,15 +91,64 @@ describe('SongInstrumentFindById', () => {
     expect(response).toEqual(new SongInstrumentFindByIdResponse(songInstrument.toPrimitives(), video.toPrimitives()));
   });
 
+  it('returns the active failed upload status with its public error message', async () => {
+    // Arrange
+    const songInstrumentRepository = mock<SongInstrumentPersistenceRepository>();
+    const authorizationRepository = mock<SongInstrumentAuthorizationRepository>();
+    const songInstrumentVideoRepository = mock<SongInstrumentVideoPersistenceRepository>();
+    const songInstrumentUploadRepository = mock<SongInstrumentUploadPersistenceRepository>();
+    const useCase = Reflect.construct(SongInstrumentFindById, [
+      songInstrumentRepository,
+      authorizationRepository,
+      songInstrumentVideoRepository,
+      songInstrumentUploadRepository
+    ]) as SongInstrumentFindById;
+    const activeUpload = SongInstrumentUploadMother.create({
+      status: { value: SongInstrumentUploadStatusValues.FAILED } as never
+    });
+    const songInstrumentWithActiveUpload = SongInstrumentMother.create({
+      activeUploadAttemptId: { value: activeUpload.id.value } as never
+    });
+    const failedUpload = SongInstrumentUploadMother.create({
+      id: activeUpload.id,
+      status: { value: SongInstrumentUploadStatusValues.FAILED } as never,
+      errorMessage: { value: 'Upload processing failed. Please try again.' } as never
+    });
+    const query = new SongInstrumentFindByIdQuery(
+      songInstrumentWithActiveUpload.songId.value,
+      songInstrumentWithActiveUpload.id.value,
+      songInstrumentWithActiveUpload.musicianId.value
+    );
+
+    authorizationRepository.isBandMember.mockResolvedValue(true);
+    songInstrumentRepository.search.mockResolvedValue(songInstrumentWithActiveUpload);
+    songInstrumentVideoRepository.searchBySongInstrumentId.mockResolvedValue(null);
+    songInstrumentUploadRepository.search.mockResolvedValue(failedUpload);
+
+    // Act
+    const response = await useCase.run(query);
+
+    // Assert
+    expect(songInstrumentUploadRepository.search).toHaveBeenCalledOnce();
+    expect(response).toMatchObject({
+      upload: {
+        status: SongInstrumentUploadStatusValues.FAILED,
+        errorMessage: 'Upload processing failed. Please try again.'
+      }
+    });
+  });
+
   it('throws not found when the instrument belongs to a different song', async () => {
     // Arrange
     const songInstrumentRepository = mock<SongInstrumentPersistenceRepository>();
     const authorizationRepository = mock<SongInstrumentAuthorizationRepository>();
     const songInstrumentVideoRepository = mock<SongInstrumentVideoPersistenceRepository>();
+    const songInstrumentUploadRepository = mock<SongInstrumentUploadPersistenceRepository>();
     const useCase = new SongInstrumentFindById(
       songInstrumentRepository,
       authorizationRepository,
-      songInstrumentVideoRepository
+      songInstrumentVideoRepository,
+      songInstrumentUploadRepository
     );
     const songInstrument = SongInstrumentMother.create();
     const query = new SongInstrumentFindByIdQuery(
@@ -117,10 +174,12 @@ describe('SongInstrumentFindById', () => {
     const songInstrumentRepository = mock<SongInstrumentPersistenceRepository>();
     const authorizationRepository = mock<SongInstrumentAuthorizationRepository>();
     const songInstrumentVideoRepository = mock<SongInstrumentVideoPersistenceRepository>();
+    const songInstrumentUploadRepository = mock<SongInstrumentUploadPersistenceRepository>();
     const useCase = new SongInstrumentFindById(
       songInstrumentRepository,
       authorizationRepository,
-      songInstrumentVideoRepository
+      songInstrumentVideoRepository,
+      songInstrumentUploadRepository
     );
     const songInstrument = SongInstrumentMother.create();
     const query = new SongInstrumentFindByIdQuery(
