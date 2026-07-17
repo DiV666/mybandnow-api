@@ -12,7 +12,7 @@ describe('MultipartFileParser', () => {
   afterEach(async () => {
     await Promise.all(
       createdFiles.splice(0).map(async (filePath) => {
-        await fs.unlink(filePath).catch(() => undefined);
+        return await fs.unlink(filePath).catch(() => undefined);
       })
     );
   });
@@ -84,7 +84,10 @@ describe('MultipartFileParser', () => {
 
     // Act / Assert
     await expect(parser.parse(request as unknown as Request)).rejects.toEqual(
-      expect.objectContaining<Partial<InvalidArgumentException>>({ message: 'No video file provided' })
+      expect.objectContaining<Partial<InvalidArgumentException>>({
+        message: 'No video file provided',
+        details: { reason: 'missing_video_field' }
+      })
     );
   });
 
@@ -105,7 +108,14 @@ describe('MultipartFileParser', () => {
 
     // Act / Assert
     await expect(parser.parse(request as unknown as Request)).rejects.toEqual(
-      expect.objectContaining<Partial<InvalidArgumentException>>({ message: 'Content-Type must be video/mp4' })
+      expect.objectContaining<Partial<InvalidArgumentException>>({
+        message: 'Content-Type must be video/mp4',
+        details: {
+          expectedMimeType: 'video/mp4',
+          reason: 'invalid_mime_type',
+          receivedMimeType: 'text/plain'
+        }
+      })
     );
   });
 
@@ -127,7 +137,10 @@ describe('MultipartFileParser', () => {
 
     // Act / Assert
     await expect(parser.parse(request as unknown as Request)).rejects.toEqual(
-      expect.objectContaining<Partial<InvalidArgumentException>>({ message: 'Invalid file format or corrupted header' })
+      expect.objectContaining<Partial<InvalidArgumentException>>({
+        message: 'Invalid file format or corrupted header',
+        details: { reason: 'invalid_mp4_header' }
+      })
     );
     expect(unlinkSpy).toHaveBeenCalledOnce();
 
@@ -193,7 +206,10 @@ describe('MultipartFileParser', () => {
 
     // Act / Assert
     await expect(parser.parse(request as unknown as Request)).rejects.toEqual(
-      expect.objectContaining<Partial<InvalidArgumentException>>({ message: 'Video file exceeds the 8 byte limit' })
+      expect.objectContaining<Partial<InvalidArgumentException>>({
+        message: 'Video file exceeds the 8 byte limit',
+        details: { limitBytes: 8, reason: 'file_too_large' }
+      })
     );
   });
 
@@ -229,7 +245,10 @@ describe('MultipartFileParser', () => {
     ]);
 
     expect(outcome).toEqual(
-      expect.objectContaining<Partial<InvalidArgumentException>>({ message: 'Upload aborted by client' })
+      expect.objectContaining<Partial<InvalidArgumentException>>({
+        message: 'Upload aborted by client',
+        details: { reason: 'client_aborted_upload' }
+      })
     );
   });
 });

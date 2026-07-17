@@ -33,10 +33,11 @@ export default class SongInstrumentUploadPostUploadController extends ApiControl
     const authenticatedUserId = context.security.BearerAuth.id as string;
     const songId = context.request.params.songId as string;
     const instrumentId = context.request.params.instrumentId as string;
-    const { tempFilePath } = await this.fileParser.parse(req);
+    let tempFilePath: string | null = null;
     let durableFileReference: string | null = null;
 
     try {
+      ({ tempFilePath } = await this.fileParser.parse(req));
       const musicianResponse = await this.queryBus.ask<MusicianSearchByUserIdResponse>(
         new MusicianSearchByUserIdQuery(authenticatedUserId)
       );
@@ -54,6 +55,18 @@ export default class SongInstrumentUploadPostUploadController extends ApiControl
 
       res.status(httpStatus.ACCEPTED).end();
     } catch (error) {
+      if (error instanceof InvalidArgumentException) {
+        this.logger.warn(
+          {
+            code: error.code,
+            details: error.details,
+            instrumentId,
+            songId
+          },
+          `[SongInstrumentUploadPostUploadController] Rejected invalid upload request: ${error.message}`
+        );
+      }
+
       await this.deleteDurableFile(durableFileReference);
       throw error;
     } finally {
@@ -65,7 +78,11 @@ export default class SongInstrumentUploadPostUploadController extends ApiControl
     return `instrument-videos/${songId}/${instrumentId}/${randomUUID()}.mp4`;
   }
 
-  private async deleteTempFile(tempFilePath: string): Promise<void> {
+  private async deleteTempFile(tempFilePath: string | null): Promise<void> {
+    if (!tempFilePath) {
+      return;
+    }
+
     await unlink(tempFilePath).catch(() => undefined);
   }
 

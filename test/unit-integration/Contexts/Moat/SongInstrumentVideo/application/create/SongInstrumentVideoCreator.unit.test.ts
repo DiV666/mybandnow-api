@@ -10,6 +10,7 @@ import { SongInstrumentVideoExistException } from '@Contexts/Moat/SongInstrument
 import { SongInstrumentMother } from '@Test/unit-integration/Contexts/Moat/SongInstrument/domain/SongInstrumentMother.js';
 import { SongInstrumentId } from '@Contexts/Moat/SongInstrument/domain/value-object/SongInstrumentId.js';
 import { SongInstrumentNotExistException } from '@Contexts/Moat/SongInstrument/domain/exception/SongInstrumentNotExistException.js';
+import { SongInstrumentActiveUploadAttemptId } from '@Contexts/Moat/SongInstrument/domain/value-object/SongInstrumentActiveUploadAttemptId.js';
 
 describe('SongInstrumentVideoCreator should', () => {
   let testCase: SongInstrumentVideoCreatorTestCase;
@@ -32,7 +33,8 @@ describe('SongInstrumentVideoCreator should', () => {
     const command = CreateSongInstrumentVideoCommandMother.fromModel(songinstrumentvideo);
     const domainEvent = SongInstrumentVideoCreatedDomainEventMother.fromModel(songinstrumentvideo);
     const songInstrument = SongInstrumentMother.create({
-      id: new SongInstrumentId(songinstrumentvideo.songInstrumentId.value)
+      id: new SongInstrumentId(songinstrumentvideo.songInstrumentId.value),
+      activeUploadAttemptId: new SongInstrumentActiveUploadAttemptId(songinstrumentvideo.id.value)
     });
 
     testCase.shouldSearch(songinstrumentvideo.id); // Ensure it doesn't exist
@@ -52,6 +54,15 @@ describe('SongInstrumentVideoCreator should', () => {
     const songinstrumentvideo = SongInstrumentVideoMother.create();
     const command = CreateSongInstrumentVideoCommandMother.fromModel(songinstrumentvideo);
 
+    const songInstrument = SongInstrumentMother.create({
+      id: new SongInstrumentId(songinstrumentvideo.songInstrumentId.value),
+      activeUploadAttemptId: new SongInstrumentActiveUploadAttemptId(songinstrumentvideo.id.value)
+    });
+
+    testCase.shouldSearchSongInstrument(
+      new SongInstrumentId(songinstrumentvideo.songInstrumentId.value),
+      songInstrument
+    );
     testCase.shouldSearch(songinstrumentvideo.id, songinstrumentvideo); // Mock that it exists
     await testCase.dispatch(command, commandHandler);
     testCase.assertSaveNotCalled();
@@ -62,8 +73,32 @@ describe('SongInstrumentVideoCreator should', () => {
     const songinstrumentvideo = SongInstrumentVideoMother.create();
     const command = CreateSongInstrumentVideoCommandMother.create(); // Completely different random command
 
+    const songInstrument = SongInstrumentMother.create({
+      id: new SongInstrumentId(command.songInstrumentId),
+      activeUploadAttemptId: new SongInstrumentActiveUploadAttemptId(command.id)
+    });
+
+    testCase.shouldSearchSongInstrument(new SongInstrumentId(command.songInstrumentId), songInstrument);
     testCase.shouldSearch(SongInstrumentVideoIdMother.create(command.id), songinstrumentvideo); // Mock that search by command ID returns a different model
     await testCase.assertSaveException(command, commandHandler, SongInstrumentVideoExistException);
+  });
+
+  it('return success without updating anything when a stale upload attempt completes after a newer active attempt', async () => {
+    const staleSongInstrumentVideo = SongInstrumentVideoMother.create();
+    const command = CreateSongInstrumentVideoCommandMother.fromModel(staleSongInstrumentVideo);
+    const songInstrument = SongInstrumentMother.create({
+      id: new SongInstrumentId(staleSongInstrumentVideo.songInstrumentId.value),
+      activeUploadAttemptId: new SongInstrumentActiveUploadAttemptId(SongInstrumentVideoIdMother.random().value)
+    });
+
+    vi.mocked(testCase.persistenceRepository().search).mockResolvedValueOnce(null);
+    vi.mocked(testCase.songInstrumentRepository().search).mockResolvedValueOnce(songInstrument);
+
+    await testCase.dispatch(command, commandHandler);
+
+    expect(testCase.persistenceRepository().searchBySongInstrumentId).not.toHaveBeenCalled();
+    testCase.assertSaveNotCalled();
+    testCase.assertPublishDomainEventNotCalled();
   });
 
   it('updates the current song instrument video when a newer active upload completes', async () => {
@@ -76,7 +111,8 @@ describe('SongInstrumentVideoCreator should', () => {
     });
     const command = CreateSongInstrumentVideoCommandMother.fromModel(replacementSongInstrumentVideo);
     const songInstrument = SongInstrumentMother.create({
-      id: new SongInstrumentId(replacementSongInstrumentVideo.songInstrumentId.value)
+      id: new SongInstrumentId(replacementSongInstrumentVideo.songInstrumentId.value),
+      activeUploadAttemptId: new SongInstrumentActiveUploadAttemptId(replacementSongInstrumentVideo.id.value)
     });
 
     vi.mocked(testCase.persistenceRepository().search).mockResolvedValueOnce(null);
@@ -104,7 +140,8 @@ describe('SongInstrumentVideoCreator should', () => {
     const songinstrumentvideo = SongInstrumentVideoMother.create();
     const command = CreateSongInstrumentVideoCommandMother.fromModel(songinstrumentvideo);
     const songInstrument = SongInstrumentMother.create({
-      id: new SongInstrumentId(songinstrumentvideo.songInstrumentId.value)
+      id: new SongInstrumentId(songinstrumentvideo.songInstrumentId.value),
+      activeUploadAttemptId: new SongInstrumentActiveUploadAttemptId(songinstrumentvideo.id.value)
     });
 
     vi.mocked(testCase.persistenceRepository().search)

@@ -79,11 +79,11 @@ export class MultipartFileParser {
         resolveOnce({ tempFilePath });
       };
 
-      const invalidArgument = (message: string): InvalidArgumentException =>
-        new InvalidArgumentException({ code: 'INVALID_ARGUMENT', message });
+      const invalidArgument = (message: string, details?: unknown): InvalidArgumentException =>
+        new InvalidArgumentException({ code: 'INVALID_ARGUMENT', message, details });
 
       req.on('aborted', () => {
-        rejectOnce(invalidArgument('Upload aborted by client'));
+        rejectOnce(invalidArgument('Upload aborted by client', { reason: 'client_aborted_upload' }));
       });
 
       parser.on('file', (name, file, info) => {
@@ -96,7 +96,13 @@ export class MultipartFileParser {
 
         if (info.mimeType !== 'video/mp4') {
           file.resume();
-          rejectOnce(invalidArgument('Content-Type must be video/mp4'));
+          rejectOnce(
+            invalidArgument('Content-Type must be video/mp4', {
+              expectedMimeType: 'video/mp4',
+              reason: 'invalid_mime_type',
+              receivedMimeType: info.mimeType
+            })
+          );
           return;
         }
 
@@ -122,7 +128,7 @@ export class MultipartFileParser {
             const ftyp = headerBuffer.toString('ascii', 4, 8);
             if (ftyp !== 'ftyp') {
               file.resume();
-              rejectOnce(invalidArgument('Invalid file format or corrupted header'));
+              rejectOnce(invalidArgument('Invalid file format or corrupted header', { reason: 'invalid_mp4_header' }));
               return;
             }
 
@@ -137,12 +143,17 @@ export class MultipartFileParser {
 
         file.on('limit', () => {
           file.resume();
-          rejectOnce(invalidArgument(`Video file exceeds the ${this.maxFileSizeBytes} byte limit`));
+          rejectOnce(
+            invalidArgument(`Video file exceeds the ${this.maxFileSizeBytes} byte limit`, {
+              limitBytes: this.maxFileSizeBytes,
+              reason: 'file_too_large'
+            })
+          );
         });
 
         file.on('end', () => {
           if (!headerValidated && !settled) {
-            rejectOnce(invalidArgument('Invalid file format or corrupted header'));
+            rejectOnce(invalidArgument('Invalid file format or corrupted header', { reason: 'invalid_mp4_header' }));
             return;
           }
 
@@ -163,7 +174,7 @@ export class MultipartFileParser {
         parserFinished = true;
 
         if (!hasVideoFile) {
-          rejectOnce(invalidArgument('No video file provided'));
+          rejectOnce(invalidArgument('No video file provided', { reason: 'missing_video_field' }));
           return;
         }
 

@@ -26,6 +26,16 @@ export class SongInstrumentVideoCreator {
     url,
     songInstrumentId
   }: Omit<Primitives<SongInstrumentVideo>, 'createdAt'>): Promise<void> {
+    const songInstrument = await this.songInstrumentRepository.search(new SongInstrumentId(songInstrumentId));
+
+    if (!songInstrument) {
+      throw new SongInstrumentNotExistException(songInstrumentId);
+    }
+
+    if (!songInstrument.hasActiveUploadAttempt(id)) {
+      return;
+    }
+
     const songinstrumentvideoFounded = await this.persistenceRepository.search(new SongInstrumentVideoId(id));
 
     if (songinstrumentvideoFounded) {
@@ -42,12 +52,6 @@ export class SongInstrumentVideoCreator {
       }
 
       throw new SongInstrumentVideoExistException(id);
-    }
-
-    const songInstrument = await this.songInstrumentRepository.search(new SongInstrumentId(songInstrumentId));
-
-    if (!songInstrument) {
-      throw new SongInstrumentNotExistException(songInstrumentId);
     }
 
     const currentSongInstrumentVideo = await this.persistenceRepository.searchBySongInstrumentId(

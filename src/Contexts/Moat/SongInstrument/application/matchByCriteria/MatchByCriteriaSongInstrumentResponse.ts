@@ -2,7 +2,7 @@ import { Response } from '@Contexts/Shared/domain/Response.js';
 import { SongInstrument } from '../../domain/SongInstrument.js';
 import { PublicSongInstrumentUploadResponse } from '../PublicSongInstrumentUploadResponse.js';
 
-interface SongInstrumentListItem {
+export interface SongInstrumentListItem {
   id: string;
   name: string;
   instrumentType: string;
@@ -12,7 +12,7 @@ interface SongInstrumentListItem {
   upload: PublicSongInstrumentUploadResponse | null;
 }
 
-interface SongInstrumentListEntry {
+export interface SongInstrumentListEntry {
   songInstrument: SongInstrument;
   upload: PublicSongInstrumentUploadResponse | null;
 }

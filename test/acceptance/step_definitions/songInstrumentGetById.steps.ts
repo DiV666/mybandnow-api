@@ -47,6 +47,11 @@ Given(
     const resolvedSongId = this.dataUtil.replaceTokensWithCustomOrFakerValues(songId) as string;
     const resolvedMusicianId = this.dataUtil.replaceTokensWithCustomOrFakerValues(musicianId) as string;
 
+    const existingSongInstruments = await prisma.songInstrument.count({
+      where: { songId: resolvedSongId }
+    });
+    const createdAt = new Date(Date.UTC(2024, 0, 1, 0, 0, existingSongInstruments));
+
     await prisma.songInstrument.upsert({
       where: { id: resolvedInstrumentId },
       update: {
@@ -60,7 +65,8 @@ Given(
         name: 'Lead Guitar',
         instrumentType: 'guitar',
         songId: resolvedSongId,
-        musicianId: resolvedMusicianId
+        musicianId: resolvedMusicianId,
+        createdAt
       }
     });
   }

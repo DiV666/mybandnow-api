@@ -14,6 +14,7 @@ import SongInstrumentUploadPostUploadController from '../../../../../../../src/a
 import { SongInstrumentUploadUploadCommand } from '../../../../../../../src/Contexts/Moat/SongInstrumentUpload/application/upload/SongInstrumentUploadUploadCommand.js';
 import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
 import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { InvalidArgumentException } from '../../../../../../../src/Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
 
 vi.mock('node:fs/promises', () => ({
   unlink: vi.fn()
@@ -143,6 +144,68 @@ describe('SongInstrumentUploadPostUploadController', () => {
     );
     expect(unlink).toHaveBeenCalledWith(tempFilePath);
     expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('logs safe parser details when multipart validation fails', async () => {
+    const logger = mock<Logger>();
+    const commandBus = mock<CommandBus>();
+    const queryBus = mock<QueryBus>();
+    const storageRepository = mock<StorageRepository>();
+    const exceptionHandler = new ApiExceptionsHttpStatusCodeMapping();
+    const fileParser = mock<MultipartFileParser>();
+    const controller = new SongInstrumentUploadPostUploadController(
+      logger,
+      commandBus,
+      queryBus,
+      exceptionHandler,
+      fileParser,
+      storageRepository
+    );
+
+    const context = {
+      security: {
+        BearerAuth: {
+          id: 'authenticated-user-id'
+        }
+      },
+      request: {
+        params: {
+          songId: 'path-song-id',
+          instrumentId: 'path-instrument-id'
+        }
+      }
+    } as unknown as Context;
+    const req = mock<Request>();
+    const res = mock<Response>();
+    const parserException = new InvalidArgumentException({
+      code: 'INVALID_ARGUMENT',
+      message: 'Content-Type must be video/mp4',
+      details: {
+        expectedMimeType: 'video/mp4',
+        reason: 'invalid_mime_type',
+        receivedMimeType: 'text/plain'
+      }
+    });
+
+    fileParser.parse.mockRejectedValue(parserException);
+
+    await expect(controller.run(context, req, res)).rejects.toBe(parserException);
+
+    expect(logger.warn).toHaveBeenCalledWith(
+      {
+        code: 'INVALID_ARGUMENT',
+        details: {
+          expectedMimeType: 'video/mp4',
+          reason: 'invalid_mime_type',
+          receivedMimeType: 'text/plain'
+        },
+        instrumentId: 'path-instrument-id',
+        songId: 'path-song-id'
+      },
+      '[SongInstrumentUploadPostUploadController] Rejected invalid upload request: Content-Type must be video/mp4'
+    );
+    expect(queryBus.ask).not.toHaveBeenCalled();
+    expect(storageRepository.uploadFile).not.toHaveBeenCalled();
   });
 
   it('deletes the temp file when authorization fails after parsing', async () => {
