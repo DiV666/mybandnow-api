@@ -34,6 +34,18 @@ Feature: Get current user profile guard
       }
       """
 
+  Scenario: A token for a non-existent user is rejected
+    Given I authenticate as user "ghost" with id "d4d96f37-4cc8-4b7f-bc59-95f4d8d8b9bb"
+    When I send a GET request to "/v1/profile"
+    Then the response status code should be 401
+    And the response should be:
+      """
+      {
+        "code": "UNAUTHORIZED",
+        "message": "Unauthorized"
+      }
+      """
+
   Scenario: An unauthenticated request is rejected
     When I send a GET request to "/v1/profile"
     Then the response status code should be 401

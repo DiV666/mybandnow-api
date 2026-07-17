@@ -23,6 +23,15 @@ export class UserPrismaRepository implements UserPersistenceRepository {
     return this.client.user.count({ where: query.where });
   }
 
+  async existsById(id: string): Promise<boolean> {
+    const user = await this.client.user.findUnique({
+      where: { id },
+      select: { id: true }
+    });
+
+    return user !== null;
+  }
+
   async save(user: User): Promise<void> {
     const data = user.toPrimitives();
 

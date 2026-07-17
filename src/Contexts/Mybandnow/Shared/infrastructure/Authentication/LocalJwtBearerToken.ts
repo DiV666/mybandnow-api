@@ -5,6 +5,7 @@ import { ForbiddenException } from '@Contexts/Shared/domain/exceptions/Forbidden
 import { SecurityHandlerException } from '@Contexts/Shared/infrastructure/exceptions/SecurityHandlerException.js';
 import { env } from '@Contexts/Shared/infrastructure/config/env.js';
 import { AuthenticatedUserContext } from '@Contexts/Shared/application/security/AuthenticatedUserContext.js';
+import { UserPersistenceRepository } from '@Contexts/Mybandnow/User/domain/repository/UserPersistenceRepository.js';
 
 interface LocalJwtClaims extends jsonwebtoken.JwtPayload {
   sub?: string;
@@ -13,6 +14,8 @@ interface LocalJwtClaims extends jsonwebtoken.JwtPayload {
 }
 
 export class LocalJwtBearerToken implements JWTVerifier {
+  constructor(private readonly userRepository: UserPersistenceRepository) {}
+
   async verifyJWT(token: string, requiredScopes: string[]): Promise<AuthenticatedUserContext> {
     try {
       const decoded = jsonwebtoken.verify(token, env.JWT_SECRET, {
@@ -28,6 +31,11 @@ export class LocalJwtBearerToken implements JWTVerifier {
 
       if (!id) {
         throw new ForbiddenException('JWT claims are incomplete.');
+      }
+
+      const userExists = await this.userRepository.existsById(id);
+      if (!userExists) {
+        throw new UnauthorizedException('Unauthorized');
       }
 
       const roles = this.normalizeRoles(claims.roles);
@@ -46,9 +54,20 @@ export class LocalJwtBearerToken implements JWTVerifier {
       if (error instanceof ForbiddenException) {
         throw new SecurityHandlerException(403, error, { cause: error.message });
       }
-      throw new SecurityHandlerException(401, new UnauthorizedException('Unauthorized'), {
-        cause: `Token is not a valid local JWT. ${error instanceof Error ? error.message : String(error)}`
-      });
+
+      if (error instanceof UnauthorizedException) {
+        throw new SecurityHandlerException(401, new UnauthorizedException('Unauthorized'), {
+          cause: 'User referenced by JWT subject does not exist.'
+        });
+      }
+
+      if (error instanceof jsonwebtoken.JsonWebTokenError) {
+        throw new SecurityHandlerException(401, new UnauthorizedException('Unauthorized'), {
+          cause: `Token is not a valid local JWT. ${error.message}`
+        });
+      }
+
+      throw error;
     }
   }
 

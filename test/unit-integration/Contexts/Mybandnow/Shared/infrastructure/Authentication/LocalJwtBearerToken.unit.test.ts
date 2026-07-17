@@ -1,5 +1,5 @@
 import jsonwebtoken from 'jsonwebtoken';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 
@@ -29,7 +29,7 @@ describe('LocalJwtBearerToken', () => {
     });
 
     // Act
-    const payload = await new LocalJwtBearerToken().verifyJWT(token, []);
+    const payload = await new LocalJwtBearerToken(createUserRepository()).verifyJWT(token, []);
 
     // Assert
     expect(payload).toEqual({
@@ -52,7 +52,7 @@ describe('LocalJwtBearerToken', () => {
     );
 
     // Act
-    const payload = await new LocalJwtBearerToken().verifyJWT(token, []);
+    const payload = await new LocalJwtBearerToken(createUserRepository()).verifyJWT(token, []);
 
     // Assert
     expect(payload).toEqual({
@@ -75,7 +75,7 @@ describe('LocalJwtBearerToken', () => {
     );
 
     // Act
-    const payload = await new LocalJwtBearerToken().verifyJWT(token, []);
+    const payload = await new LocalJwtBearerToken(createUserRepository()).verifyJWT(token, []);
 
     // Assert
     expect(payload).toEqual({
@@ -94,7 +94,9 @@ describe('LocalJwtBearerToken', () => {
     });
 
     // Act + Assert
-    await expect(new LocalJwtBearerToken().verifyJWT(token, ['band:write'])).rejects.toMatchObject({
+    await expect(
+      new LocalJwtBearerToken(createUserRepository()).verifyJWT(token, ['band:write'])
+    ).rejects.toMatchObject({
       status: 403,
       cause: 'Forbidden. User does not include one of the required roles permissions: band:write'
     });
@@ -109,10 +111,51 @@ describe('LocalJwtBearerToken', () => {
     });
 
     // Act + Assert
-    await expect(new LocalJwtBearerToken().verifyJWT(token, [])).rejects.toMatchObject({
+    await expect(new LocalJwtBearerToken(createUserRepository()).verifyJWT(token, [])).rejects.toMatchObject({
       status: 403,
       cause: 'JWT claims are incomplete.'
     });
+  });
+
+  it('rejects the token with 401 when the JWT subject user does not exist', async () => {
+    // Arrange
+    process.env = createValidEnv();
+    const { LocalJwtBearerToken } = await import(freshLocalJwtBearerTokenModuleUrl());
+    const token = jsonwebtoken.sign({}, process.env.JWT_SECRET as string, {
+      algorithm: 'HS256',
+      subject: 'missing-user-123'
+    });
+
+    // Act + Assert
+    await expect(
+      new LocalJwtBearerToken(createUserRepository({ existsById: vi.fn().mockResolvedValue(false) })).verifyJWT(
+        token,
+        []
+      )
+    ).rejects.toMatchObject({
+      status: 401,
+      cause: expect.stringContaining('User referenced by JWT subject does not exist')
+    });
+  });
+
+  it('bubbles repository failures during persisted-user verification instead of masking them as 401', async () => {
+    // Arrange
+    process.env = createValidEnv();
+    const { LocalJwtBearerToken } = await import(freshLocalJwtBearerTokenModuleUrl());
+    const token = jsonwebtoken.sign({}, process.env.JWT_SECRET as string, {
+      algorithm: 'HS256',
+      subject: 'user-123'
+    });
+    const repositoryFailure = new Error('database unavailable');
+
+    // Act + Assert
+    await expect(
+      new LocalJwtBearerToken(
+        createUserRepository({
+          existsById: vi.fn().mockRejectedValue(repositoryFailure)
+        })
+      ).verifyJWT(token, [])
+    ).rejects.toBe(repositoryFailure);
   });
 
   it('rejects the token with 401 when the JWT signature is invalid', async () => {
@@ -125,7 +168,7 @@ describe('LocalJwtBearerToken', () => {
     });
 
     // Act + Assert
-    await expect(new LocalJwtBearerToken().verifyJWT(token, [])).rejects.toMatchObject({
+    await expect(new LocalJwtBearerToken(createUserRepository()).verifyJWT(token, [])).rejects.toMatchObject({
       status: 401,
       cause: expect.stringContaining('invalid signature')
     });
@@ -140,7 +183,7 @@ describe('LocalJwtBearerToken', () => {
     });
 
     // Act
-    const payload = await new LocalJwtBearerToken().verifyJWT(token, []);
+    const payload = await new LocalJwtBearerToken(createUserRepository()).verifyJWT(token, []);
 
     // Assert
     expect(payload).toEqual({
@@ -149,6 +192,13 @@ describe('LocalJwtBearerToken', () => {
     });
   });
 });
+
+function createUserRepository(overrides: Partial<{ existsById: (id: string) => Promise<boolean> }> = {}) {
+  return {
+    existsById: vi.fn().mockResolvedValue(true),
+    ...overrides
+  };
+}
 
 function createValidEnv(): NodeJS.ProcessEnv {
   return {

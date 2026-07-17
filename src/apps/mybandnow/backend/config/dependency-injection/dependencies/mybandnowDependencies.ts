@@ -42,7 +42,9 @@ import { env } from '@Contexts/Shared/infrastructure/config/env.js';
 
 export function registerMybandnowDependencies(container: ContainerBuilder) {
   // Authentication
-  container.register('Mybandnow.Shared.LocalJwtBearerToken', LocalJwtBearerToken);
+  container
+    .register('Mybandnow.Shared.LocalJwtBearerToken', LocalJwtBearerToken)
+    .addArgument(new Reference('Mybandnow.User.UserRepository'));
 
   container
     .register('Mybandnow.Shared.InternalAuthentication', InternalAuthentication)

@@ -6,5 +6,7 @@ export interface UserPersistenceRepository {
 
   matchingCount(criteria: Criteria): Promise<number>;
 
+  existsById(id: string): Promise<boolean>;
+
   save(model: User): Promise<void>;
 }
