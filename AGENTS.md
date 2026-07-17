@@ -34,138 +34,138 @@ Use these skills for detailed patterns on-demand:
 
 For scaffoldable structural changes, agents MUST prefer `rb` commands and the matching `kloding-*` skills before hand-editing files. Use manual edits only when `rb` cannot express the change or for follow-up refinement after scaffolding.
 
-| Intent | Prefer |
-| --- | --- |
-| Add or remove a full CRUD module slice | `rb g m` / `rb d m` + `kloding-generate-module` / `kloding-destroy-module` |
-| Add or remove a single HTTP controller | `rb g c` / `rb d c` + `kloding-generate-controller` / `kloding-destroy-controller` |
-| Add or remove a single use case action | `rb g uc` / `rb d uc` + `kloding-generate-use-case` / `kloding-destroy-use-case` |
-| Add or remove a domain aggregate layer | `rb g a` / `rb d a` + `kloding-generate-aggregate` / `kloding-destroy-aggregate` |
-| Add or remove a domain parameter / VO or controller parameter | `rb g p` / `rb d p` + `kloding-generate-parameter` / `kloding-destroy-parameter` |
-| Add or remove a global module parameter | `rb g gp` / `rb d gp` + `kloding-generate-parameter` / `kloding-destroy-parameter` |
-| Add or remove a domain event subscriber | `rb g sub` / `rb d sub` + `kloding-generate-subscriber` / `kloding-destroy-subscriber` |
-| Add or remove a shared HTTP infrastructure service | `rb g s` / `rb d s` + `kloding-generate-service` / `kloding-destroy-service` |
+| Intent                                                        | Prefer                                                                                 |
+| ------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Add or remove a full CRUD module slice                        | `rb g m` / `rb d m` + `kloding-generate-module` / `kloding-destroy-module`             |
+| Add or remove a single HTTP controller                        | `rb g c` / `rb d c` + `kloding-generate-controller` / `kloding-destroy-controller`     |
+| Add or remove a single use case action                        | `rb g uc` / `rb d uc` + `kloding-generate-use-case` / `kloding-destroy-use-case`       |
+| Add or remove a domain aggregate layer                        | `rb g a` / `rb d a` + `kloding-generate-aggregate` / `kloding-destroy-aggregate`       |
+| Add or remove a domain parameter / VO or controller parameter | `rb g p` / `rb d p` + `kloding-generate-parameter` / `kloding-destroy-parameter`       |
+| Add or remove a global module parameter                       | `rb g gp` / `rb d gp` + `kloding-generate-parameter` / `kloding-destroy-parameter`     |
+| Add or remove a domain event subscriber                       | `rb g sub` / `rb d sub` + `kloding-generate-subscriber` / `kloding-destroy-subscriber` |
+| Add or remove a shared HTTP infrastructure service            | `rb g s` / `rb d s` + `kloding-generate-service` / `kloding-destroy-service`           |
 
 ### Project-Specific Skills (mybandnow)
 
-| Skill                | Description                                                               | URL                                                    |
-| -------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------ |
-| `kloding-destroy-aggregate`  | Remove a domain layer (aggregate, VOs, exceptions, repository)            | [SKILL.md](.agents/skills/kloding-destroy-aggregate/SKILL.md)  |
-| `kloding-destroy-controller` | Remove a single HTTP controller, DI wiring, and acceptance test           | [SKILL.md](.agents/skills/kloding-destroy-controller/SKILL.md) |
-| `kloding-destroy-use-case`   | Remove a single use case action with repository/aggregate cleanup         | [SKILL.md](.agents/skills/kloding-destroy-use-case/SKILL.md)   |
-| `kloding-destroy-module`     | Remove a full CRUD module slice (all controllers or domain + use cases)   | [SKILL.md](.agents/skills/kloding-destroy-module/SKILL.md)     |
-| `kloding-destroy-parameter`  | Remove a domain VO or controller parameter (also: destroy global-param)   | [SKILL.md](.agents/skills/kloding-destroy-parameter/SKILL.md)  |
-| `kloding-destroy-subscriber` | Remove a domain event subscriber and its DI registration                 | [SKILL.md](.agents/skills/kloding-destroy-subscriber/SKILL.md) |
-| `kloding-destroy-service`    | Remove a shared HTTP infrastructure service layer           | [SKILL.md](.agents/skills/kloding-destroy-service/SKILL.md)    |
-| `kloding-generate-aggregate`  | Generate a domain layer            | [SKILL.md](.agents/skills/kloding-generate-aggregate/SKILL.md)  |
-| `kloding-generate-controller` | Generate a single HTTP controller           | [SKILL.md](.agents/skills/kloding-generate-controller/SKILL.md) |
-| `kloding-generate-use-case`   | Generate a single use case         | [SKILL.md](.agents/skills/kloding-generate-use-case/SKILL.md)   |
-| `kloding-generate-module`     | Generate a full CRUD module slice    | [SKILL.md](.agents/skills/kloding-generate-module/SKILL.md)     |
-| `kloding-generate-parameter`  | Generate a domain VO or controller parameter   | [SKILL.md](.agents/skills/kloding-generate-parameter/SKILL.md)  |
-| `kloding-generate-subscriber` | Generate a domain event subscriber                  | [SKILL.md](.agents/skills/kloding-generate-subscriber/SKILL.md) |
-| `kloding-generate-service`    | Generate a shared HTTP infrastructure service layer           | [SKILL.md](.agents/skills/kloding-generate-service/SKILL.md)    |
-| `test-integration`   | Integration tests against MongoDB and RabbitMQ (Infrastructure layer)     | [SKILL.md](.agents/skills/test-integration/SKILL.md)   |
-| `test-acceptance`    | Acceptance/E2E testing with Cucumber.js and Supertest (Apps layer)        | [SKILL.md](.agents/skills/test-acceptance/SKILL.md)    |
-| `changelog`          | Changelog entries (keepachangelog.com)                                    | [SKILL.md](.agents/skills/changelog/SKILL.md)          |
-| `ci`                 | CI pipeline guidance (Jenkins)                                            | [SKILL.md](.agents/skills/ci/SKILL.md)                 |
-| `commit`             | Conventional commits — one-line format, no body                           | [SKILL.md](.agents/skills/commit/SKILL.md)             |
-| `coverage-review`    | Review merged test coverage and enforce the 90% target                    | [SKILL.md](.agents/skills/coverage-review/SKILL.md)    |
-| `pr`                 | Pull request conventions                                                  | [SKILL.md](.agents/skills/pr/SKILL.md)                 |
-| `docs`               | Documentation style guide                                                 | [SKILL.md](.agents/skills/docs/SKILL.md)               |
-| `prisma-indexes`     | PostgreSQL / Prisma index planning for database models                    | [SKILL.md](.agents/skills/prisma-indexes/SKILL.md)     |
-| `jira-confluence`    | Jira issues, Confluence PRD sync, and branch task mapping workflow        | [SKILL.md](.agents/skills/jira-confluence/SKILL.md)    |
-| `skill-creator`             | Create new AI agent skills                                                | [SKILL.md](.agents/skills/skill-creator/SKILL.md)             |
-| `living-blueprint`          | Maintain docs/ and Confluence in sync after every feature merge           | [SKILL.md](.agents/skills/living-blueprint/SKILL.md)          |
-| `upgrade-version`    | Bump version, generate changelog, and commit using Makefile               | [SKILL.md](.agents/skills/upgrade-version/SKILL.md)    |
-| `log-review`         | Review service logs and log instrumentation quality                       | [SKILL.md](.agents/skills/log-review/SKILL.md)         |
-| `security`           | Security and implementation QA checklist for scaffold-based services      | [SKILL.md](.agents/skills/security/SKILL.md)           |
+| Skill                         | Description                                                             | URL                                                             |
+| ----------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `kloding-destroy-aggregate`   | Remove a domain layer (aggregate, VOs, exceptions, repository)          | [SKILL.md](.agents/skills/kloding-destroy-aggregate/SKILL.md)   |
+| `kloding-destroy-controller`  | Remove a single HTTP controller, DI wiring, and acceptance test         | [SKILL.md](.agents/skills/kloding-destroy-controller/SKILL.md)  |
+| `kloding-destroy-use-case`    | Remove a single use case action with repository/aggregate cleanup       | [SKILL.md](.agents/skills/kloding-destroy-use-case/SKILL.md)    |
+| `kloding-destroy-module`      | Remove a full CRUD module slice (all controllers or domain + use cases) | [SKILL.md](.agents/skills/kloding-destroy-module/SKILL.md)      |
+| `kloding-destroy-parameter`   | Remove a domain VO or controller parameter (also: destroy global-param) | [SKILL.md](.agents/skills/kloding-destroy-parameter/SKILL.md)   |
+| `kloding-destroy-subscriber`  | Remove a domain event subscriber and its DI registration                | [SKILL.md](.agents/skills/kloding-destroy-subscriber/SKILL.md)  |
+| `kloding-destroy-service`     | Remove a shared HTTP infrastructure service layer                       | [SKILL.md](.agents/skills/kloding-destroy-service/SKILL.md)     |
+| `kloding-generate-aggregate`  | Generate a domain layer                                                 | [SKILL.md](.agents/skills/kloding-generate-aggregate/SKILL.md)  |
+| `kloding-generate-controller` | Generate a single HTTP controller                                       | [SKILL.md](.agents/skills/kloding-generate-controller/SKILL.md) |
+| `kloding-generate-use-case`   | Generate a single use case                                              | [SKILL.md](.agents/skills/kloding-generate-use-case/SKILL.md)   |
+| `kloding-generate-module`     | Generate a full CRUD module slice                                       | [SKILL.md](.agents/skills/kloding-generate-module/SKILL.md)     |
+| `kloding-generate-parameter`  | Generate a domain VO or controller parameter                            | [SKILL.md](.agents/skills/kloding-generate-parameter/SKILL.md)  |
+| `kloding-generate-subscriber` | Generate a domain event subscriber                                      | [SKILL.md](.agents/skills/kloding-generate-subscriber/SKILL.md) |
+| `kloding-generate-service`    | Generate a shared HTTP infrastructure service layer                     | [SKILL.md](.agents/skills/kloding-generate-service/SKILL.md)    |
+| `test-integration`            | Integration tests against MongoDB and RabbitMQ (Infrastructure layer)   | [SKILL.md](.agents/skills/test-integration/SKILL.md)            |
+| `test-acceptance`             | Acceptance/E2E testing with Cucumber.js and Supertest (Apps layer)      | [SKILL.md](.agents/skills/test-acceptance/SKILL.md)             |
+| `changelog`                   | Changelog entries (keepachangelog.com)                                  | [SKILL.md](.agents/skills/changelog/SKILL.md)                   |
+| `ci`                          | CI pipeline guidance (Jenkins)                                          | [SKILL.md](.agents/skills/ci/SKILL.md)                          |
+| `commit`                      | Conventional commits — one-line format, no body                         | [SKILL.md](.agents/skills/commit/SKILL.md)                      |
+| `coverage-review`             | Review merged test coverage and enforce the 90% target                  | [SKILL.md](.agents/skills/coverage-review/SKILL.md)             |
+| `pr`                          | Pull request conventions                                                | [SKILL.md](.agents/skills/pr/SKILL.md)                          |
+| `docs`                        | Documentation style guide                                               | [SKILL.md](.agents/skills/docs/SKILL.md)                        |
+| `prisma-indexes`              | PostgreSQL / Prisma index planning for database models                  | [SKILL.md](.agents/skills/prisma-indexes/SKILL.md)              |
+| `jira-confluence`             | Jira issues, Confluence PRD sync, and branch task mapping workflow      | [SKILL.md](.agents/skills/jira-confluence/SKILL.md)             |
+| `skill-creator`               | Create new AI agent skills                                              | [SKILL.md](.agents/skills/skill-creator/SKILL.md)               |
+| `living-blueprint`            | Maintain docs/ and Confluence in sync after every feature merge         | [SKILL.md](.agents/skills/living-blueprint/SKILL.md)            |
+| `upgrade-version`             | Bump version, generate changelog, and commit using Makefile             | [SKILL.md](.agents/skills/upgrade-version/SKILL.md)             |
+| `log-review`                  | Review service logs and log instrumentation quality                     | [SKILL.md](.agents/skills/log-review/SKILL.md)                  |
+| `security`                    | Security and implementation QA checklist for scaffold-based services    | [SKILL.md](.agents/skills/security/SKILL.md)                    |
 
 ### Auto-invoke Skills
 
 When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 
-| Action | Skill |
-|--------|-------|
-| Removing a domain module aggregate                              | `kloding-destroy-aggregate`  |
-| Running rb destroy aggregate / rb d a                           | `kloding-destroy-aggregate`  |
-| Removing an HTTP controller                                     | `kloding-destroy-controller` |
-| Running rb destroy controller / rb d c                          | `kloding-destroy-controller` |
-| Removing a use case action                                      | `kloding-destroy-use-case`   |
-| Running rb destroy use-case / rb d uc                           | `kloding-destroy-use-case`   |
-| Removing a full module slice (all controllers or domain)        | `kloding-destroy-module`     |
-| Running rb destroy module / rb d m                              | `kloding-destroy-module`     |
-| Removing a domain or controller parameter                       | `kloding-destroy-parameter`  |
-| Running rb destroy parameter / rb d p / rb d gp                 | `kloding-destroy-parameter`  |
-| Removing a domain event subscriber                              | `kloding-destroy-subscriber` |
-| Running rb destroy subscriber / rb d sub                        | `kloding-destroy-subscriber` |
-| Removing a shared infrastructure service                        | `kloding-destroy-service`    |
-| Running rb destroy service / rb d s                             | `kloding-destroy-service`    |
-| Generating a domain module aggregate                            | `kloding-generate-aggregate`  |
-| Running rb generate aggregate / rb g a                          | `kloding-generate-aggregate`  |
-| Generating an HTTP controller                                   | `kloding-generate-controller` |
-| Running rb generate controller / rb g c                         | `kloding-generate-controller` |
-| Generating a use case action                                    | `kloding-generate-use-case`   |
-| Running rb generate use-case / rb g uc                          | `kloding-generate-use-case`   |
-| Generating a full module slice (all controllers or domain)      | `kloding-generate-module`     |
-| Running rb generate module / rb g m                             | `kloding-generate-module`     |
-| Generating a domain or controller parameter                     | `kloding-generate-parameter`  |
-| Running rb generate parameter / rb g p / rb g gp                | `kloding-generate-parameter`  |
-| Generating a domain event subscriber                            | `kloding-generate-subscriber` |
-| Running rb generate subscriber / rb g sub                       | `kloding-generate-subscriber` |
-| Generating a shared infrastructure service                      | `kloding-generate-service`    |
-| Running rb generate service / rb g s                            | `kloding-generate-service`    |
-| Adapting MongoDB code generated by the CLI to PostgreSQL | `prisma-outbox` |
-| Adding a RabbitMQ subscriber | `security` |
-| Adding a new HTTP endpoint | `security` |
-| Adding a new use case (command or query) | `security` |
-| Adding criteria to a query handler | `prisma-indexes` |
-| Adding filters to a repository | `prisma-indexes` |
-| After completing an SDD archive phase | `living-blueprint` |
-| After completing an SDD tasks phase | `jira-confluence` |
-| After creating/modifying a skill | `skill-sync` |
-| Archiving SDD artifacts to Confluence | `jira-confluence` |
-| Auditing logging quality | `log-review` |
-| Create a PR with gh pr create | `pr` |
-| Creating a GET/search endpoint | `prisma-indexes` |
-| Creating a git commit | `commit` |
-| Creating domain aggregates, value objects, or domain events | `security` |
-| Creating new skills | `skill-creator` |
-| Creating or modifying a controller | `security` |
-| Fixing bug | `security` |
-| Fixing bug | `tdd` |
-| Implementing feature | `security` |
-| Implementing feature | `tdd` |
-| Inspecting observability | `log-review` |
-| Modifying existing skills structure | `skill-creator` |
-| Modifying schema.prisma indexes | `prisma-indexes` |
-| Modifying the Zod env schema | `zod-4` |
-| Planning branching strategy | `jira-confluence` |
-| Publishing business documentation to Confluence | `living-blueprint` |
-| Publishing to Confluence | `jira-confluence` |
-| Refactoring code | `security` |
-| Refactoring code | `tdd` |
-| Regenerate AGENTS.md Auto-invoke tables (sync.sh) | `skill-sync` |
-| Reviewing logging changes | `log-review` |
-| Reviewing service logs | `log-review` |
-| Reviewing test coverage | `coverage-review` |
-| Syncing docs with codebase | `living-blueprint` |
-| Testing Application Use Cases | `test-unit` |
-| Testing Apps layer controllers | `test-acceptance` |
-| Testing Domain Aggregates | `test-unit` |
-| Testing HTTP external service integrations | `test-integration` |
-| Testing Infrastructure layer adapters | `test-integration` |
-| Troubleshoot CI/CD failures | `ci` |
-| Troubleshoot why a skill is missing from AGENTS.md auto-invoke | `skill-sync` |
-| Update CHANGELOG.md | `changelog` |
-| Updating documentation after feature merge | `living-blueprint` |
-| Working on Jira integration | `jira-confluence` |
-| Working on task | `security` |
-| Working on task | `tdd` |
-| Writing API E2E tests | `test-acceptance` |
-| Writing TypeScript types/interfaces | `typescript` |
-| Writing acceptance tests with Cucumber.js | `test-acceptance` |
-| Writing documentation | `docs` |
-| Writing integration tests against real MongoDB or RabbitMQ | `test-integration` |
-| Writing unit tests | `test-unit` |
+| Action                                                         | Skill                         |
+| -------------------------------------------------------------- | ----------------------------- |
+| Removing a domain module aggregate                             | `kloding-destroy-aggregate`   |
+| Running rb destroy aggregate / rb d a                          | `kloding-destroy-aggregate`   |
+| Removing an HTTP controller                                    | `kloding-destroy-controller`  |
+| Running rb destroy controller / rb d c                         | `kloding-destroy-controller`  |
+| Removing a use case action                                     | `kloding-destroy-use-case`    |
+| Running rb destroy use-case / rb d uc                          | `kloding-destroy-use-case`    |
+| Removing a full module slice (all controllers or domain)       | `kloding-destroy-module`      |
+| Running rb destroy module / rb d m                             | `kloding-destroy-module`      |
+| Removing a domain or controller parameter                      | `kloding-destroy-parameter`   |
+| Running rb destroy parameter / rb d p / rb d gp                | `kloding-destroy-parameter`   |
+| Removing a domain event subscriber                             | `kloding-destroy-subscriber`  |
+| Running rb destroy subscriber / rb d sub                       | `kloding-destroy-subscriber`  |
+| Removing a shared infrastructure service                       | `kloding-destroy-service`     |
+| Running rb destroy service / rb d s                            | `kloding-destroy-service`     |
+| Generating a domain module aggregate                           | `kloding-generate-aggregate`  |
+| Running rb generate aggregate / rb g a                         | `kloding-generate-aggregate`  |
+| Generating an HTTP controller                                  | `kloding-generate-controller` |
+| Running rb generate controller / rb g c                        | `kloding-generate-controller` |
+| Generating a use case action                                   | `kloding-generate-use-case`   |
+| Running rb generate use-case / rb g uc                         | `kloding-generate-use-case`   |
+| Generating a full module slice (all controllers or domain)     | `kloding-generate-module`     |
+| Running rb generate module / rb g m                            | `kloding-generate-module`     |
+| Generating a domain or controller parameter                    | `kloding-generate-parameter`  |
+| Running rb generate parameter / rb g p / rb g gp               | `kloding-generate-parameter`  |
+| Generating a domain event subscriber                           | `kloding-generate-subscriber` |
+| Running rb generate subscriber / rb g sub                      | `kloding-generate-subscriber` |
+| Generating a shared infrastructure service                     | `kloding-generate-service`    |
+| Running rb generate service / rb g s                           | `kloding-generate-service`    |
+| Adapting MongoDB code generated by the CLI to PostgreSQL       | `prisma-outbox`               |
+| Adding a RabbitMQ subscriber                                   | `security`                    |
+| Adding a new HTTP endpoint                                     | `security`                    |
+| Adding a new use case (command or query)                       | `security`                    |
+| Adding criteria to a query handler                             | `prisma-indexes`              |
+| Adding filters to a repository                                 | `prisma-indexes`              |
+| After completing an SDD archive phase                          | `living-blueprint`            |
+| After completing an SDD tasks phase                            | `jira-confluence`             |
+| After creating/modifying a skill                               | `skill-sync`                  |
+| Archiving SDD artifacts to Confluence                          | `jira-confluence`             |
+| Auditing logging quality                                       | `log-review`                  |
+| Create a PR with gh pr create                                  | `pr`                          |
+| Creating a GET/search endpoint                                 | `prisma-indexes`              |
+| Creating a git commit                                          | `commit`                      |
+| Creating domain aggregates, value objects, or domain events    | `security`                    |
+| Creating new skills                                            | `skill-creator`               |
+| Creating or modifying a controller                             | `security`                    |
+| Fixing bug                                                     | `security`                    |
+| Fixing bug                                                     | `tdd`                         |
+| Implementing feature                                           | `security`                    |
+| Implementing feature                                           | `tdd`                         |
+| Inspecting observability                                       | `log-review`                  |
+| Modifying existing skills structure                            | `skill-creator`               |
+| Modifying schema.prisma indexes                                | `prisma-indexes`              |
+| Modifying the Zod env schema                                   | `zod-4`                       |
+| Planning branching strategy                                    | `jira-confluence`             |
+| Publishing business documentation to Confluence                | `living-blueprint`            |
+| Publishing to Confluence                                       | `jira-confluence`             |
+| Refactoring code                                               | `security`                    |
+| Refactoring code                                               | `tdd`                         |
+| Regenerate AGENTS.md Auto-invoke tables (sync.sh)              | `skill-sync`                  |
+| Reviewing logging changes                                      | `log-review`                  |
+| Reviewing service logs                                         | `log-review`                  |
+| Reviewing test coverage                                        | `coverage-review`             |
+| Syncing docs with codebase                                     | `living-blueprint`            |
+| Testing Application Use Cases                                  | `test-unit`                   |
+| Testing Apps layer controllers                                 | `test-acceptance`             |
+| Testing Domain Aggregates                                      | `test-unit`                   |
+| Testing HTTP external service integrations                     | `test-integration`            |
+| Testing Infrastructure layer adapters                          | `test-integration`            |
+| Troubleshoot CI/CD failures                                    | `ci`                          |
+| Troubleshoot why a skill is missing from AGENTS.md auto-invoke | `skill-sync`                  |
+| Update CHANGELOG.md                                            | `changelog`                   |
+| Updating documentation after feature merge                     | `living-blueprint`            |
+| Working on Jira integration                                    | `jira-confluence`             |
+| Working on task                                                | `security`                    |
+| Working on task                                                | `tdd`                         |
+| Writing API E2E tests                                          | `test-acceptance`             |
+| Writing TypeScript types/interfaces                            | `typescript`                  |
+| Writing acceptance tests with Cucumber.js                      | `test-acceptance`             |
+| Writing documentation                                          | `docs`                        |
+| Writing integration tests against real MongoDB or RabbitMQ     | `test-integration`            |
+| Writing unit tests                                             | `test-unit`                   |
 
 ---
 
@@ -247,7 +247,7 @@ We temporarily allow the following npm advisories (managed via `.audit-ci.json`)
 - **GHSA-grv7-fg5c-xmjg** (`braces`, high)
   - **Reason**: Transitive dependency via `cpx` → `chokidar` → `anymatch` → `micromatch` → `braces`. Waiting for upstream fix.
   - **Expires**: 2026-07-15
-  - **Tracking**: https://github.com/mysticatea/cpx/issues
+  - **Tracking**: <https://github.com/mysticatea/cpx/issues>
 
 - **GHSA-952p-6rrq-rcjv** (`micromatch`, moderate)
   - **Reason**: Transitive dependency via `cpx` → `chokidar` → `anymatch` → `micromatch`. Waiting for upstream fix.
@@ -256,6 +256,7 @@ We temporarily allow the following npm advisories (managed via `.audit-ci.json`)
 The CI script resolves advisory IDs from `npm audit --json` and applies them transitively to affected packages such as `anymatch`, `chokidar`, `cpx`, and `readdirp`.
 
 **How it works:**
+
 - `make audit`: runs `npm audit` against the public npm registry (informational only, does not block)
 - `make audit-ci`: runs `./build-tools/audit-ci.sh` which checks `npm audit --json` output against `.audit-ci.json` GHSA allowlist entries with expiration dates
 - If a vulnerability is NOT in the allowlist or has expired, CI/CD will fail
@@ -289,15 +290,18 @@ Before creating a PR:
 **NEVER use `git commit --no-verify` unless explicitly instructed by the user.**
 
 The pre-commit hook (`.husky/pre-commit`) executes:
+
 1. `npm run format:fix` — auto-fixes ESLint issues
 2. `gga run` — AI code review (Gentleman Guardian Angel)
 
 These checks are **mandatory** to maintain code quality. Skipping them bypasses:
+
 - Code formatting consistency
 - AI-powered code review
 - Protection against common mistakes
 
 If the pre-commit hook fails:
+
 - Fix the issues reported by ESLint or GGA
 - Do NOT bypass with `--no-verify`
 - Only use `--no-verify` if the user explicitly requests it

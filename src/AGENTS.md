@@ -58,51 +58,51 @@ Do NOT apply any commit until the user approves the proposed blocks.
 
 When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 
-| Action | Skill |
-|--------|-------|
-| Adding a RabbitMQ subscriber | `domain-event` |
-| Adding a RabbitMQ subscriber | `security` |
-| Adding a new HTTP endpoint | `openapi-controller` |
-| Adding a new HTTP endpoint | `security` |
-| Adding a new external provider | `hexagonal-feature` |
-| Adding a new use case (command or query) | `hexagonal-feature` |
-| Adding a new use case (command or query) | `security` |
-| Adding criteria to a query handler | `prisma-indexes` |
-| Adding filters to a repository | `prisma-indexes` |
-| Creating API endpoints | `openapi-controller` |
-| Creating a GET/search endpoint | `prisma-indexes` |
-| Creating a new module | `hexagonal-feature` |
-| Creating domain aggregates, value objects, or domain events | `hexagonal-feature` |
-| Creating domain aggregates, value objects, or domain events | `security` |
-| Creating domain events | `domain-event` |
-| Creating or modifying a controller | `openapi-controller` |
-| Creating or modifying a controller | `security` |
-| Creating test data factories | `object-mother` |
-| Fixing bug | `security` |
-| Fixing bug | `tdd` |
-| Implementing feature | `security` |
-| Implementing feature | `tdd` |
-| Modifying schema.prisma indexes | `prisma-indexes` |
-| Modifying the Zod env schema | `zod-4` |
-| Reacting to an aggregate state change from another module | `domain-event` |
-| Refactoring code | `security` |
-| Refactoring code | `tdd` |
-| Testing Application Use Cases | `object-mother` |
-| Testing Application Use Cases | `test-unit` |
-| Testing Apps layer controllers | `openapi-controller` |
-| Testing Apps layer controllers | `test-acceptance` |
-| Testing Domain Aggregates | `object-mother` |
-| Testing Domain Aggregates | `test-unit` |
-| Testing HTTP external service integrations | `test-integration` |
-| Testing Infrastructure layer adapters | `test-integration` |
-| Working on task | `security` |
-| Working on task | `tdd` |
-| Writing API E2E tests | `test-acceptance` |
-| Writing TypeScript types/interfaces | `typescript` |
-| Writing acceptance tests with Cucumber.js | `test-acceptance` |
-| Writing integration tests against real PostgreSQL or RabbitMQ | `test-integration` |
-| Writing unit tests | `object-mother` |
-| Writing unit tests | `test-unit` |
+| Action                                                        | Skill                |
+| ------------------------------------------------------------- | -------------------- |
+| Adding a RabbitMQ subscriber                                  | `domain-event`       |
+| Adding a RabbitMQ subscriber                                  | `security`           |
+| Adding a new HTTP endpoint                                    | `openapi-controller` |
+| Adding a new HTTP endpoint                                    | `security`           |
+| Adding a new external provider                                | `hexagonal-feature`  |
+| Adding a new use case (command or query)                      | `hexagonal-feature`  |
+| Adding a new use case (command or query)                      | `security`           |
+| Adding criteria to a query handler                            | `prisma-indexes`     |
+| Adding filters to a repository                                | `prisma-indexes`     |
+| Creating API endpoints                                        | `openapi-controller` |
+| Creating a GET/search endpoint                                | `prisma-indexes`     |
+| Creating a new module                                         | `hexagonal-feature`  |
+| Creating domain aggregates, value objects, or domain events   | `hexagonal-feature`  |
+| Creating domain aggregates, value objects, or domain events   | `security`           |
+| Creating domain events                                        | `domain-event`       |
+| Creating or modifying a controller                            | `openapi-controller` |
+| Creating or modifying a controller                            | `security`           |
+| Creating test data factories                                  | `object-mother`      |
+| Fixing bug                                                    | `security`           |
+| Fixing bug                                                    | `tdd`                |
+| Implementing feature                                          | `security`           |
+| Implementing feature                                          | `tdd`                |
+| Modifying schema.prisma indexes                               | `prisma-indexes`     |
+| Modifying the Zod env schema                                  | `zod-4`              |
+| Reacting to an aggregate state change from another module     | `domain-event`       |
+| Refactoring code                                              | `security`           |
+| Refactoring code                                              | `tdd`                |
+| Testing Application Use Cases                                 | `object-mother`      |
+| Testing Application Use Cases                                 | `test-unit`          |
+| Testing Apps layer controllers                                | `openapi-controller` |
+| Testing Apps layer controllers                                | `test-acceptance`    |
+| Testing Domain Aggregates                                     | `object-mother`      |
+| Testing Domain Aggregates                                     | `test-unit`          |
+| Testing HTTP external service integrations                    | `test-integration`   |
+| Testing Infrastructure layer adapters                         | `test-integration`   |
+| Working on task                                               | `security`           |
+| Working on task                                               | `tdd`                |
+| Writing API E2E tests                                         | `test-acceptance`    |
+| Writing TypeScript types/interfaces                           | `typescript`         |
+| Writing acceptance tests with Cucumber.js                     | `test-acceptance`    |
+| Writing integration tests against real PostgreSQL or RabbitMQ | `test-integration`   |
+| Writing unit tests                                            | `object-mother`      |
+| Writing unit tests                                            | `test-unit`          |
 
 ---
 
@@ -246,29 +246,29 @@ src/
 
 ## NAMING CONVENTIONS
 
-| Entity                                | Pattern                               | Example                                                                                                      |
-| ------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Aggregate                             | `<Name>`                              | `Order`, `Config`                                                                                            |
-| Value object                          | `<Aggregate><Concept>`                | `OrderId`, `OrderStatus`, `OrderAmount`                                                                      |
-| Domain event                          | `<Aggregate><PastAction>DomainEvent`  | `OrderCreatedDomainEvent`, `OrderCancelledDomainEvent`                                                       |
-| Exception                             | `<Aggregate><Condition>Exception`     | `OrderNotFoundException`, `OrderInvalidStatusException`                                                      |
-| Repository interface (persistence)    | `<Aggregate>PersistenceRepository`    | `SmsPersistenceRepository`                                                                                   |
-| Repository interface (communications) | `<Aggregate>CommunicationsRepository` | `SmsCommunicationsRepository`                                                                                |
-| Repository implementation             | `<Aggregate>PrismaRepository`          | `SmsPrismaRepository`                                                                                        |
-| Use case                              | `<Aggregate><Action>`                 | `SmsSend`, `SmsSearch`                                                                                       |
-| Command                               | `<UseCase>Command`                    | `SmsSendCommand`                                                                                             |
-| Command handler                       | `<UseCase>CommandHandler`             | `SmsSendCommandHandler`                                                                                      |
-| Query                                 | `<UseCase>Query`                      | `SmsSearchQuery`                                                                                             |
-| Query handler                         | `<UseCase>QueryHandler`               | `SmsSearchQueryHandler`                                                                                      |
-| Response DTO                          | `<UseCase>Response`                   | `SmsSearchResponse`                                                                                          |
-| Controller                            | `<HttpMethod><Aggregate>Controller`   | `SmsPostSendController`, `SmsGetSearchController`                                                            |
-| Route handler export                  | `<aggregate><HttpMethod><Action>`     | `orderPostCreate`, `orderGetSearch`                                                                          |
-| DI service key (module services)      | `<Context>.<Module>.<ClassName>`      | `Mybandnow.Order.OrderPrismaRepository`                                                                    |
-| DI service key (app controllers)      | `Apps.<App>.<Layer>.<Group>.<ClassName>` | `Apps.Mybandnow.Backend.controllers.OrderPostCreateController`                                          |
-| DI service key (shared/cross-cutting) | `Shared.<ClassName>`                  | `Shared.EventBus`, `Shared.OutboxPublisher`, `Shared.BunyanLogger`                                          |
-| Test mother                           | `<Entity>Mother`                      | `OrderMother`, `OrderIdMother`, `OrderStatusMother`                                                          |
-| Test case                             | `<UseCase>TestCase`                   | `SmsSendTestCase`                                                                                            |
-| Test command mother                   | `<UseCase>CommandMother`              | `SmsSendCommandMother`                                                                                       |
+| Entity                                | Pattern                                  | Example                                                            |
+| ------------------------------------- | ---------------------------------------- | ------------------------------------------------------------------ |
+| Aggregate                             | `<Name>`                                 | `Order`, `Config`                                                  |
+| Value object                          | `<Aggregate><Concept>`                   | `OrderId`, `OrderStatus`, `OrderAmount`                            |
+| Domain event                          | `<Aggregate><PastAction>DomainEvent`     | `OrderCreatedDomainEvent`, `OrderCancelledDomainEvent`             |
+| Exception                             | `<Aggregate><Condition>Exception`        | `OrderNotFoundException`, `OrderInvalidStatusException`            |
+| Repository interface (persistence)    | `<Aggregate>PersistenceRepository`       | `SmsPersistenceRepository`                                         |
+| Repository interface (communications) | `<Aggregate>CommunicationsRepository`    | `SmsCommunicationsRepository`                                      |
+| Repository implementation             | `<Aggregate>PrismaRepository`            | `SmsPrismaRepository`                                              |
+| Use case                              | `<Aggregate><Action>`                    | `SmsSend`, `SmsSearch`                                             |
+| Command                               | `<UseCase>Command`                       | `SmsSendCommand`                                                   |
+| Command handler                       | `<UseCase>CommandHandler`                | `SmsSendCommandHandler`                                            |
+| Query                                 | `<UseCase>Query`                         | `SmsSearchQuery`                                                   |
+| Query handler                         | `<UseCase>QueryHandler`                  | `SmsSearchQueryHandler`                                            |
+| Response DTO                          | `<UseCase>Response`                      | `SmsSearchResponse`                                                |
+| Controller                            | `<HttpMethod><Aggregate>Controller`      | `SmsPostSendController`, `SmsGetSearchController`                  |
+| Route handler export                  | `<aggregate><HttpMethod><Action>`        | `orderPostCreate`, `orderGetSearch`                                |
+| DI service key (module services)      | `<Context>.<Module>.<ClassName>`         | `Mybandnow.Order.OrderPrismaRepository`                            |
+| DI service key (app controllers)      | `Apps.<App>.<Layer>.<Group>.<ClassName>` | `Apps.Mybandnow.Backend.controllers.OrderPostCreateController`     |
+| DI service key (shared/cross-cutting) | `Shared.<ClassName>`                     | `Shared.EventBus`, `Shared.OutboxPublisher`, `Shared.BunyanLogger` |
+| Test mother                           | `<Entity>Mother`                         | `OrderMother`, `OrderIdMother`, `OrderStatusMother`                |
+| Test case                             | `<UseCase>TestCase`                      | `SmsSendTestCase`                                                  |
+| Test command mother                   | `<UseCase>CommandMother`                 | `SmsSendCommandMother`                                             |
 
 ---
 

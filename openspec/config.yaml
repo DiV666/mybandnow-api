@@ -71,7 +71,14 @@ testing:
       loader: "ts-node/esm"
       http_client: supertest
   run_all: "make tests"
-  coverage_merge: "npm run coverage:merge && npm run coverage:report"
+  coverage: "make build-tests"
+  coverage_npm_equivalent: "npm run build:tests"
+  coverage_note: >-
+    Combined unit+integration coverage in a single `vitest run --coverage` invocation
+    (reports/coverage/, 90% target). No `coverage:merge`/`coverage:report` scripts exist —
+    that was the old nyc-merge pipeline, replaced because it corrupted per-file statement maps.
+    Acceptance tests use a separate coverage engine (c8, npm run tests:acceptance:coverage) and
+    are NOT part of this number.
 
 quality:
   linter: eslint

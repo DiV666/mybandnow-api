@@ -6,12 +6,12 @@ description: >
 license: Apache-2.0
 metadata:
   author: rubricae-dev
-  version: "2.0"
+  version: '2.0'
   scope: [root, backend]
   auto_invoke:
-    - "Writing acceptance tests with Cucumber.js"
-    - "Testing Apps layer controllers"
-    - "Writing API E2E tests"
+    - 'Writing acceptance tests with Cucumber.js'
+    - 'Testing Apps layer controllers'
+    - 'Writing API E2E tests'
 ---
 
 ## Activation Contract
@@ -37,11 +37,11 @@ These tests validate the application from the outside in (HTTP request -> Contro
 
 ## Decision Gates
 
-| Situation | Action |
-| --- | --- |
-| The test requires existing users/data | Insert the data directly into the test database inside a `Before` hook (seeding). |
-| The endpoint is protected by Auth | Generate a real JWT from the test Keycloak server and pass it in the `Authorization` header. |
-| The HTTP response contains errors | Validate that the status code and payload structure exactly match `definition.json`. |
+| Situation                             | Action                                                                                       |
+| ------------------------------------- | -------------------------------------------------------------------------------------------- |
+| The test requires existing users/data | Insert the data directly into the test database inside a `Before` hook (seeding).            |
+| The endpoint is protected by Auth     | Generate a real JWT from the test Keycloak server and pass it in the `Authorization` header. |
+| The HTTP response contains errors     | Validate that the status code and payload structure exactly match `definition.json`.         |
 
 ## Output Contract
 
