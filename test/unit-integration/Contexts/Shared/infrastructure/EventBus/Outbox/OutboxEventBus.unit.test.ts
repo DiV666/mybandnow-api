@@ -147,7 +147,7 @@ describe('OutboxEventBus', () => {
         outboxId: 'outbox-id',
         source: 'immediate-publish'
       },
-      'domain_event.publish.immediate.failed'
+      'domain_event.publish.immediate.mark_as_published.failed'
     );
   });
 
@@ -194,7 +194,7 @@ describe('OutboxEventBus', () => {
         outboxId: 'outbox-id',
         source: 'immediate-publish'
       }),
-      'domain_event.publish.immediate.failed'
+      'domain_event.publish.immediate.mark_as_published.failed'
     );
   });
 

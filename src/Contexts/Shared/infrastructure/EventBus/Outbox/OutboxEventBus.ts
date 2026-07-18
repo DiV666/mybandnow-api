@@ -37,29 +37,49 @@ export class OutboxEventBus implements EventBus {
     setImmediate(async () => {
       try {
         await this.innerBus.publish(events);
+      } catch (error) {
+        this.logImmediatePublishFailure(events, outboxIds, error, 'domain_event.publish.immediate.failed');
+        return;
+      }
 
+      try {
         // Step 3: Mark as published so the OutboxPublisher poller does not redeliver them
         await this.outbox.markAsPublished(outboxIds);
-
-        events.forEach((event, index) => {
-          this.logger.debug(
-            this.logContext(event, events.length, outboxIds[index], 'immediate-publish'),
-            'domain_event.publish.immediate.succeeded'
-          );
-        });
       } catch (error) {
-        const errorType = error instanceof Error ? error.constructor.name : 'UnknownError';
-
-        events.forEach((event, index) => {
-          this.logger.warn(
-            {
-              ...this.logContext(event, events.length, outboxIds[index], 'immediate-publish'),
-              errorType
-            },
-            'domain_event.publish.immediate.failed'
-          );
-        });
+        this.logImmediatePublishFailure(
+          events,
+          outboxIds,
+          error,
+          'domain_event.publish.immediate.mark_as_published.failed'
+        );
+        return;
       }
+
+      events.forEach((event, index) => {
+        this.logger.debug(
+          this.logContext(event, events.length, outboxIds[index], 'immediate-publish'),
+          'domain_event.publish.immediate.succeeded'
+        );
+      });
+    });
+  }
+
+  private logImmediatePublishFailure(
+    events: DomainEvent[],
+    outboxIds: string[],
+    error: unknown,
+    message: 'domain_event.publish.immediate.failed' | 'domain_event.publish.immediate.mark_as_published.failed'
+  ): void {
+    const errorType = error instanceof Error ? error.constructor.name : 'UnknownError';
+
+    events.forEach((event, index) => {
+      this.logger.warn(
+        {
+          ...this.logContext(event, events.length, outboxIds[index], 'immediate-publish'),
+          errorType
+        },
+        message
+      );
     });
   }
 
