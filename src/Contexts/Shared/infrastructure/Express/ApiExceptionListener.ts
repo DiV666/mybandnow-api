@@ -32,6 +32,12 @@ export default class ApiExceptionListener {
     const className = handledException.constructor.name;
     const statusCode = this.exceptionHandler.statusCodeFor(className);
 
+    const exceptionWithCode = handledException as Error & { code?: string };
+    const responseMessage =
+      statusCode === httpStatus.INTERNAL_SERVER_ERROR
+        ? 'Internal server error'
+        : this.publicMessageFor(handledException);
+
     if (statusCode === httpStatus.INTERNAL_SERVER_ERROR) {
       this.logger.error(
         {
@@ -41,16 +47,8 @@ export default class ApiExceptionListener {
         'Unknown error:'
       );
     } else {
-      const exceptionWithDetails = handledException as Error & { code?: string; details?: unknown };
-      // Do not log message or details — they may contain PII or sensitive user input
-      this.logger.error({ code: exceptionWithDetails.code, type: className }, `${className}:`);
+      this.logger.error({ code: exceptionWithCode.code, message: responseMessage, type: className }, `${className}:`);
     }
-
-    const exceptionWithCode = handledException as Error & { code?: string };
-    const responseMessage =
-      statusCode === httpStatus.INTERNAL_SERVER_ERROR
-        ? 'Internal server error'
-        : this.publicMessageFor(handledException);
 
     res
       .status(statusCode)

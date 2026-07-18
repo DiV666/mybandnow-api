@@ -144,13 +144,48 @@ describe('ApiExceptionListener', () => {
       expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ message: 'Internal server error' }));
     });
 
-    it('logs non-500 exceptions with code, type', () => {
-      const exception = new InvalidArgumentException({ code: 'BAD', message: 'bad input' });
+    it('logs handled 4xx exceptions with the same safe public message sent to the client', () => {
+      // Arrange
+      const exception = new InvalidArgumentException({
+        code: 'INVALID_ARGUMENT',
+        message: '<UserEmail> does not allow the value <invalid-email>',
+        publicMessage: 'El campo <email> debe estar en formato <email>.'
+      });
+
+      // Act
       listener.onException(exception, req, res, next);
+
+      // Assert
       expect(logger.error).toHaveBeenCalledWith(
-        expect.objectContaining({ code: 'BAD', type: 'InvalidArgumentException' }),
+        expect.objectContaining({
+          code: 'INVALID_ARGUMENT',
+          type: 'InvalidArgumentException',
+          message: 'El campo <email> debe estar en formato <email>.'
+        }),
         'InvalidArgumentException:'
       );
+    });
+
+    it('logs handled 4xx exceptions with the sanitized fallback message when no public message exists', () => {
+      // Arrange
+      const exception = new InvalidArgumentException({
+        code: 'INVALID_ARGUMENT',
+        message: '<SecretValueObject> does not allow the value <top-secret>'
+      });
+
+      // Act
+      listener.onException(exception, req, res, next);
+
+      // Assert
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'INVALID_ARGUMENT',
+          type: 'InvalidArgumentException',
+          message: 'Invalid argument'
+        }),
+        'InvalidArgumentException:'
+      );
+      expect(JSON.stringify(logger.error.mock.calls[0]?.[0])).not.toContain('top-secret');
     });
   });
 
