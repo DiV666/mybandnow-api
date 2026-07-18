@@ -32,6 +32,16 @@ model Musician {
   songInstruments SongInstrument[]
 }
 
+model Instruments {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  createdAt   DateTime @default(now())
+
+  @@index([name])
+  @@index([createdAt])
+}
+
 model Band {
   id        String       @id @default(uuid())
   name      String

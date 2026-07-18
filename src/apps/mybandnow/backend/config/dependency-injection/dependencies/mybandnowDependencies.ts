@@ -18,6 +18,8 @@ import { register as registerSongInstrumentMatcher } from '@Apps/moat/backend/co
 import { register as registerSongInstrumentVideoCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-video/songInstrumentVideoCreator.dependency.js';
 import { register as registerSongInstrumentUploadUploader } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-upload/songInstrumentUploadUploader.dependency.js';
 import { register as registerSongInstrumentUploadStatusUpdater } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-upload/songInstrumentUploadStatusUpdater.dependency.js';
+import { register as registerInstrumentsFinder } from '@Apps/moat/backend/config/dependency-injection/use-cases/instruments/instrumentsFinder.dependency.js';
+import { register as registerInstrumentsMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/instruments/instrumentsMatcher.dependency.js';
 import { BandPrismaRepository } from '@Contexts/Moat/Band/infrastructure/persistence/BandPrismaRepository.js';
 import { SongPrismaRepository } from '@Contexts/Moat/Song/infrastructure/persistence/SongPrismaRepository.js';
 import { SongCheckBandMembership } from '@Contexts/Moat/Song/application/checkBandMembership/SongCheckBandMembership.js';
@@ -33,6 +35,7 @@ import { SongInstrumentCheckSongOwnership } from '@Contexts/Moat/SongInstrument/
 import { SongInstrumentCheckSongOwnershipQueryHandler } from '@Contexts/Moat/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnershipQueryHandler.js';
 import { SongInstrumentUploadPrismaRepository } from '@Contexts/Moat/SongInstrumentUpload/infrastructure/persistence/SongInstrumentUploadPrismaRepository.js';
 import { VideoclipPrismaRepository } from '@Contexts/Moat/Videoclip/infrastructure/persistence/VideoclipPrismaRepository.js';
+import { InstrumentsPrismaRepository } from '@Contexts/Moat/Instruments/infrastructure/persistence/InstrumentsPrismaRepository.js';
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 
 import { InternalAuthentication } from '@Contexts/Mybandnow/Shared/infrastructure/identityServer/internal/InternalAuthentication.js';
@@ -69,6 +72,9 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
     .addArgument(new Reference('Shared.Outbox'));
 
   container.register('Moat.Videoclip.VideoclipRepository', VideoclipPrismaRepository);
+  container
+    .register('Moat.Instruments.InstrumentsRepository', InstrumentsPrismaRepository)
+    .addArgument(new Reference('Shared.Outbox'));
 
   // Use Cases
   registerUserLogin(container);
@@ -97,6 +103,8 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   registerSongInstrumentVideoCreator(container);
   registerSongInstrumentUploadUploader(container);
   registerSongInstrumentUploadStatusUpdater(container);
+  registerInstrumentsFinder(container);
+  registerInstrumentsMatcher(container);
 
   container
     .register('Moat.Musician.MusicianSearchByUserId', MusicianSearchByUserId)

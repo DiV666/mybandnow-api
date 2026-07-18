@@ -842,6 +842,92 @@
           }
         }
       }
+    },
+    "/v1/instruments": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "instrumentsGetMatchByCriteria",
+        "tags": ["Instruments"],
+        "summary": "Get a list of instruments by criteria",
+        "description": "Get a list of catalog instruments by criteria",
+        "parameters": [
+          {
+            "name": "criteria",
+            "in": "query",
+            "required": false,
+            "description": "A JSON object for filtering, sorting, and pagination. Example: `{\"filters\":[{\"field\":\"name\",\"operator\":\"CONTAINS\",\"value\":\"guitar\"}],\"order\":{\"orderBy\":\"name\",\"orderType\":\"asc\"},\"limit\":10,\"offset\":0}`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of instruments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstrumentsListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/Unknown"
+          }
+        }
+      }
+    },
+    "/v1/instruments/{id}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "instrumentsGetSearch",
+        "tags": ["Instruments"],
+        "summary": "Get an instrument by ID",
+        "description": "Get a catalog instrument by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The instrument found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstrumentsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Unknown"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1030,6 +1116,42 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/BandResponse"
+            }
+          },
+          "total": {
+            "type": "integer"
+          }
+        }
+      },
+      "InstrumentsResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "description", "createdAt"],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "InstrumentsListResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["items", "total"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InstrumentsResponse"
             }
           },
           "total": {

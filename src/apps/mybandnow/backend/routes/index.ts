@@ -5,6 +5,7 @@ import * as band from './band.route.js';
 import * as song from './song.route.js';
 import * as songInstrument from './songInstrument.route.js';
 import * as songInstrumentUpload from './songInstrumentUpload.route.js';
+import * as instruments from './instruments.route.js';
 
 export const routes: HandlerMap = {
   // Routes
@@ -13,5 +14,6 @@ export const routes: HandlerMap = {
   ...band,
   ...song,
   ...songInstrument,
-  ...songInstrumentUpload
+  ...songInstrumentUpload,
+  ...instruments
 };
