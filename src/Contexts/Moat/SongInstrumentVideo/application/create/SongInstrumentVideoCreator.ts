@@ -19,6 +19,46 @@ export class SongInstrumentVideoCreator {
     private readonly songInstrumentRepository: SongInstrumentPersistenceRepository
   ) {}
 
+  private hasConflicts(
+    currentPrimitives: Primitives<SongInstrumentVideo>,
+    inputParams: Omit<Primitives<SongInstrumentVideo>, 'createdAt'>,
+    keys: Array<keyof Omit<Primitives<SongInstrumentVideo>, 'createdAt'>>
+  ): boolean {
+    return keys.some((key) => JSON.stringify(currentPrimitives[key]) !== JSON.stringify(inputParams[key]));
+  }
+
+  private async ensureDuplicateSaveIsIdempotent(
+    error: SongInstrumentVideoExistException,
+    inputParams: Omit<Primitives<SongInstrumentVideo>, 'createdAt'>
+  ): Promise<void> {
+    const persistedSongInstrumentVideo = await this.persistenceRepository.search(
+      new SongInstrumentVideoId(inputParams.id)
+    );
+
+    if (persistedSongInstrumentVideo) {
+      const currentPrimitives = persistedSongInstrumentVideo.toPrimitives();
+
+      if (this.hasConflicts(currentPrimitives, inputParams, ['id', 'size', 'duration', 'url', 'songInstrumentId'])) {
+        throw error;
+      }
+
+      return;
+    }
+
+    const persistedSongInstrumentVideoWithSameSongInstrumentId =
+      await this.persistenceRepository.searchBySongInstrumentId(new SongInstrumentId(inputParams.songInstrumentId));
+
+    if (!persistedSongInstrumentVideoWithSameSongInstrumentId) {
+      throw error;
+    }
+
+    const currentPrimitives = persistedSongInstrumentVideoWithSameSongInstrumentId.toPrimitives();
+
+    if (this.hasConflicts(currentPrimitives, inputParams, ['size', 'duration', 'url', 'songInstrumentId'])) {
+      throw error;
+    }
+  }
+
   async run({
     id,
     size,
@@ -26,9 +66,40 @@ export class SongInstrumentVideoCreator {
     url,
     songInstrumentId
   }: Omit<Primitives<SongInstrumentVideo>, 'createdAt'>): Promise<void> {
+    const inputParams = { id, size, duration, url, songInstrumentId };
     const songInstrument = await this.songInstrumentRepository.search(new SongInstrumentId(songInstrumentId));
 
     if (!songInstrument) {
+      const persistedSongInstrumentVideo = await this.persistenceRepository.search(new SongInstrumentVideoId(id));
+
+      if (
+        persistedSongInstrumentVideo &&
+        !this.hasConflicts(persistedSongInstrumentVideo.toPrimitives(), inputParams, [
+          'id',
+          'size',
+          'duration',
+          'url',
+          'songInstrumentId'
+        ])
+      ) {
+        return;
+      }
+
+      const persistedSongInstrumentVideoWithSameSongInstrumentId =
+        await this.persistenceRepository.searchBySongInstrumentId(new SongInstrumentId(songInstrumentId));
+
+      if (
+        persistedSongInstrumentVideoWithSameSongInstrumentId &&
+        !this.hasConflicts(persistedSongInstrumentVideoWithSameSongInstrumentId.toPrimitives(), inputParams, [
+          'size',
+          'duration',
+          'url',
+          'songInstrumentId'
+        ])
+      ) {
+        return;
+      }
+
       throw new SongInstrumentNotExistException(songInstrumentId);
     }
 
@@ -36,18 +107,12 @@ export class SongInstrumentVideoCreator {
       return;
     }
 
-    const songinstrumentvideoFounded = await this.persistenceRepository.search(new SongInstrumentVideoId(id));
+    const persistedSongInstrumentVideo = await this.persistenceRepository.search(new SongInstrumentVideoId(id));
 
-    if (songinstrumentvideoFounded) {
-      const currentPrimitives = songinstrumentvideoFounded.toPrimitives();
-      const inputParams = { id, size, duration, url, songInstrumentId };
+    if (persistedSongInstrumentVideo) {
+      const currentPrimitives = persistedSongInstrumentVideo.toPrimitives();
 
-      const hasConflicts = Object.keys(inputParams).some((key) => {
-        const typedKey = key as keyof Omit<Primitives<SongInstrumentVideo>, 'createdAt'>;
-        return JSON.stringify(currentPrimitives[typedKey]) !== JSON.stringify(inputParams[typedKey]);
-      });
-
-      if (!hasConflicts) {
+      if (!this.hasConflicts(currentPrimitives, inputParams, ['id', 'size', 'duration', 'url', 'songInstrumentId'])) {
         return;
       }
 
@@ -72,36 +137,20 @@ export class SongInstrumentVideoCreator {
       return;
     }
 
-    const songinstrumentvideo = SongInstrumentVideo.create({ id, size, duration, url, songInstrumentId }, this.clock);
-    this.logger.info({ id }, 'moat.songinstrumentvideo.create.success');
+    const songInstrumentVideo = SongInstrumentVideo.create({ id, size, duration, url, songInstrumentId }, this.clock);
 
     try {
-      await this.persistenceRepository.save(songinstrumentvideo);
+      await this.persistenceRepository.save(songInstrumentVideo);
     } catch (error) {
       if (!(error instanceof SongInstrumentVideoExistException)) {
         throw error;
       }
 
-      const persistedSongInstrumentVideo = await this.persistenceRepository.search(new SongInstrumentVideoId(id));
-
-      if (!persistedSongInstrumentVideo) {
-        throw error;
-      }
-
-      const currentPrimitives = persistedSongInstrumentVideo.toPrimitives();
-      const inputParams = { id, size, duration, url, songInstrumentId };
-      const hasConflicts = Object.keys(inputParams).some((key) => {
-        const typedKey = key as keyof Omit<Primitives<SongInstrumentVideo>, 'createdAt'>;
-        return JSON.stringify(currentPrimitives[typedKey]) !== JSON.stringify(inputParams[typedKey]);
-      });
-
-      if (hasConflicts) {
-        throw error;
-      }
-
+      await this.ensureDuplicateSaveIsIdempotent(error, { id, size, duration, url, songInstrumentId });
       return;
     }
 
-    await this.eventBus.publish(songinstrumentvideo.pullDomainEvents());
+    await this.eventBus.publish(songInstrumentVideo.pullDomainEvents());
+    this.logger.info({ id }, 'moat.songinstrumentvideo.create.success');
   }
 }

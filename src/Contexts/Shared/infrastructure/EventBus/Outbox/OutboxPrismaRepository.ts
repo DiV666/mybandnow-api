@@ -1,8 +1,13 @@
+import { Outbox as PrismaOutbox, Prisma, PrismaClient } from '@prisma/client';
 import { DomainEvent } from '../../../domain/DomainEvent.js';
 import { Outbox, OutboxEvent, TransactionSession } from '../../../domain/Outbox.js';
 import { DomainEventJsonSerializer } from '../DomainEventJsonSerializer.js';
 import { PrismaClientFactory } from '../../persistence/prisma/PrismaClientFactory.js';
 import { UuidValueObject } from '../../../domain/value-object/UuidValueObject.js';
+
+type PrismaOutboxWriter = Pick<PrismaClient, 'outbox'> | Pick<Prisma.TransactionClient, 'outbox'>;
+
+const OUTBOX_IDS_META_KEY = 'outboxIds';
 
 export class OutboxPrismaRepository implements Outbox {
   static readonly defaultPendingGraceMs = 5000;
@@ -20,26 +25,47 @@ export class OutboxPrismaRepository implements Outbox {
   async save(events: DomainEvent[], session?: TransactionSession): Promise<string[]> {
     if (events.length === 0) return [];
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const prismaClient = (session as any) || this.client;
+    const prismaClient = this.resolveOutboxWriter(session);
 
-    const documents = events.map((event) => ({
-      id: UuidValueObject.random(),
-      eventId: event.eventId,
-      eventName: event.eventName,
-      aggregateId: event.aggregateId,
-      occurredOn: event.occurredOn,
-      payload: JSON.parse(DomainEventJsonSerializer.serialize(event)),
-      status: 'pending',
-      attempts: 0,
-      createdAt: new Date()
-    }));
+    let documents;
+
+    try {
+      documents = events.map((event) => this.toDocument(event));
+    } catch (error) {
+      throw new Error('Failed to build outbox persistence documents', {
+        cause: error instanceof Error ? error : undefined
+      });
+    }
 
     await prismaClient.outbox.createMany({
       data: documents
     });
 
+    documents.forEach((document, index) => {
+      events[index].meta[OUTBOX_IDS_META_KEY] = [document.id];
+    });
+
     return documents.map((doc) => doc.id);
+  }
+
+  private toDocument(event: DomainEvent) {
+    try {
+      return {
+        id: UuidValueObject.random(),
+        eventId: event.eventId,
+        eventName: event.eventName,
+        aggregateId: event.aggregateId,
+        occurredOn: event.occurredOn,
+        payload: JSON.parse(DomainEventJsonSerializer.serialize(event)),
+        status: 'pending',
+        attempts: 0,
+        createdAt: new Date()
+      };
+    } catch (error) {
+      throw new Error('Failed to serialize domain event for outbox persistence', {
+        cause: error instanceof Error ? error : undefined
+      });
+    }
   }
 
   async pending(limit: number): Promise<OutboxEvent[]> {
@@ -53,19 +79,30 @@ export class OutboxPrismaRepository implements Outbox {
       take: limit
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return documents.map((doc: any) => ({
-      id: doc.id,
-      eventId: doc.eventId,
-      eventName: doc.eventName,
-      aggregateId: doc.aggregateId,
-      occurredOn: doc.occurredOn,
-      payload: JSON.stringify(doc.payload),
-      status: doc.status as 'pending',
-      attempts: doc.attempts,
-      publishedAt: doc.publishedAt ?? undefined,
-      errorMessage: doc.errorMessage ?? undefined
-    }));
+    return documents.map((document) => this.toPendingOutboxEvent(document));
+  }
+
+  private resolveOutboxWriter(session?: TransactionSession): PrismaOutboxWriter {
+    return this.isPrismaTransactionClient(session) ? session : this.client;
+  }
+
+  private isPrismaTransactionClient(session: unknown): session is Pick<Prisma.TransactionClient, 'outbox'> {
+    return typeof session === 'object' && session !== null && 'outbox' in session;
+  }
+
+  private toPendingOutboxEvent(document: PrismaOutbox): OutboxEvent {
+    return {
+      id: document.id,
+      eventId: document.eventId,
+      eventName: document.eventName,
+      aggregateId: document.aggregateId,
+      occurredOn: document.occurredOn,
+      payload: JSON.stringify(document.payload),
+      status: 'pending',
+      attempts: document.attempts,
+      publishedAt: document.publishedAt ?? undefined,
+      errorMessage: document.errorMessage ?? undefined
+    };
   }
 
   async markAsPublished(ids: string[]): Promise<void> {

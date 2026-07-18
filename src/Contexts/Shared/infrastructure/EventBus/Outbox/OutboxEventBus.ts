@@ -9,6 +9,8 @@ import Logger from '../../../domain/Logger.js';
  * then attempts to publish to RabbitMQ.
  * A separate OutboxPublisher process retries pending events.
  */
+const OUTBOX_IDS_META_KEY = 'outboxIds';
+
 export class OutboxEventBus implements EventBus {
   constructor(
     private outbox: Outbox,
@@ -26,8 +28,7 @@ export class OutboxEventBus implements EventBus {
   async publish(events: DomainEvent[]): Promise<void> {
     if (events.length === 0) return;
 
-    // Step 1: ALWAYS save to outbox first (guaranteed persistence within the current transaction)
-    const outboxIds = await this.outbox.save(events);
+    const outboxIds = this.resolveOutboxIds(events) ?? (await this.outbox.save(events));
 
     // Step 2: Try to publish immediately to RabbitMQ (best-effort, deferred)
     // We do this asynchronously without awaiting it here, so that if this is called
@@ -39,13 +40,70 @@ export class OutboxEventBus implements EventBus {
 
         // Step 3: Mark as published so the OutboxPublisher poller does not redeliver them
         await this.outbox.markAsPublished(outboxIds);
+
+        events.forEach((event, index) => {
+          this.logger.debug(
+            this.logContext(event, events.length, outboxIds[index], 'immediate-publish'),
+            'domain_event.publish.immediate.succeeded'
+          );
+        });
       } catch (error) {
-        // If publish fails, events are already in outbox → OutboxPublisher will retry
-        this.logger.warn(
-          { errorType: error instanceof Error ? error.constructor.name : 'UnknownError', eventCount: events.length },
-          'Immediate publish failed or could not mark as published; poller will redeliver'
-        );
+        const errorType = error instanceof Error ? error.constructor.name : 'UnknownError';
+
+        events.forEach((event, index) => {
+          this.logger.warn(
+            {
+              ...this.logContext(event, events.length, outboxIds[index], 'immediate-publish'),
+              errorType
+            },
+            'domain_event.publish.immediate.failed'
+          );
+        });
       }
     });
+  }
+
+  private resolveOutboxIds(events: DomainEvent[]): string[] | undefined {
+    const outboxIds = events.flatMap((event) => {
+      const persistedOutboxIds = event.meta[OUTBOX_IDS_META_KEY];
+
+      return Array.isArray(persistedOutboxIds)
+        ? persistedOutboxIds.filter((outboxId): outboxId is string => typeof outboxId === 'string')
+        : [];
+    });
+
+    return outboxIds.length === events.length ? outboxIds : undefined;
+  }
+
+  private logContext(
+    event: DomainEvent,
+    eventCount: number,
+    outboxId: string | undefined,
+    source: 'immediate-publish'
+  ): Record<string, string | number> {
+    const context: Record<string, string | number> = {
+      aggregateId: event.aggregateId,
+      eventCount,
+      eventId: event.eventId,
+      eventName: event.eventName,
+      source
+    };
+    const correlationId = this.extractCorrelationId(event);
+
+    if (correlationId) {
+      context.correlationId = correlationId;
+    }
+
+    if (outboxId) {
+      context.outboxId = outboxId;
+    }
+
+    return context;
+  }
+
+  private extractCorrelationId(event: DomainEvent): string | undefined {
+    const correlationId = event.meta['x-correlation-id'];
+
+    return typeof correlationId === 'string' ? correlationId : undefined;
   }
 }

@@ -50,6 +50,57 @@ describe('SongInstrumentVideoCreator should', () => {
     testCase.assertPublishDomainEvent(null);
   });
 
+  it('log success only after save and publish succeed', async () => {
+    const songinstrumentvideo = SongInstrumentVideoMother.create();
+    const command = CreateSongInstrumentVideoCommandMother.fromModel(songinstrumentvideo);
+    const songInstrument = SongInstrumentMother.create({
+      id: new SongInstrumentId(songinstrumentvideo.songInstrumentId.value),
+      activeUploadAttemptId: new SongInstrumentActiveUploadAttemptId(songinstrumentvideo.id.value)
+    });
+    const calls: string[] = [];
+
+    vi.mocked(testCase.persistenceRepository().search).mockResolvedValueOnce(null);
+    vi.mocked(testCase.songInstrumentRepository().search).mockResolvedValueOnce(songInstrument);
+    vi.mocked(testCase.persistenceRepository().searchBySongInstrumentId).mockResolvedValueOnce(null);
+    vi.mocked(testCase.persistenceRepository().save).mockImplementationOnce(async () => {
+      calls.push('save');
+    });
+    vi.mocked(testCase.eventBus().publish).mockImplementationOnce(async () => {
+      calls.push('publish');
+    });
+    vi.mocked(testCase.logger().info).mockImplementationOnce(() => {
+      calls.push('log');
+    });
+
+    await testCase.dispatch(command, commandHandler);
+
+    expect(calls).toEqual(['save', 'publish', 'log']);
+    expect(testCase.logger().info).toHaveBeenCalledWith(
+      { id: songinstrumentvideo.id.value },
+      'moat.songinstrumentvideo.create.success'
+    );
+  });
+
+  it('not log success when publish fails after persistence', async () => {
+    const songinstrumentvideo = SongInstrumentVideoMother.create();
+    const command = CreateSongInstrumentVideoCommandMother.fromModel(songinstrumentvideo);
+    const songInstrument = SongInstrumentMother.create({
+      id: new SongInstrumentId(songinstrumentvideo.songInstrumentId.value),
+      activeUploadAttemptId: new SongInstrumentActiveUploadAttemptId(songinstrumentvideo.id.value)
+    });
+    const publishError = new Error('publish failed');
+
+    vi.mocked(testCase.persistenceRepository().search).mockResolvedValueOnce(null);
+    vi.mocked(testCase.songInstrumentRepository().search).mockResolvedValueOnce(songInstrument);
+    vi.mocked(testCase.persistenceRepository().searchBySongInstrumentId).mockResolvedValueOnce(null);
+    vi.mocked(testCase.persistenceRepository().save).mockResolvedValueOnce(undefined);
+    vi.mocked(testCase.eventBus().publish).mockRejectedValueOnce(publishError);
+
+    await expect(testCase.dispatch(command, commandHandler)).rejects.toThrow(publishError);
+
+    expect(testCase.logger().info).not.toHaveBeenCalled();
+  });
+
   it('return success when the songinstrumentvideo already exists with the same properties (idempotency)', async () => {
     const songinstrumentvideo = SongInstrumentVideoMother.create();
     const command = CreateSongInstrumentVideoCommandMother.fromModel(songinstrumentvideo);
@@ -155,6 +206,76 @@ describe('SongInstrumentVideoCreator should', () => {
     await testCase.dispatch(command, commandHandler);
 
     expect(testCase.persistenceRepository().save).toHaveBeenCalledOnce();
+    testCase.assertPublishDomainEventNotCalled();
+  });
+
+  it('return success when save races with an identical persisted video under a different id', async () => {
+    const songinstrumentvideo = SongInstrumentVideoMother.create();
+    const persistedSongInstrumentVideo = SongInstrumentVideoMother.create({
+      id: SongInstrumentVideoIdMother.random(),
+      size: songinstrumentvideo.size,
+      duration: songinstrumentvideo.duration,
+      url: songinstrumentvideo.url,
+      songInstrumentId: songinstrumentvideo.songInstrumentId
+    });
+    const command = CreateSongInstrumentVideoCommandMother.fromModel(songinstrumentvideo);
+    const songInstrument = SongInstrumentMother.create({
+      id: new SongInstrumentId(songinstrumentvideo.songInstrumentId.value),
+      activeUploadAttemptId: new SongInstrumentActiveUploadAttemptId(songinstrumentvideo.id.value)
+    });
+
+    vi.mocked(testCase.persistenceRepository().search).mockResolvedValueOnce(null).mockResolvedValueOnce(null);
+    vi.mocked(testCase.persistenceRepository().searchBySongInstrumentId)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(persistedSongInstrumentVideo);
+    vi.mocked(testCase.songInstrumentRepository().search).mockResolvedValueOnce(songInstrument);
+    vi.mocked(testCase.persistenceRepository().save).mockRejectedValueOnce(
+      new SongInstrumentVideoExistException(songinstrumentvideo.id.value)
+    );
+
+    await testCase.dispatch(command, commandHandler);
+
+    expect(testCase.persistenceRepository().save).toHaveBeenCalledOnce();
+    testCase.assertPublishDomainEventNotCalled();
+  });
+
+  it('return success when a duplicate completion is replayed after the parent song instrument is no longer available', async () => {
+    const songinstrumentvideo = SongInstrumentVideoMother.create();
+    const command = CreateSongInstrumentVideoCommandMother.fromModel(songinstrumentvideo);
+
+    testCase.shouldSearchSongInstrument(new SongInstrumentId(songinstrumentvideo.songInstrumentId.value));
+    testCase.shouldSearch(songinstrumentvideo.id, songinstrumentvideo);
+
+    await testCase.dispatch(command, commandHandler);
+
+    expect(testCase.persistenceRepository().searchBySongInstrumentId).not.toHaveBeenCalled();
+    testCase.assertSaveNotCalled();
+    testCase.assertPublishDomainEventNotCalled();
+  });
+
+  it('return success when a missing-parent replay matches a persisted video under a different id', async () => {
+    const songinstrumentvideo = SongInstrumentVideoMother.create();
+    const persistedSongInstrumentVideo = SongInstrumentVideoMother.create({
+      id: SongInstrumentVideoIdMother.random(),
+      size: songinstrumentvideo.size,
+      duration: songinstrumentvideo.duration,
+      url: songinstrumentvideo.url,
+      songInstrumentId: songinstrumentvideo.songInstrumentId
+    });
+    const command = CreateSongInstrumentVideoCommandMother.fromModel(songinstrumentvideo);
+
+    vi.mocked(testCase.songInstrumentRepository().search).mockResolvedValueOnce(null);
+    vi.mocked(testCase.persistenceRepository().search).mockResolvedValueOnce(null);
+    vi.mocked(testCase.persistenceRepository().searchBySongInstrumentId).mockResolvedValueOnce(
+      persistedSongInstrumentVideo
+    );
+
+    await testCase.dispatch(command, commandHandler);
+
+    expect(testCase.persistenceRepository().searchBySongInstrumentId).toHaveBeenCalledWith(
+      new SongInstrumentId(songinstrumentvideo.songInstrumentId.value)
+    );
+    testCase.assertSaveNotCalled();
     testCase.assertPublishDomainEventNotCalled();
   });
 

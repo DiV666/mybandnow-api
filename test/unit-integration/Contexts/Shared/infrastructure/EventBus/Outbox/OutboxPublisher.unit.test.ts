@@ -34,7 +34,8 @@ describe('OutboxPublisher', () => {
       aggregateId: 'aggregate-id',
       eventId: 'event-id',
       eventName: 'test.event',
-      occurredOn: new Date('2026-06-16T00:00:00.000Z')
+      occurredOn: new Date('2026-06-16T00:00:00.000Z'),
+      meta: { 'x-correlation-id': 'corr-id' }
     });
 
     outbox.pending.mockResolvedValue([
@@ -62,6 +63,19 @@ describe('OutboxPublisher', () => {
     expect(outbox.pending).toHaveBeenCalledWith(100);
     expect(eventBus.publish).toHaveBeenCalledWith([domainEvent]);
     expect(outbox.markAsPublished).toHaveBeenCalledWith(['outbox-id']);
+    expect(logger.debug).toHaveBeenCalledWith(
+      {
+        aggregateId: 'aggregate-id',
+        attempts: 0,
+        correlationId: 'corr-id',
+        eventCount: 1,
+        eventId: 'event-id',
+        eventName: 'test.event',
+        outboxId: 'outbox-id',
+        source: 'outbox-poller'
+      },
+      'domain_event.publish.outbox_poller.succeeded'
+    );
   });
 
   it('does not start a second polling interval when start() is called twice', async () => {
@@ -243,7 +257,7 @@ describe('OutboxPublisher', () => {
       }
     ]);
     deserializer.deserialize.mockImplementation(() => {
-      throw 'boom';
+      throw { type: 'boom' };
     });
 
     // Act
@@ -253,8 +267,16 @@ describe('OutboxPublisher', () => {
     // Assert
     expect(outbox.incrementAttempts).toHaveBeenCalledWith('outbox-id', 'Unknown error');
     expect(logger.error).toHaveBeenCalledWith(
-      expect.objectContaining({ errorType: 'UnknownError' }),
-      'Failed to publish outbox event'
+      expect.objectContaining({
+        aggregateId: 'aggregate-id',
+        attempts: 1,
+        errorType: 'UnknownError',
+        eventId: 'event-id',
+        eventName: 'test.event',
+        outboxId: 'outbox-id',
+        source: 'outbox-poller'
+      }),
+      'domain_event.publish.outbox_poller.failed'
     );
   });
 

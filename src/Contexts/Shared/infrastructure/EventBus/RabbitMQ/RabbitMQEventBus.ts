@@ -68,24 +68,52 @@ export class RabbitMQEventBus implements EventBus {
 
   async publish(events: Array<DomainEvent>): Promise<void> {
     for (let event of events) {
+      const routingKey = event.eventName;
+
       try {
-        const routingKey = event.eventName;
         event = this.setMetaCorrelationId(event);
         const content = this.toBuffer(event);
         const options = this.options(event);
 
         await this.connection.publish({ exchange: this.exchange, routingKey, content, options });
+        this.logger.debug(this.logContext(event, routingKey), 'domain_event.publish.rabbitmq.succeeded');
       } catch (error: unknown) {
         // Do not log full error — may contain PII from event data
         this.logger.error(
-          { errorType: error instanceof Error ? error.constructor.name : 'UnknownError' },
-          'Primary publish to RabbitMQ failed'
+          {
+            ...this.logContext(event, routingKey),
+            errorType: error instanceof Error ? error.constructor.name : 'UnknownError'
+          },
+          'domain_event.publish.rabbitmq.failed'
         );
 
         // Rethrow so callers (e.g. OutboxEventBus) keep the event pending and own the retry.
         throw error;
       }
     }
+  }
+
+  private logContext(event: DomainEvent, routingKey: string): Record<string, string> {
+    const context: Record<string, string> = {
+      aggregateId: event.aggregateId,
+      eventId: event.eventId,
+      eventName: event.eventName,
+      exchange: this.exchange,
+      routingKey
+    };
+    const correlationId = this.extractCorrelationId(event);
+
+    if (correlationId) {
+      context.correlationId = correlationId;
+    }
+
+    return context;
+  }
+
+  private extractCorrelationId(event: DomainEvent): string | undefined {
+    const correlationId = event.meta['x-correlation-id'];
+
+    return typeof correlationId === 'string' ? correlationId : undefined;
   }
 
   private setMetaCorrelationId(event: DomainEvent): DomainEvent {

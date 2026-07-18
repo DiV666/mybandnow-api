@@ -46,6 +46,7 @@ El stack operativo actual combina:
 - [Autenticación](./auth.md) — `BearerAuth`, `InternalAuth` y reglas de autorización por recurso
 - [Pruebas](./testing.md) — tests unitarios, integración y aceptación
 - [Desarrollo](./development.md) — comandos `make` y flujo scaffold-first con `rb`
+- [Trabajo futuro](./future-work.md) — mejoras técnicas pendientes y decisiones pospuestas
 - [Pendientes de migración](./backup-migration-pending.md) — deuda y notas tras reconciliar el backup
 
 Inicio rápido: consulta [README.md](../README.md).

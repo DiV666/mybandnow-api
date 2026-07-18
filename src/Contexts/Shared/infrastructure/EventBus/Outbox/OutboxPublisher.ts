@@ -1,5 +1,6 @@
+import { DomainEvent } from '../../../domain/DomainEvent.js';
 import { EventBus } from '../../../domain/EventBus.js';
-import { Outbox } from '../../../domain/Outbox.js';
+import { Outbox, OutboxEvent } from '../../../domain/Outbox.js';
 import Logger from '../../../domain/Logger.js';
 import { DomainEventJsonDeserializer } from '../DomainEventJsonDeserializer.js';
 
@@ -82,20 +83,20 @@ export class OutboxPublisher {
         const event = this.deserializer.deserialize(outboxEvent.payload);
         await this.eventBus.publish([event]);
         published.push(outboxEvent.id);
+        this.logger.debug(this.logContext(outboxEvent, event), 'domain_event.publish.outbox_poller.succeeded');
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         this.logger.error(
           {
-            eventId: outboxEvent.eventId,
-            attempts: outboxEvent.attempts,
+            ...this.logContext(outboxEvent),
             errorType: error instanceof Error ? error.constructor.name : 'UnknownError'
           },
-          'Failed to publish outbox event'
+          'domain_event.publish.outbox_poller.failed'
         );
 
         if (outboxEvent.attempts + 1 >= this.maxRetries) {
           await this.outbox.markAsFailed(outboxEvent.id, errorMessage);
-          this.logger.error({ eventId: outboxEvent.eventId }, 'Outbox event marked as failed after max retries');
+          this.logger.error(this.logContext(outboxEvent), 'domain_event.publish.outbox_poller.marked_failed');
         } else {
           await this.outbox.incrementAttempts(outboxEvent.id, errorMessage);
         }
@@ -106,5 +107,30 @@ export class OutboxPublisher {
       await this.outbox.markAsPublished(published);
       this.logger.info({ count: published.length }, 'Outbox events published successfully');
     }
+  }
+
+  private logContext(outboxEvent: OutboxEvent, event?: DomainEvent): Record<string, string | number> {
+    const context: Record<string, string | number> = {
+      aggregateId: event?.aggregateId ?? outboxEvent.aggregateId,
+      attempts: outboxEvent.attempts,
+      eventCount: 1,
+      eventId: event?.eventId ?? outboxEvent.eventId,
+      eventName: event?.eventName ?? outboxEvent.eventName,
+      outboxId: outboxEvent.id,
+      source: 'outbox-poller'
+    };
+    const correlationId = event ? this.extractCorrelationId(event.meta) : undefined;
+
+    if (correlationId) {
+      context.correlationId = correlationId;
+    }
+
+    return context;
+  }
+
+  private extractCorrelationId(meta: Record<string, unknown>): string | undefined {
+    const correlationId = meta['x-correlation-id'];
+
+    return typeof correlationId === 'string' ? correlationId : undefined;
   }
 }

@@ -18,7 +18,8 @@ describe('OutboxEventBus', () => {
     aggregateId: 'aggregate-id',
     eventId: 'event-id',
     eventName: 'test.event',
-    occurredOn: new Date('2026-06-16T00:00:00.000Z')
+    occurredOn: new Date('2026-06-16T00:00:00.000Z'),
+    meta: { 'x-correlation-id': 'corr-id' }
   });
 
   const waitForImmediate = () => new Promise((resolve) => setImmediate(resolve));
@@ -44,6 +45,55 @@ describe('OutboxEventBus', () => {
     expect(outbox.save).toHaveBeenCalledWith([domainEvent]);
     expect(innerBus.publish).toHaveBeenCalledWith([domainEvent]);
     expect(outbox.markAsPublished).toHaveBeenCalledWith(['outbox-id']);
+    expect(logger.debug).toHaveBeenCalledWith(
+      {
+        aggregateId: 'aggregate-id',
+        correlationId: 'corr-id',
+        eventCount: 1,
+        eventId: 'event-id',
+        eventName: 'test.event',
+        outboxId: 'outbox-id',
+        source: 'immediate-publish'
+      },
+      'domain_event.publish.immediate.succeeded'
+    );
+  });
+
+  it('reuses repository-persisted outbox ids instead of creating duplicate outbox rows', async () => {
+    // Arrange
+    const persistedDomainEvent = new TestDomainEvent({
+      aggregateId: 'aggregate-id',
+      eventId: 'event-id',
+      eventName: 'test.event',
+      occurredOn: new Date('2026-06-16T00:00:00.000Z'),
+      meta: {
+        'x-correlation-id': 'corr-id',
+        outboxIds: ['persisted-outbox-id']
+      }
+    });
+    innerBus.publish.mockResolvedValue(undefined);
+    outbox.markAsPublished.mockResolvedValue(undefined);
+
+    // Act
+    await eventBus.publish([persistedDomainEvent]);
+    await waitForImmediate();
+
+    // Assert
+    expect(outbox.save).not.toHaveBeenCalled();
+    expect(innerBus.publish).toHaveBeenCalledWith([persistedDomainEvent]);
+    expect(outbox.markAsPublished).toHaveBeenCalledWith(['persisted-outbox-id']);
+    expect(logger.debug).toHaveBeenCalledWith(
+      {
+        aggregateId: 'aggregate-id',
+        correlationId: 'corr-id',
+        eventCount: 1,
+        eventId: 'event-id',
+        eventName: 'test.event',
+        outboxId: 'persisted-outbox-id',
+        source: 'immediate-publish'
+      },
+      'domain_event.publish.immediate.succeeded'
+    );
   });
 
   it('does not mark events as published when the inner bus publish fails, so the poller can retry them', async () => {
@@ -59,8 +109,17 @@ describe('OutboxEventBus', () => {
     expect(outbox.save).toHaveBeenCalledWith([domainEvent]);
     expect(outbox.markAsPublished).not.toHaveBeenCalled();
     expect(logger.warn).toHaveBeenCalledWith(
-      expect.objectContaining({ errorType: 'Error', eventCount: 1 }),
-      'Immediate publish failed or could not mark as published; poller will redeliver'
+      expect.objectContaining({
+        aggregateId: 'aggregate-id',
+        correlationId: 'corr-id',
+        errorType: 'Error',
+        eventCount: 1,
+        eventId: 'event-id',
+        eventName: 'test.event',
+        outboxId: 'outbox-id',
+        source: 'immediate-publish'
+      }),
+      'domain_event.publish.immediate.failed'
     );
   });
 
@@ -78,8 +137,17 @@ describe('OutboxEventBus', () => {
     expect(innerBus.publish).toHaveBeenCalledWith([domainEvent]);
     expect(outbox.markAsPublished).toHaveBeenCalledWith(['outbox-id']);
     expect(logger.warn).toHaveBeenCalledWith(
-      { errorType: 'Error', eventCount: 1 },
-      'Immediate publish failed or could not mark as published; poller will redeliver'
+      {
+        aggregateId: 'aggregate-id',
+        correlationId: 'corr-id',
+        errorType: 'Error',
+        eventCount: 1,
+        eventId: 'event-id',
+        eventName: 'test.event',
+        outboxId: 'outbox-id',
+        source: 'immediate-publish'
+      },
+      'domain_event.publish.immediate.failed'
     );
   });
 
@@ -94,8 +162,15 @@ describe('OutboxEventBus', () => {
 
     // Assert
     expect(logger.warn).toHaveBeenCalledWith(
-      expect.objectContaining({ errorType: 'UnknownError' }),
-      'Immediate publish failed or could not mark as published; poller will redeliver'
+      expect.objectContaining({
+        correlationId: 'corr-id',
+        errorType: 'UnknownError',
+        eventId: 'event-id',
+        eventName: 'test.event',
+        outboxId: 'outbox-id',
+        source: 'immediate-publish'
+      }),
+      'domain_event.publish.immediate.failed'
     );
   });
 
@@ -111,8 +186,15 @@ describe('OutboxEventBus', () => {
 
     // Assert
     expect(logger.warn).toHaveBeenCalledWith(
-      expect.objectContaining({ errorType: 'UnknownError' }),
-      'Immediate publish failed or could not mark as published; poller will redeliver'
+      expect.objectContaining({
+        correlationId: 'corr-id',
+        errorType: 'UnknownError',
+        eventId: 'event-id',
+        eventName: 'test.event',
+        outboxId: 'outbox-id',
+        source: 'immediate-publish'
+      }),
+      'domain_event.publish.immediate.failed'
     );
   });
 

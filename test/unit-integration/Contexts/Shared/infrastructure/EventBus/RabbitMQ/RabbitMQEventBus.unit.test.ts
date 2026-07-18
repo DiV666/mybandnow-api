@@ -38,8 +38,15 @@ describe('RabbitMQEventBus unit test', () => {
     // Act & Assert — the caller (OutboxEventBus) keeps the event pending and owns the retry
     await expect(eventBus.publish([event])).rejects.toThrow('broker unreachable');
     expect(logger.error).toHaveBeenCalledWith(
-      expect.objectContaining({ errorType: 'Error' }),
-      'Primary publish to RabbitMQ failed'
+      expect.objectContaining({
+        aggregateId: event.aggregateId,
+        errorType: 'Error',
+        eventId: event.eventId,
+        eventName: event.eventName,
+        exchange,
+        routingKey: event.eventName
+      }),
+      'domain_event.publish.rabbitmq.failed'
     );
   });
 
@@ -95,6 +102,17 @@ describe('RabbitMQEventBus unit test', () => {
     expect(publishedPayload).toContain('corr-rabbit');
     expect(publishedPayload).toContain('rabbit-test');
     expect(event.meta).toEqual({ source: 'rabbit-test' });
+    expect(logger.debug).toHaveBeenCalledWith(
+      {
+        aggregateId: event.aggregateId,
+        correlationId: 'corr-rabbit',
+        eventId: event.eventId,
+        eventName: event.eventName,
+        exchange,
+        routingKey: event.eventName
+      },
+      'domain_event.publish.rabbitmq.succeeded'
+    );
   });
 
   describe('start', () => {
@@ -193,8 +211,15 @@ describe('RabbitMQEventBus unit test', () => {
       // Act & Assert
       await expect(eventBus.publish([event])).rejects.toBe('broker-unreachable');
       expect(logger.error).toHaveBeenCalledWith(
-        expect.objectContaining({ errorType: 'UnknownError' }),
-        'Primary publish to RabbitMQ failed'
+        expect.objectContaining({
+          aggregateId: event.aggregateId,
+          errorType: 'UnknownError',
+          eventId: event.eventId,
+          eventName: event.eventName,
+          exchange,
+          routingKey: event.eventName
+        }),
+        'domain_event.publish.rabbitmq.failed'
       );
     });
   });
