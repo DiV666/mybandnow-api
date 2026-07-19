@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
+import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
+import { Pool } from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 const instruments = [
   {
@@ -114,7 +117,9 @@ async function main() {
     return;
   }
 
-  const prisma = new PrismaClient();
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const adapter = new PrismaPg(pool);
+  const prisma = new PrismaClient({ adapter });
 
   try {
     await prisma.$transaction(
@@ -133,6 +138,7 @@ async function main() {
     console.log(`Seed completed: ${instruments.length} instruments upserted into the Instruments table.`);
   } finally {
     await prisma.$disconnect();
+    await pool.end();
   }
 }
 

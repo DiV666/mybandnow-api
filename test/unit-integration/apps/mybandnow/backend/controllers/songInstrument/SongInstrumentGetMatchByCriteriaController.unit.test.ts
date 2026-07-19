@@ -26,9 +26,7 @@ describe('SongInstrumentGetMatchByCriteriaController', () => {
     const controller = new SongInstrumentGetMatchByCriteriaController(logger, commandBus, queryBus, exceptionHandler);
     const songInstrument = SongInstrumentMother.create();
     const rawCriteria = JSON.stringify({
-      filters: [
-        { field: 'instrumentType', operator: 'EQUAL', value: songInstrument.instrumentType.value, type: 'string' }
-      ],
+      filters: [{ field: 'instrumentId', operator: 'EQUAL', value: songInstrument.instrumentId.value, type: 'string' }],
       order: { orderBy: 'createdAt', orderType: 'desc' },
       limit: 10,
       offset: 0

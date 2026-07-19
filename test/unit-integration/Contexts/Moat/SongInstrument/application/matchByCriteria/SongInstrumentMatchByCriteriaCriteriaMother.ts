@@ -23,11 +23,11 @@ export class SongInstrumentMatchByCriteriaCriteriaMother {
     });
   }
 
-  static withConflictingSongScope(songId: string, instrumentType: string): Criteria {
+  static withConflictingSongScope(songId: string, instrumentId: string): Criteria {
     return new Criteria(
       new Filters([
         new Filter(new FilterField('songId'), FilterOperator.equal(), new FilterValue(songId)),
-        new Filter(new FilterField('instrumentType'), FilterOperator.equal(), new FilterValue(instrumentType))
+        new Filter(new FilterField('instrumentId'), FilterOperator.equal(), new FilterValue(instrumentId))
       ]),
       Order.desc('createdAt'),
       10,
@@ -35,16 +35,16 @@ export class SongInstrumentMatchByCriteriaCriteriaMother {
     );
   }
 
-  static forSongAndInstrumentType(
+  static forSongAndInstrumentId(
     songId: string,
-    instrumentType: string,
+    instrumentId: string,
     order: Order = Order.none(),
     limit?: number,
     offset?: number
   ): Criteria {
     return new Criteria(
       new Filters([
-        new Filter(new FilterField('instrumentType'), FilterOperator.equal(), new FilterValue(instrumentType)),
+        new Filter(new FilterField('instrumentId'), FilterOperator.equal(), new FilterValue(instrumentId)),
         new Filter(new FilterField('songId'), FilterOperator.equal(), new FilterValue(songId), undefined, true)
       ]),
       order,

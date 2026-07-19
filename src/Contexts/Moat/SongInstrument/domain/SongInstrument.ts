@@ -6,7 +6,7 @@ import { SongInstrumentId } from './value-object/SongInstrumentId.js';
 import { SongInstrumentCreatedAt } from './value-object/SongInstrumentCreatedAt.js';
 import { SongInstrumentName } from './value-object/SongInstrumentName.js';
 import { SongInstrumentSongId } from './value-object/SongInstrumentSongId.js';
-import { SongInstrumentInstrumentType } from './value-object/SongInstrumentInstrumentType.js';
+import { SongInstrumentInstrumentId } from './value-object/SongInstrumentInstrumentId.js';
 import { SongInstrumentMusicianId } from './value-object/SongInstrumentMusicianId.js';
 import { SongInstrumentActiveUploadAttemptId } from './value-object/SongInstrumentActiveUploadAttemptId.js';
 
@@ -14,7 +14,7 @@ export class SongInstrument extends AggregateRoot {
   constructor(
     readonly id: SongInstrumentId,
     readonly musicianId: SongInstrumentMusicianId,
-    readonly instrumentType: SongInstrumentInstrumentType,
+    readonly instrumentId: SongInstrumentInstrumentId,
     readonly songId: SongInstrumentSongId,
     readonly name: SongInstrumentName,
     readonly createdAt: SongInstrumentCreatedAt,
@@ -24,7 +24,7 @@ export class SongInstrument extends AggregateRoot {
   }
 
   static create(
-    params: { id: string; musicianId: string; instrumentType: string; songId: string; name: string },
+    params: { id: string; musicianId: string; instrumentId: string; songId: string; name: string },
     clock: Clock
   ): SongInstrument {
     const createdAt = clock.now();
@@ -61,7 +61,7 @@ export class SongInstrument extends AggregateRoot {
     return new SongInstrument(
       new SongInstrumentId(plainData.id),
       new SongInstrumentMusicianId(plainData.musicianId),
-      new SongInstrumentInstrumentType(plainData.instrumentType),
+      new SongInstrumentInstrumentId(plainData.instrumentId),
       new SongInstrumentSongId(plainData.songId),
       new SongInstrumentName(plainData.name),
       new SongInstrumentCreatedAt(plainData.createdAt),
@@ -73,7 +73,7 @@ export class SongInstrument extends AggregateRoot {
     return {
       id: this.id.value,
       musicianId: this.musicianId.value,
-      instrumentType: this.instrumentType.value,
+      instrumentId: this.instrumentId.value,
       songId: this.songId.value,
       name: this.name.value,
       createdAt: this.createdAt.value,

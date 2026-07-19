@@ -1,9 +1,8 @@
 import { PrismaClientFactory } from '@Contexts/Shared/infrastructure/persistence/prisma/PrismaClientFactory.js';
 import { Outbox, TransactionSession } from '@Contexts/Shared/domain/Outbox.js';
-import { Primitives } from '@Contexts/Shared/domain/Primitives.js';
 import { Nullable } from '@Contexts/Shared/domain/Nullable.js';
 import { SongInstrumentNotExistException } from '@Contexts/Moat/SongInstrument/domain/exception/SongInstrumentNotExistException.js';
-import { SongInstrumentVideo } from '../../domain/SongInstrumentVideo.js';
+import { SongInstrumentVideo, SongInstrumentVideoPrimitives } from '../../domain/SongInstrumentVideo.js';
 import { SongInstrumentVideoExistException } from '../../domain/exception/SongInstrumentVideoExistException.js';
 import { SongInstrumentVideoPersistenceRepository } from '../../domain/repository/SongInstrumentVideoPersistenceRepository.js';
 import { SongInstrumentVideoId } from '../../domain/value-object/SongInstrumentVideoId.js';
@@ -18,7 +17,7 @@ export class SongInstrumentVideoPrismaRepository implements SongInstrumentVideoP
     return typeof error === 'object' && error !== null && 'code' in error && typeof error.code === 'string';
   }
 
-  private throwTranslatedPersistenceError(primitives: Primitives<SongInstrumentVideo>, error: unknown): never {
+  private throwTranslatedPersistenceError(primitives: SongInstrumentVideoPrimitives, error: unknown): never {
     if (!this.isPrismaKnownRequestError(error)) {
       throw error;
     }
@@ -47,6 +46,7 @@ export class SongInstrumentVideoPrismaRepository implements SongInstrumentVideoP
             url: primitives.url,
             duration: primitives.duration,
             size: primitives.size,
+            startTimeMs: primitives.startTimeMs,
             createdAt: primitives.createdAt
           },
           create: {
@@ -55,6 +55,7 @@ export class SongInstrumentVideoPrismaRepository implements SongInstrumentVideoP
             url: primitives.url,
             duration: primitives.duration,
             size: primitives.size,
+            startTimeMs: primitives.startTimeMs,
             createdAt: primitives.createdAt
           }
         });
@@ -77,14 +78,7 @@ export class SongInstrumentVideoPrismaRepository implements SongInstrumentVideoP
       return null;
     }
 
-    return SongInstrumentVideo.fromPrimitives({
-      id: document.id,
-      songInstrumentId: document.songInstrumentId,
-      url: document.url,
-      duration: document.duration,
-      size: document.size,
-      createdAt: document.createdAt
-    });
+    return this.toDomain(document);
   }
 
   async searchBySongInstrumentId(
@@ -98,12 +92,26 @@ export class SongInstrumentVideoPrismaRepository implements SongInstrumentVideoP
       return null;
     }
 
+    return this.toDomain(document);
+  }
+
+  private toDomain(
+    document: {
+      id: string;
+      songInstrumentId: string;
+      url: string;
+      duration: number;
+      size: number;
+      createdAt: Date;
+    } & Record<string, unknown>
+  ): SongInstrumentVideo {
     return SongInstrumentVideo.fromPrimitives({
       id: document.id,
       songInstrumentId: document.songInstrumentId,
       url: document.url,
       duration: document.duration,
       size: document.size,
+      startTimeMs: typeof document.startTimeMs === 'number' ? document.startTimeMs : 0,
       createdAt: document.createdAt
     });
   }

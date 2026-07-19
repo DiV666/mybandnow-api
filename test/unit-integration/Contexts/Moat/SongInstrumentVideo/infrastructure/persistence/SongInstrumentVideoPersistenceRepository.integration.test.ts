@@ -21,6 +21,7 @@ async function ensureSongInstrumentVideoTable(): Promise<void> {
       "url" TEXT NOT NULL,
       "duration" INTEGER NOT NULL,
       "size" INTEGER NOT NULL,
+      "startTimeMs" INTEGER NOT NULL DEFAULT 0,
       "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
       CONSTRAINT "SongInstrumentVideo_pkey" PRIMARY KEY ("id"),
       CONSTRAINT "SongInstrumentVideo_songInstrumentId_fkey"
@@ -74,11 +75,24 @@ async function createDependencies(songInstrumentId: string) {
     }
   });
 
+  await prisma.instruments.upsert({
+    where: { id: '0e7a0d5f-3d2a-4bc1-8d4d-100000000001' },
+    update: {
+      name: 'Guitarra',
+      description: 'Song instrument video dependency'
+    },
+    create: {
+      id: '0e7a0d5f-3d2a-4bc1-8d4d-100000000001',
+      name: 'Guitarra',
+      description: 'Song instrument video dependency'
+    }
+  });
+
   await prisma.songInstrument.create({
     data: {
       id: songInstrumentId,
       name: 'Lead Guitar',
-      instrumentType: 'guitar',
+      instrumentId: '0e7a0d5f-3d2a-4bc1-8d4d-100000000001',
       songId,
       musicianId
     }
@@ -120,6 +134,18 @@ describe('SongInstrumentVideoPersistenceRepository', () => {
 
       const found = await persistenceRepository.search(model.id);
       expect(found).not.toBeNull();
+    });
+
+    it('should persist and retrieve the sync start time', async () => {
+      const model = SongInstrumentVideoMother.create({
+        startTimeMs: { value: 1500 } as never
+      });
+      await createDependencies(model.songInstrumentId.value);
+      await persistenceRepository.save(model);
+
+      const found = await persistenceRepository.searchBySongInstrumentId(model.songInstrumentId);
+
+      expect(found?.startTimeMs.value).toBe(1500);
     });
   });
 });

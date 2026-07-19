@@ -3,7 +3,7 @@ import { DomainEvent, DomainEventAttributes } from '@Contexts/Shared/domain/Doma
 export type SongInstrumentCreatedDomainEventAttributes = {
   readonly createdAt: string;
   readonly musicianId: string;
-  readonly instrumentType: string;
+  readonly instrumentId: string;
   readonly songId: string;
   readonly name: string;
 };

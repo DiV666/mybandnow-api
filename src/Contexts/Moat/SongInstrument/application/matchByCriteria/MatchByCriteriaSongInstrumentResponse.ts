@@ -5,7 +5,7 @@ import { PublicSongInstrumentUploadResponse } from '../PublicSongInstrumentUploa
 export interface SongInstrumentListItem {
   id: string;
   name: string;
-  instrumentType: string;
+  instrumentId: string;
   songId: string;
   musicianId: string;
   createdAt: Date;
@@ -31,7 +31,7 @@ export class MatchByCriteriaSongInstrumentResponse implements Response {
         return {
           id: primitives.id,
           name: primitives.name,
-          instrumentType: primitives.instrumentType,
+          instrumentId: primitives.instrumentId,
           songId: primitives.songId,
           musicianId: primitives.musicianId,
           createdAt: primitives.createdAt,

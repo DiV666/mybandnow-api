@@ -29,7 +29,9 @@ Feature: Get a song instrument by id
     $uuid
     """
     And An existing song with id "#songId" and musician "#musicianId"
+    And An existing catalog instrument with id "0e7a0d5f-3d2a-4bc1-8d4d-100000000001" and name "Guitarra"
     And An existing song with id "#anotherSongId" and musician "#musicianId"
+    And An existing catalog instrument with id "0e7a0d5f-3d2a-4bc1-8d4d-100000000001" and name "Guitarra"
     And A band membership exists for musician "#musicianId" in the song "#songId" band
     And A band membership exists for musician "#musicianId" in the song "#anotherSongId" band
     And An existing song instrument with id "#instrumentId" for song "#songId" and musician "#musicianId"
@@ -43,7 +45,7 @@ Feature: Get a song instrument by id
       {
         "id": "#instrumentId",
         "name": "Lead Guitar",
-        "instrumentType": "guitar",
+        "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
         "songId": "#songId",
         "musicianId": "#musicianId",
         "video": null,
@@ -61,7 +63,7 @@ Feature: Get a song instrument by id
       {
         "id": "#instrumentId",
         "name": "Lead Guitar",
-        "instrumentType": "guitar",
+        "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
         "songId": "#songId",
         "musicianId": "#musicianId",
         "video": {
@@ -69,7 +71,8 @@ Feature: Get a song instrument by id
           "songInstrumentId": "#instrumentId",
           "url": "https://example.com/song-instrument-video.mp4",
           "duration": 123,
-          "size": 456
+          "size": 456,
+          "startTimeMs": 0
         },
         "upload": null
       }
@@ -85,7 +88,7 @@ Feature: Get a song instrument by id
       {
         "id": "#instrumentId",
         "name": "Lead Guitar",
-        "instrumentType": "guitar",
+        "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
         "songId": "#songId",
         "musicianId": "#musicianId",
         "video": null,

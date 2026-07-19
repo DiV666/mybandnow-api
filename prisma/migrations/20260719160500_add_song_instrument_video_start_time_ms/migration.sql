@@ -1,0 +1,2 @@
+ALTER TABLE "SongInstrumentVideo"
+ADD COLUMN "startTimeMs" INTEGER NOT NULL DEFAULT 0;

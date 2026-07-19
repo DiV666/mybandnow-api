@@ -7,6 +7,9 @@ import type { Request } from 'openapi-backend';
 const serverModulePath = '../../../../../src/apps/mybandnow/backend/server.js';
 const containerModulePath = '../../../../../src/apps/mybandnow/backend/config/dependency-injection/index.js';
 const configModulePath = '../../../../../src/apps/mybandnow/backend/config/config.js';
+const routesModulePath = '../../../../../src/apps/mybandnow/backend/routes/index.js';
+const openApiBackendRouteModulePath = '../../../../../src/apps/mybandnow/backend/routes/openapiBackendRoute.js';
+const openApiSecurityModulePath = '../../../../../src/apps/mybandnow/backend/routes/openapiSecurity.js';
 
 type OpenApiTestContext = {
   api?: { definition: { components: { securitySchemes: Record<string, unknown> } } };
@@ -50,12 +53,17 @@ function createContext(operation?: OpenApiTestContext['operation']): OpenApiTest
 afterEach(() => {
   vi.restoreAllMocks();
   vi.resetModules();
+  vi.doUnmock(routesModulePath);
+  vi.doUnmock(openApiBackendRouteModulePath);
+  vi.doUnmock(openApiSecurityModulePath);
+  vi.doUnmock('openapi-backend');
+  vi.doUnmock('ajv-formats');
 });
 
 describe('Server — stop()', () => {
   it('resolves immediately when no server is listening', async () => {
     const logger = mock<Logger>();
-    const Server = await loadServerModule();
+    const Server = await loadServerModule(undefined, { lightweight: true });
     const server = new Server(0, logger, healthStatus);
     // Never called listen() — httpServer is undefined
     await expect(server.stop()).resolves.toBeUndefined();
@@ -63,7 +71,7 @@ describe('Server — stop()', () => {
 
   it('resolves when the underlying http server closes without an error', async () => {
     const logger = mock<Logger>();
-    const Server = await loadServerModule();
+    const Server = await loadServerModule(undefined, { lightweight: true });
     const server = new Server(0, logger, healthStatus);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- accessing private property for testing
     (server as any).httpServer = { close: (cb: (error?: Error) => void) => cb() };
@@ -73,7 +81,7 @@ describe('Server — stop()', () => {
 
   it('resolves when close() reports ERR_SERVER_NOT_RUNNING, treating it as already stopped', async () => {
     const logger = mock<Logger>();
-    const Server = await loadServerModule();
+    const Server = await loadServerModule(undefined, { lightweight: true });
     const server = new Server(0, logger, healthStatus);
     const notRunningError = Object.assign(new Error('not running'), { code: 'ERR_SERVER_NOT_RUNNING' });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- accessing private property for testing
@@ -84,7 +92,7 @@ describe('Server — stop()', () => {
 
   it('rejects when close() fails with an error other than ERR_SERVER_NOT_RUNNING', async () => {
     const logger = mock<Logger>();
-    const Server = await loadServerModule();
+    const Server = await loadServerModule(undefined, { lightweight: true });
     const server = new Server(0, logger, healthStatus);
     const closeError = new Error('close failed');
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- accessing private property for testing
@@ -352,7 +360,8 @@ describe('Server — auth security handlers', () => {
 });
 
 async function loadServerModule(
-  containerGet: (id: string) => unknown = vi.fn()
+  containerGet: (id: string) => unknown = vi.fn(),
+  options: { lightweight?: boolean } = {}
 ): Promise<typeof import('../../../../../src/apps/mybandnow/backend/server.js').Server> {
   vi.doMock(configModulePath, () => ({
     default: {
@@ -366,6 +375,37 @@ async function loadServerModule(
   vi.doMock(containerModulePath, () => ({
     default: { get: containerGet }
   }));
+  if (options.lightweight) {
+    vi.doMock(routesModulePath, () => ({
+      routes: {}
+    }));
+    vi.doMock(openApiBackendRouteModulePath, () => ({
+      createDefaultHandlers: vi.fn(() => ({
+        notFound: vi.fn(),
+        validationFail: vi.fn(),
+        notImplemented: vi.fn(),
+        unauthorizedHandler: vi.fn()
+      }))
+    }));
+    vi.doMock(openApiSecurityModulePath, () => ({
+      createSecurityHandler: vi.fn((_scheme: string, verifier: OpenApiSecurityHandler) => verifier)
+    }));
+    vi.doMock('openapi-backend', () => ({
+      OpenAPIBackend: class OpenAPIBackendMock {
+        register(): void {
+          return undefined;
+        }
+
+        async init(): Promise<void> {
+          return undefined;
+        }
+
+        handleRequest(): void {
+          return undefined;
+        }
+      }
+    }));
+  }
 
   const module = await import(serverModulePath);
   return module.Server;

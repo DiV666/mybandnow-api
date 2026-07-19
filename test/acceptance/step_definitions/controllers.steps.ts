@@ -25,6 +25,8 @@ import { MusicianName } from '@Contexts/Moat/Musician/domain/value-object/Musici
 import { MusicianUsername } from '@Contexts/Moat/Musician/domain/value-object/MusicianUsername.js';
 import { PrismaClientFactory } from '@Contexts/Shared/infrastructure/persistence/prisma/PrismaClientFactory.js';
 
+const DEFAULT_CATALOG_INSTRUMENT_ID = '0e7a0d5f-3d2a-4bc1-8d4d-100000000001';
+
 Given(
   'An authenticated user {string} with password {string}',
   async function (this: MybandnowWorld, username: string, password: string) {
@@ -367,18 +369,31 @@ Given('a {string} track with id {string} exists', async function (status: string
     }
   });
 
+  await prisma.instruments.upsert({
+    where: { id: DEFAULT_CATALOG_INSTRUMENT_ID },
+    update: {
+      name: 'Guitarra',
+      description: 'Song instrument acceptance catalog instrument'
+    },
+    create: {
+      id: DEFAULT_CATALOG_INSTRUMENT_ID,
+      name: 'Guitarra',
+      description: 'Song instrument acceptance catalog instrument'
+    }
+  });
+
   await prisma.songInstrument.upsert({
     where: { id: songInstrumentId },
     update: {
       name: 'guitar',
-      instrumentType: 'guitar',
+      instrumentId: DEFAULT_CATALOG_INSTRUMENT_ID,
       songId,
       musicianId: ownerMusicianId
     },
     create: {
       id: songInstrumentId,
       name: 'guitar',
-      instrumentType: 'guitar',
+      instrumentId: DEFAULT_CATALOG_INSTRUMENT_ID,
       songId,
       musicianId: ownerMusicianId
     }
@@ -436,18 +451,31 @@ Given(
       }
     });
 
+    await prisma.instruments.upsert({
+      where: { id: DEFAULT_CATALOG_INSTRUMENT_ID },
+      update: {
+        name: 'Guitarra',
+        description: 'Song instrument acceptance catalog instrument'
+      },
+      create: {
+        id: DEFAULT_CATALOG_INSTRUMENT_ID,
+        name: 'Guitarra',
+        description: 'Song instrument acceptance catalog instrument'
+      }
+    });
+
     await prisma.songInstrument.upsert({
       where: { id: resolvedSongInstrumentId },
       update: {
         name: 'Lead Guitar',
-        instrumentType: 'guitar',
+        instrumentId: DEFAULT_CATALOG_INSTRUMENT_ID,
         songId: resolvedSongId,
         musicianId: authenticatedMusician.id
       },
       create: {
         id: resolvedSongInstrumentId,
         name: 'Lead Guitar',
-        instrumentType: 'guitar',
+        instrumentId: DEFAULT_CATALOG_INSTRUMENT_ID,
         songId: resolvedSongId,
         musicianId: authenticatedMusician.id
       }
@@ -508,18 +536,31 @@ Given(
       }
     });
 
+    await prisma.instruments.upsert({
+      where: { id: DEFAULT_CATALOG_INSTRUMENT_ID },
+      update: {
+        name: 'Guitarra',
+        description: 'Song instrument acceptance catalog instrument'
+      },
+      create: {
+        id: DEFAULT_CATALOG_INSTRUMENT_ID,
+        name: 'Guitarra',
+        description: 'Song instrument acceptance catalog instrument'
+      }
+    });
+
     await prisma.songInstrument.upsert({
       where: { id: resolvedSongInstrumentId },
       update: {
         name: 'Lead Guitar',
-        instrumentType: 'guitar',
+        instrumentId: DEFAULT_CATALOG_INSTRUMENT_ID,
         songId: resolvedSongId,
         musicianId: otherMusicianId
       },
       create: {
         id: resolvedSongInstrumentId,
         name: 'Lead Guitar',
-        instrumentType: 'guitar',
+        instrumentId: DEFAULT_CATALOG_INSTRUMENT_ID,
         songId: resolvedSongId,
         musicianId: otherMusicianId
       }

@@ -1,7 +1,6 @@
 import { EventBus } from '@Contexts/Shared/domain/EventBus.js';
 import { Clock } from '@Contexts/Shared/domain/Clock.js';
-import { SongInstrumentVideo } from '../../domain/SongInstrumentVideo.js';
-import { Primitives } from '@Contexts/Shared/domain/Primitives.js';
+import { SongInstrumentVideo, SongInstrumentVideoPrimitives } from '../../domain/SongInstrumentVideo.js';
 import { SongInstrumentVideoPersistenceRepository } from '../../domain/repository/SongInstrumentVideoPersistenceRepository.js';
 import Logger from '@Contexts/Shared/domain/Logger.js';
 import { SongInstrumentVideoId } from '../../domain/value-object/SongInstrumentVideoId.js';
@@ -9,6 +8,8 @@ import { SongInstrumentVideoExistException } from '../../domain/exception/SongIn
 import { SongInstrumentPersistenceRepository } from '../../../SongInstrument/domain/repository/SongInstrumentPersistenceRepository.js';
 import { SongInstrumentId } from '../../../SongInstrument/domain/value-object/SongInstrumentId.js';
 import { SongInstrumentNotExistException } from '../../../SongInstrument/domain/exception/SongInstrumentNotExistException.js';
+
+type SongInstrumentVideoCreateInput = Omit<SongInstrumentVideoPrimitives, 'createdAt' | 'startTimeMs'>;
 
 export class SongInstrumentVideoCreator {
   constructor(
@@ -20,16 +21,16 @@ export class SongInstrumentVideoCreator {
   ) {}
 
   private hasConflicts(
-    currentPrimitives: Primitives<SongInstrumentVideo>,
-    inputParams: Omit<Primitives<SongInstrumentVideo>, 'createdAt'>,
-    keys: Array<keyof Omit<Primitives<SongInstrumentVideo>, 'createdAt'>>
+    currentPrimitives: SongInstrumentVideoPrimitives,
+    inputParams: SongInstrumentVideoCreateInput,
+    keys: Array<keyof SongInstrumentVideoCreateInput>
   ): boolean {
     return keys.some((key) => JSON.stringify(currentPrimitives[key]) !== JSON.stringify(inputParams[key]));
   }
 
   private async ensureDuplicateSaveIsIdempotent(
     error: SongInstrumentVideoExistException,
-    inputParams: Omit<Primitives<SongInstrumentVideo>, 'createdAt'>
+    inputParams: SongInstrumentVideoCreateInput
   ): Promise<void> {
     const persistedSongInstrumentVideo = await this.persistenceRepository.search(
       new SongInstrumentVideoId(inputParams.id)
@@ -59,13 +60,7 @@ export class SongInstrumentVideoCreator {
     }
   }
 
-  async run({
-    id,
-    size,
-    duration,
-    url,
-    songInstrumentId
-  }: Omit<Primitives<SongInstrumentVideo>, 'createdAt'>): Promise<void> {
+  async run({ id, size, duration, url, songInstrumentId }: SongInstrumentVideoCreateInput): Promise<void> {
     const inputParams = { id, size, duration, url, songInstrumentId };
     const songInstrument = await this.songInstrumentRepository.search(new SongInstrumentId(songInstrumentId));
 
@@ -130,6 +125,7 @@ export class SongInstrumentVideoCreator {
         duration,
         url,
         songInstrumentId,
+        startTimeMs: 0,
         createdAt: currentSongInstrumentVideo.createdAt.value
       });
 

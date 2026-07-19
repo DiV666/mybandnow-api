@@ -30,11 +30,11 @@ describe('SongInstrumentMatcher should', () => {
     const model = SongInstrumentMother.create();
     const criteria = SongInstrumentMatchByCriteriaCriteriaMother.withConflictingSongScope(
       '48baf7d0-b8d5-4831-b0a8-997a23f17001',
-      model.instrumentType.value
+      model.instrumentId.value
     );
-    const scopedCriteria = SongInstrumentMatchByCriteriaCriteriaMother.forSongAndInstrumentType(
+    const scopedCriteria = SongInstrumentMatchByCriteriaCriteriaMother.forSongAndInstrumentId(
       model.songId.value,
-      model.instrumentType.value,
+      model.instrumentId.value,
       criteria.order,
       criteria.limit,
       criteria.offset

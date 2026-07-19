@@ -240,7 +240,7 @@ function createSongInstrument(songInstrumentId: string, activeUploadAttemptId: s
     id: songInstrumentId,
     songId: '2915fcdf-8ae3-44f7-af0f-75a2ea6d6d18',
     musicianId: '9416de0f-6513-4adf-ab75-ff075950179b',
-    instrumentType: 'guitar',
+    instrumentId: '0e7a0d5f-3d2a-4bc1-8d4d-100000000001',
     name: 'Lead Guitar',
     createdAt: new Date('2026-07-12T12:00:00.000Z'),
     activeUploadAttemptId

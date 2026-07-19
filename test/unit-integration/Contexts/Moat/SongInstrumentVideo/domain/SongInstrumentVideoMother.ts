@@ -6,6 +6,7 @@ import { SongInstrumentVideoSongInstrumentIdMother } from './SongInstrumentVideo
 import { SongInstrumentVideoUrlMother } from './SongInstrumentVideoUrlMother.js';
 import { SongInstrumentVideoDurationMother } from './SongInstrumentVideoDurationMother.js';
 import { SongInstrumentVideoSizeMother } from './SongInstrumentVideoSizeMother.js';
+import { SongInstrumentVideoStartTimeMsMother } from './SongInstrumentVideoStartTimeMsMother.js';
 
 export class SongInstrumentVideoMother {
   private static defaults(): Partial<SongInstrumentVideo> {
@@ -15,6 +16,7 @@ export class SongInstrumentVideoMother {
       duration: SongInstrumentVideoDurationMother.random(),
       url: SongInstrumentVideoUrlMother.random(),
       songInstrumentId: SongInstrumentVideoSongInstrumentIdMother.random(),
+      startTimeMs: SongInstrumentVideoStartTimeMsMother.create(0),
       createdAt: SongInstrumentVideoCreatedAtMother.now()
     };
   }
@@ -28,6 +30,7 @@ export class SongInstrumentVideoMother {
       duration: data.duration.value,
       url: data.url.value,
       songInstrumentId: data.songInstrumentId.value,
+      startTimeMs: data.startTimeMs.value,
       createdAt: data.createdAt.value
     });
   }

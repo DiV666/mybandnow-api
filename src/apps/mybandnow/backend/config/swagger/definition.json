@@ -296,6 +296,67 @@
         }
       }
     },
+    "/v1/songs/{songId}/instruments/{instrumentId}/video": {
+      "patch": {
+        "tags": ["SongInstrument"],
+        "summary": "Update song instrument video sync metadata",
+        "description": "Update the synced playback start time for a song instrument video when the authenticated musician belongs to the song band.",
+        "operationId": "songInstrumentPatchVideo",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "songId",
+            "in": "path",
+            "required": true,
+            "description": "Song identifier",
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          },
+          {
+            "name": "instrumentId",
+            "in": "path",
+            "required": true,
+            "description": "Song instrument identifier",
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SongInstrumentVideoUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+
     "/v1/songs/{songId}/instruments/{instrumentId}/upload": {
       "post": {
         "tags": ["SongInstrumentUpload"],
@@ -1260,7 +1321,7 @@
       "SongInstrumentVideoResponse": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "songInstrumentId", "url", "duration", "size", "createdAt"],
+        "required": ["id", "songInstrumentId", "url", "duration", "size", "startTimeMs", "createdAt"],
         "properties": {
           "id": {
             "$ref": "#/components/schemas/UUID"
@@ -1277,12 +1338,17 @@
           "size": {
             "type": "integer"
           },
+          "startTimeMs": {
+            "type": "integer",
+            "minimum": 0
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
           }
         }
       },
+
       "SongInstrumentUploadResponse": {
         "oneOf": [
           {
@@ -1318,7 +1384,7 @@
       "SongInstrumentResponse": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "name", "instrumentType", "songId", "musicianId", "createdAt", "video", "upload"],
+        "required": ["id", "name", "instrumentId", "songId", "musicianId", "createdAt", "video", "upload"],
         "properties": {
           "id": {
             "$ref": "#/components/schemas/UUID"
@@ -1326,8 +1392,8 @@
           "name": {
             "type": "string"
           },
-          "instrumentType": {
-            "type": "string"
+          "instrumentId": {
+            "$ref": "#/components/schemas/UUID"
           },
           "songId": {
             "$ref": "#/components/schemas/UUID"
@@ -1354,10 +1420,21 @@
           }
         }
       },
+      "SongInstrumentVideoUpdateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["startTimeMs"],
+        "properties": {
+          "startTimeMs": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
       "SongInstrumentCreateRequest": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "name", "instrumentType", "musicianId"],
+        "required": ["id", "name", "instrumentId", "musicianId"],
         "properties": {
           "id": {
             "$ref": "#/components/schemas/UUID"
@@ -1365,8 +1442,13 @@
           "name": {
             "type": "string"
           },
-          "instrumentType": {
-            "type": "string"
+          "instrumentId": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UUID"
+              }
+            ],
+            "description": "Must reference an existing instrument in the Instruments catalog."
           },
           "musicianId": {
             "allOf": [
@@ -1381,7 +1463,7 @@
       "SongInstrumentListItemResponse": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "name", "instrumentType", "songId", "musicianId", "createdAt", "upload"],
+        "required": ["id", "name", "instrumentId", "songId", "musicianId", "createdAt", "upload"],
         "properties": {
           "id": {
             "$ref": "#/components/schemas/UUID"
@@ -1389,8 +1471,8 @@
           "name": {
             "type": "string"
           },
-          "instrumentType": {
-            "type": "string"
+          "instrumentId": {
+            "$ref": "#/components/schemas/UUID"
           },
           "songId": {
             "$ref": "#/components/schemas/UUID"

@@ -21,13 +21,13 @@ export class SongInstrumentCreator {
   async run({
     id,
     musicianId,
-    instrumentType,
+    instrumentId,
     songId,
     name
   }: {
     id: string;
     musicianId: string;
-    instrumentType: string;
+    instrumentId: string;
     songId: string;
     name: string;
   }): Promise<void> {
@@ -35,7 +35,7 @@ export class SongInstrumentCreator {
 
     if (songinstrumentFounded) {
       const currentPrimitives = songinstrumentFounded.toPrimitives();
-      const inputParams = { id, musicianId, instrumentType, songId, name };
+      const inputParams = { id, musicianId, instrumentId, songId, name };
 
       const hasConflicts = Object.keys(inputParams).some((key) => {
         const typedKey = key as keyof typeof inputParams;
@@ -58,7 +58,7 @@ export class SongInstrumentCreator {
       });
     }
 
-    const songinstrument = SongInstrument.create({ id, musicianId, instrumentType, songId, name }, this.clock);
+    const songinstrument = SongInstrument.create({ id, musicianId, instrumentId, songId, name }, this.clock);
 
     await this.persistenceRepository.save(songinstrument);
     await this.eventBus.publish(songinstrument.pullDomainEvents());

@@ -1,12 +1,11 @@
 import { Command } from '@Contexts/Shared/domain/Command.js';
 
-export class CreateSongInstrumentCommand extends Command {
+export class SongInstrumentVideoUpdateStartTimeCommand extends Command {
   constructor(
-    readonly id: string,
-    readonly name: string,
     readonly songId: string,
     readonly instrumentId: string,
-    readonly musicianId: string
+    readonly musicianId: string,
+    readonly startTimeMs: number
   ) {
     super();
   }

@@ -22,25 +22,39 @@ export class PrismaEnvironmentArranger extends EnvironmentArranger {
       'songInstrumentProcess',
       'videoclip',
       'songInstrumentVideo',
-      'songInstrument',
       'songInstrumentUpload',
+      'songInstrument',
       'song',
       'bandMember',
       'band',
       'musician',
       'user'
-    ];
+    ] as const;
 
     for (const model of deletionOrder) {
-      try {
-        // @ts-expect-error We dynamically access models which isn't perfectly typed
-        await this.client[model].deleteMany({});
-      } catch (error) {
-        // Ignore errors if the property is not a model or deleteMany is not a function
-        // eslint-disable-next-line no-console
-        console.debug(`Skipping ${model} cleanup:`, error instanceof Error ? error.message : error);
+      const delegate = this.resolveDeleteManyDelegate(model);
+
+      if (!delegate) {
+        continue;
       }
+
+      await delegate.deleteMany({});
     }
+  }
+
+  private resolveDeleteManyDelegate(model: string): { deleteMany: (args: object) => Promise<unknown> } | null {
+    const candidate = (this.client as unknown as Record<string, unknown>)[model];
+
+    if (
+      typeof candidate !== 'object' ||
+      candidate === null ||
+      !('deleteMany' in candidate) ||
+      typeof candidate.deleteMany !== 'function'
+    ) {
+      return null;
+    }
+
+    return candidate as { deleteMany: (args: object) => Promise<unknown> };
   }
 
   public async close(): Promise<void> {

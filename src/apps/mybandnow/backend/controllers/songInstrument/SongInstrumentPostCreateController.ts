@@ -14,7 +14,7 @@ import ApiController from '@Contexts/Shared/infrastructure/Express/ApiController
 interface SongInstrumentCreateRequestBody {
   id: string;
   name: string;
-  instrumentType: string;
+  instrumentId: string;
   musicianId: string;
 }
 
@@ -22,7 +22,7 @@ export default class SongInstrumentPostCreateController extends ApiController {
   async run(context: Context, req: Request, res: Response): Promise<void> {
     const authenticatedUserId = context.security.BearerAuth.id as string;
     const songId = context.request.params.songId as string;
-    const { id, name, instrumentType, musicianId } = req.body as SongInstrumentCreateRequestBody;
+    const { id, name, instrumentId, musicianId } = req.body as SongInstrumentCreateRequestBody;
 
     const musicianResponse = await this.queryBus.ask<MusicianSearchByUserIdResponse>(
       new MusicianSearchByUserIdQuery(authenticatedUserId)
@@ -40,7 +40,7 @@ export default class SongInstrumentPostCreateController extends ApiController {
       throw new ForbiddenException('Only the song owner can create song instruments.');
     }
 
-    await this.commandBus.dispatch(new CreateSongInstrumentCommand(id, name, songId, instrumentType, musicianId));
+    await this.commandBus.dispatch(new CreateSongInstrumentCommand(id, name, songId, instrumentId, musicianId));
 
     res.status(httpStatus.CREATED).end();
   }

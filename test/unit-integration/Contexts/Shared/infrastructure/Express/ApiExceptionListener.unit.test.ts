@@ -212,6 +212,26 @@ describe('ApiExceptionListener', () => {
       expect(res.send).toHaveBeenCalledWith(
         expect.objectContaining({ message: expect.stringContaining('<name> es requerido') })
       );
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'INVALID_ARGUMENT',
+          details: {
+            source: 'openapi',
+            validationErrors: [
+              {
+                field: 'name',
+                instancePath: '',
+                keyword: 'required',
+                message: 'must have required property',
+                params: { missingProperty: 'name' }
+              }
+            ]
+          },
+          message: 'El campo <name> es requerido.',
+          type: 'InvalidArgumentException'
+        }),
+        'InvalidArgumentException:'
+      );
     });
 
     it('converts openapi validation error with "minLength" keyword', () => {

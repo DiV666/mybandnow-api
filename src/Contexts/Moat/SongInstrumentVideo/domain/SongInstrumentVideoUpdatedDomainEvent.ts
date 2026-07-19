@@ -1,6 +1,6 @@
 import { DomainEvent, DomainEventAttributes } from '@Contexts/Shared/domain/DomainEvent.js';
 
-export type SongInstrumentVideoCreatedDomainEventAttributes = {
+export type SongInstrumentVideoUpdatedDomainEventAttributes = {
   readonly createdAt: string;
   readonly size: number;
   readonly duration: number;
@@ -9,10 +9,10 @@ export type SongInstrumentVideoCreatedDomainEventAttributes = {
   readonly startTimeMs: number;
 };
 
-export class SongInstrumentVideoCreatedDomainEvent extends DomainEvent {
-  static readonly EVENT_NAME: string = 'rubricae.moat.1.command.songinstrumentvideo.created';
+export class SongInstrumentVideoUpdatedDomainEvent extends DomainEvent {
+  static readonly EVENT_NAME: string = 'rubricae.moat.1.command.songinstrumentvideo.updated';
 
-  readonly attributes: SongInstrumentVideoCreatedDomainEventAttributes;
+  readonly attributes: SongInstrumentVideoUpdatedDomainEventAttributes;
 
   constructor({
     aggregateId,
@@ -25,8 +25,8 @@ export class SongInstrumentVideoCreatedDomainEvent extends DomainEvent {
     eventId?: string;
     occurredOn?: Date;
     meta?: Record<string, unknown>;
-  } & SongInstrumentVideoCreatedDomainEventAttributes) {
-    super({ eventName: SongInstrumentVideoCreatedDomainEvent.EVENT_NAME, aggregateId, eventId, occurredOn, meta });
+  } & SongInstrumentVideoUpdatedDomainEventAttributes) {
+    super({ eventName: SongInstrumentVideoUpdatedDomainEvent.EVENT_NAME, aggregateId, eventId, occurredOn, meta });
     this.attributes = attributes;
   }
 
@@ -38,12 +38,12 @@ export class SongInstrumentVideoCreatedDomainEvent extends DomainEvent {
     meta?: Record<string, unknown>;
   }): DomainEvent {
     const { aggregateId, attributes, occurredOn, eventId, meta } = params;
-    return new SongInstrumentVideoCreatedDomainEvent({
+    return new SongInstrumentVideoUpdatedDomainEvent({
       aggregateId,
       eventId,
       occurredOn,
       meta,
-      ...(attributes as SongInstrumentVideoCreatedDomainEventAttributes)
+      ...(attributes as SongInstrumentVideoUpdatedDomainEventAttributes)
     });
   }
 }

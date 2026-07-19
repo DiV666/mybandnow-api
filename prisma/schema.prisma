@@ -33,10 +33,11 @@ model Musician {
 }
 
 model Instruments {
-  id          String   @id @default(uuid())
-  name        String
-  description String
-  createdAt   DateTime @default(now())
+  id              String           @id @default(uuid())
+  name            String
+  description     String
+  createdAt       DateTime         @default(now())
+  songInstruments SongInstrument[]
 
   @@index([name])
   @@index([createdAt])
@@ -84,7 +85,8 @@ model Song {
 model SongInstrument {
   id                    String                 @id @default(uuid())
   name                  String
-  instrumentType        String
+  instrument            Instruments            @relation(fields: [instrumentId], references: [id])
+  instrumentId          String
   song                  Song                   @relation(fields: [songId], references: [id], onDelete: Cascade)
   songId                String
   musician              Musician               @relation(fields: [musicianId], references: [id], onDelete: Cascade)
@@ -97,7 +99,7 @@ model SongInstrument {
 
   @@index([songId])
   @@index([songId, musicianId])
-  @@index([songId, instrumentType])
+  @@index([songId, instrumentId])
   @@index([songId, name])
   @@index([songId, createdAt])
 }
@@ -109,6 +111,7 @@ model SongInstrumentVideo {
   url              String
   duration         Int
   size             Int
+  startTimeMs      Int            @default(0)
   createdAt        DateTime       @default(now())
 }
 

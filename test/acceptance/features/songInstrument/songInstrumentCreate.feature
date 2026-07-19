@@ -13,6 +13,7 @@ Feature: Create a new song instrument
     $uuid
     """
     And An existing song with id "#songId" and musician "#musicianId"
+    And An existing catalog instrument with id "0e7a0d5f-3d2a-4bc1-8d4d-100000000001" and name "Guitarra"
     And An "assignedMusicianId" parameter with value as "string":
     """
     $uuid
@@ -30,7 +31,7 @@ Feature: Create a new song instrument
       {
         "id": "#id",
         "name": "Lead Guitar",
-        "instrumentType": "guitar",
+        "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
         "musicianId": "#musicianId"
       }
       """
@@ -44,7 +45,7 @@ Feature: Create a new song instrument
       {
         "id": "#id",
         "name": "Lead Guitar",
-        "instrumentType": "guitar",
+        "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
         "musicianId": "#musicianId"
       }
       """
@@ -57,7 +58,7 @@ Feature: Create a new song instrument
       {
         "id": "#id",
         "name": "Lead Guitar",
-        "instrumentType": "guitar",
+        "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
         "musicianId": "#assignedMusicianId"
       }
       """
@@ -70,7 +71,7 @@ Feature: Create a new song instrument
       {
         "id": "#id",
         "name": "Lead Guitar",
-        "instrumentType": "guitar",
+        "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
         "musicianId": "$uuid"
       }
       """
@@ -95,7 +96,7 @@ Feature: Create a new song instrument
         "id": "#id",
         "name": "Lead Guitar",
         "songId": "#songId",
-        "instrumentType": "guitar",
+        "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
         "musicianId": "#musicianId"
       }
       """

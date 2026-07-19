@@ -4,7 +4,7 @@ import { Repeater } from '@Test/unit-integration/Contexts/Shared/domain/value-ob
 import { SongInstrumentCreatedAtMother } from './SongInstrumentCreatedAtMother.js';
 import { SongInstrumentNameMother } from './SongInstrumentNameMother.js';
 import { SongInstrumentSongIdMother } from './SongInstrumentSongIdMother.js';
-import { SongInstrumentInstrumentTypeMother } from './SongInstrumentInstrumentTypeMother.js';
+import { SongInstrumentInstrumentIdMother } from './SongInstrumentInstrumentIdMother.js';
 import { SongInstrumentMusicianIdMother } from './SongInstrumentMusicianIdMother.js';
 
 export class SongInstrumentMother {
@@ -12,7 +12,7 @@ export class SongInstrumentMother {
     return {
       id: SongInstrumentIdMother.random(),
       musicianId: SongInstrumentMusicianIdMother.random(),
-      instrumentType: SongInstrumentInstrumentTypeMother.random(),
+      instrumentId: SongInstrumentInstrumentIdMother.random(),
       songId: SongInstrumentSongIdMother.random(),
       name: SongInstrumentNameMother.random(),
       createdAt: SongInstrumentCreatedAtMother.now(),
@@ -26,7 +26,7 @@ export class SongInstrumentMother {
     return SongInstrument.fromPrimitives({
       id: data.id.value,
       musicianId: data.musicianId.value,
-      instrumentType: data.instrumentType.value,
+      instrumentId: data.instrumentId.value,
       songId: data.songId.value,
       name: data.name.value,
       createdAt: data.createdAt.value,

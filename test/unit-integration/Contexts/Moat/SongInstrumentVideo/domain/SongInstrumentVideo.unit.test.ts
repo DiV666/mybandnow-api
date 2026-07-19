@@ -1,8 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { SongInstrumentVideo } from '@Contexts/Moat/SongInstrumentVideo/domain/SongInstrumentVideo.js';
+import {
+  SongInstrumentVideo,
+  SongInstrumentVideoPrimitives
+} from '@Contexts/Moat/SongInstrumentVideo/domain/SongInstrumentVideo.js';
 import { SongInstrumentVideoMother } from './SongInstrumentVideoMother.js';
 import { SongInstrumentVideoCreatedDomainEventMother } from './SongInstrumentVideoCreatedDomainEventMother.js';
 import { FakeClock } from '@Test/utils/mocks/FakeClock.js';
+import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
 
 describe('SongInstrumentVideo should', () => {
   describe('#fromPrimitives and #toPrimitives', () => {
@@ -29,12 +33,25 @@ describe('SongInstrumentVideo should', () => {
       );
 
       const [domainEvent] = createdModel.pullDomainEvents();
+      const primitives: SongInstrumentVideoPrimitives = createdModel.toPrimitives();
 
       expect(domainEvent.eventName).toBe('rubricae.moat.1.command.songinstrumentvideo.created');
       expect(domainEvent.aggregateId).toBe(createdModel.id.value);
       expect(domainEvent.attributes).toEqual(
         SongInstrumentVideoCreatedDomainEventMother.fromModel(createdModel).attributes
       );
+      expect(primitives.startTimeMs).toBe(0);
+    });
+
+    it('throw when sync start time exceeds the video duration in milliseconds', () => {
+      const model = SongInstrumentVideoMother.create();
+
+      const primitives: SongInstrumentVideoPrimitives = {
+        ...model.toPrimitives(),
+        startTimeMs: model.duration.value * 1000 + 1
+      };
+
+      expect(() => SongInstrumentVideo.fromPrimitives(primitives)).toThrow(InvalidArgumentException);
     });
   });
 });

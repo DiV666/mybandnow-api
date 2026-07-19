@@ -28,7 +28,7 @@ export class SongInstrumentPrismaRepository
     if (this.isPrismaKnownRequestError(error) && error.code === 'P2003') {
       throw new InvalidArgumentException({
         code: 'SONG_INSTRUMENT_RELATION_NOT_FOUND',
-        message: `Cannot save song instrument ${primitives.id} because song ${primitives.songId} or musician ${primitives.musicianId} does not exist.`
+        message: `Cannot save song instrument ${primitives.id} because song ${primitives.songId}, musician ${primitives.musicianId}, or instrument ${primitives.instrumentId} does not exist.`
       });
     }
 
@@ -46,7 +46,7 @@ export class SongInstrumentPrismaRepository
           update: {
             name: primitives.name,
             songId: primitives.songId,
-            instrumentType: primitives.instrumentType,
+            instrumentId: primitives.instrumentId,
             musicianId: primitives.musicianId,
             createdAt: primitives.createdAt,
             activeUploadAttemptId: primitives.activeUploadAttemptId
@@ -55,7 +55,7 @@ export class SongInstrumentPrismaRepository
             id: primitives.id,
             name: primitives.name,
             songId: primitives.songId,
-            instrumentType: primitives.instrumentType,
+            instrumentId: primitives.instrumentId,
             musicianId: primitives.musicianId,
             createdAt: primitives.createdAt,
             activeUploadAttemptId: primitives.activeUploadAttemptId
@@ -84,7 +84,7 @@ export class SongInstrumentPrismaRepository
       id: document.id,
       name: document.name,
       songId: document.songId,
-      instrumentType: document.instrumentType,
+      instrumentId: document.instrumentId,
       musicianId: document.musicianId,
       createdAt: document.createdAt,
       activeUploadAttemptId: document.activeUploadAttemptId
@@ -100,7 +100,7 @@ export class SongInstrumentPrismaRepository
         id: document.id,
         name: document.name,
         songId: document.songId,
-        instrumentType: document.instrumentType,
+        instrumentId: document.instrumentId,
         musicianId: document.musicianId,
         createdAt: document.createdAt,
         activeUploadAttemptId: document.activeUploadAttemptId

@@ -32,7 +32,7 @@ export default class ApiExceptionListener {
     const className = handledException.constructor.name;
     const statusCode = this.exceptionHandler.statusCodeFor(className);
 
-    const exceptionWithCode = handledException as Error & { code?: string };
+    const exceptionWithCode = handledException as Error & { code?: string; details?: unknown };
     const responseMessage =
       statusCode === httpStatus.INTERNAL_SERVER_ERROR
         ? 'Internal server error'
@@ -47,7 +47,15 @@ export default class ApiExceptionListener {
         'Unknown error:'
       );
     } else {
-      this.logger.error({ code: exceptionWithCode.code, message: responseMessage, type: className }, `${className}:`);
+      this.logger.error(
+        {
+          code: exceptionWithCode.code,
+          details: exceptionWithCode.details,
+          message: responseMessage,
+          type: className
+        },
+        `${className}:`
+      );
     }
 
     res
@@ -85,49 +93,104 @@ export default class ApiExceptionListener {
   }
 
   private parseOpenApiExceptionToInvalidArgumentException(errors: unknown[]): InvalidArgumentException {
-    const friendlyMessages = (errors || []).map((error: unknown) => {
-      if (typeof error !== 'object' || error === null) return 'Error de validación desconocido.';
-
-      const err = error as Record<string, unknown>;
-      const keyword = err.keyword as string | undefined;
-      const instancePath = (err.instancePath as string) || '';
-      const params = (err.params as Record<string, unknown>) || {};
-      const message = err.message as string | undefined;
-      const fieldPath = instancePath
-        .substring(1)
-        .replace(/requestBody\//g, '')
-        .replace(/\//g, '.');
-      const field = (params.missingProperty as string) || fieldPath;
-
-      switch (keyword) {
-        case 'not-found':
-          return message || 'Not found';
-        case 'required':
-          return `El campo <${field}> es requerido.`;
-        case 'minLength':
-          return `El campo <${field}> debe tener al menos <${params.limit}> caracteres.`;
-        case 'maxLength':
-          return `El campo <${field}> no puede tener más de <${params.limit}> caracteres.`;
-        case 'format':
-          return `El campo <${field}> debe estar en formato <${params.format}>.`;
-        case 'type':
-          return `El campo <${field}> debe ser de tipo <${params.type}>.`;
-        case 'enum': {
-          const allowedValues = Array.isArray(params.allowedValues) ? params.allowedValues : [];
-          return `El campo <${field}> debe ser uno de los valores permitidos: ${allowedValues.join(', ')}.`;
-        }
-        default:
-          if (message) {
-            return `${field}: ${message}`;
-          }
-          return `Error de validación desconocido en el campo <${field}>.`;
-      }
-    });
+    const validationErrors = (errors || []).map((error: unknown) => this.toValidationErrorDetail(error));
+    const friendlyMessages = validationErrors.map((error) => error.friendlyMessage);
 
     return new InvalidArgumentException({
       code: 'INVALID_ARGUMENT',
-      message: friendlyMessages.join('\r\n')
+      message: friendlyMessages.join('\r\n'),
+      details: {
+        source: 'openapi',
+        validationErrors: validationErrors.map((validationError) => ({
+          field: validationError.field,
+          instancePath: validationError.instancePath,
+          keyword: validationError.keyword,
+          message: validationError.message,
+          params: validationError.params
+        }))
+      }
     });
+  }
+
+  private toValidationErrorDetail(error: unknown): {
+    field: string;
+    friendlyMessage: string;
+    instancePath: string;
+    keyword: string;
+    message?: string;
+    params: Record<string, unknown>;
+  } {
+    if (typeof error !== 'object' || error === null) {
+      return {
+        field: '',
+        friendlyMessage: 'Error de validación desconocido.',
+        instancePath: '',
+        keyword: 'unknown',
+        params: {}
+      };
+    }
+
+    const err = error as Record<string, unknown>;
+    const keyword = typeof err.keyword === 'string' ? err.keyword : 'unknown';
+    const instancePath = typeof err.instancePath === 'string' ? err.instancePath : '';
+    const params = this.toRecord(err.params);
+    const message = typeof err.message === 'string' ? err.message : undefined;
+    const fieldPath = instancePath
+      .substring(1)
+      .replace(/requestBody\//g, '')
+      .replace(/\//g, '.');
+    const field =
+      typeof params.missingProperty === 'string' && params.missingProperty.length > 0
+        ? params.missingProperty
+        : fieldPath;
+
+    return {
+      field,
+      friendlyMessage: this.toFriendlyValidationMessage(keyword, field, params, message),
+      instancePath,
+      keyword,
+      message,
+      params
+    };
+  }
+
+  private toFriendlyValidationMessage(
+    keyword: string,
+    field: string,
+    params: Record<string, unknown>,
+    message?: string
+  ): string {
+    switch (keyword) {
+      case 'not-found':
+        return message || 'Not found';
+      case 'required':
+        return `El campo <${field}> es requerido.`;
+      case 'minLength':
+        return `El campo <${field}> debe tener al menos <${params.limit}> caracteres.`;
+      case 'maxLength':
+        return `El campo <${field}> no puede tener más de <${params.limit}> caracteres.`;
+      case 'format':
+        return `El campo <${field}> debe estar en formato <${params.format}>.`;
+      case 'type':
+        return `El campo <${field}> debe ser de tipo <${params.type}>.`;
+      case 'enum': {
+        const allowedValues = Array.isArray(params.allowedValues) ? params.allowedValues : [];
+        return `El campo <${field}> debe ser uno de los valores permitidos: ${allowedValues.join(', ')}.`;
+      }
+      default:
+        if (message) {
+          return `${field}: ${message}`;
+        }
+        return `Error de validación desconocido en el campo <${field}>.`;
+    }
+  }
+
+  private toRecord(value: unknown): Record<string, unknown> {
+    if (typeof value === 'object' && value !== null) {
+      return value as Record<string, unknown>;
+    }
+
+    return {};
   }
 
   private parseSwaggerExceptionToForbiddenException(exception: { name: string; message: string }): ForbiddenException {

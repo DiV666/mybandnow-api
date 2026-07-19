@@ -2,7 +2,7 @@ import { SongInstrumentIdMother } from '../../domain/SongInstrumentIdMother.js';
 import { CreateSongInstrumentCommand } from '@Contexts/Moat/SongInstrument/application/create/CreateSongInstrumentCommand.js';
 import { SongInstrument } from '@Contexts/Moat/SongInstrument/domain/SongInstrument.js';
 import { SongInstrumentMusicianIdMother } from '../../domain/SongInstrumentMusicianIdMother.js';
-import { SongInstrumentInstrumentTypeMother } from '../../domain/SongInstrumentInstrumentTypeMother.js';
+import { SongInstrumentInstrumentIdMother } from '../../domain/SongInstrumentInstrumentIdMother.js';
 import { SongInstrumentSongIdMother } from '../../domain/SongInstrumentSongIdMother.js';
 import { SongInstrumentNameMother } from '../../domain/SongInstrumentNameMother.js';
 
@@ -11,7 +11,7 @@ export class CreateSongInstrumentCommandMother {
     return {
       id: SongInstrumentIdMother.random().value,
       musicianId: SongInstrumentMusicianIdMother.random().value,
-      instrumentType: SongInstrumentInstrumentTypeMother.random().value,
+      instrumentId: SongInstrumentInstrumentIdMother.random().value,
       songId: SongInstrumentSongIdMother.random().value,
       name: SongInstrumentNameMother.random().value
     };
@@ -25,7 +25,7 @@ export class CreateSongInstrumentCommandMother {
       commandData.id,
       commandData.name,
       commandData.songId,
-      commandData.instrumentType,
+      commandData.instrumentId,
       commandData.musicianId
     );
   }
@@ -35,7 +35,7 @@ export class CreateSongInstrumentCommandMother {
     return this.create({
       id: p.id,
       musicianId: p.musicianId,
-      instrumentType: p.instrumentType,
+      instrumentId: p.instrumentId,
       songId: p.songId,
       name: p.name
     });

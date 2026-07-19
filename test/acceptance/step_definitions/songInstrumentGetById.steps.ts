@@ -5,6 +5,7 @@ import { PrismaClientFactory } from '@Contexts/Shared/infrastructure/persistence
 import { MybandnowWorld } from './MybandnowWorld.js';
 
 const BAND_MEMBER_NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341';
+const DEFAULT_CATALOG_INSTRUMENT_ID = '0e7a0d5f-3d2a-4bc1-8d4d-100000000001';
 
 Given(
   'A band membership exists for musician {string} in the song {string} band',
@@ -40,6 +41,27 @@ Given(
 );
 
 Given(
+  'An existing catalog instrument with id {string} and name {string}',
+  async function (this: MybandnowWorld, instrumentId: string, name: string) {
+    const prisma = PrismaClientFactory.createClient();
+    const resolvedInstrumentId = this.dataUtil.replaceTokensWithCustomOrFakerValues(instrumentId) as string;
+
+    await prisma.instruments.upsert({
+      where: { id: resolvedInstrumentId },
+      update: {
+        name,
+        description: `${name} test catalog instrument`
+      },
+      create: {
+        id: resolvedInstrumentId,
+        name,
+        description: `${name} test catalog instrument`
+      }
+    });
+  }
+);
+
+Given(
   'An existing song instrument with id {string} for song {string} and musician {string}',
   async function (this: MybandnowWorld, instrumentId: string, songId: string, musicianId: string) {
     const prisma = PrismaClientFactory.createClient();
@@ -56,14 +78,14 @@ Given(
       where: { id: resolvedInstrumentId },
       update: {
         name: 'Lead Guitar',
-        instrumentType: 'guitar',
+        instrumentId: DEFAULT_CATALOG_INSTRUMENT_ID,
         songId: resolvedSongId,
         musicianId: resolvedMusicianId
       },
       create: {
         id: resolvedInstrumentId,
         name: 'Lead Guitar',
-        instrumentType: 'guitar',
+        instrumentId: DEFAULT_CATALOG_INSTRUMENT_ID,
         songId: resolvedSongId,
         musicianId: resolvedMusicianId,
         createdAt
@@ -85,14 +107,16 @@ Given(
         songInstrumentId: resolvedInstrumentId,
         url: 'https://example.com/song-instrument-video.mp4',
         duration: 123,
-        size: 456
+        size: 456,
+        startTimeMs: 0
       },
       create: {
         id: resolvedVideoId,
         songInstrumentId: resolvedInstrumentId,
         url: 'https://example.com/song-instrument-video.mp4',
         duration: 123,
-        size: 456
+        size: 456,
+        startTimeMs: 0
       }
     });
   }

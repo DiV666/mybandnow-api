@@ -33,7 +33,9 @@ Feature: List song instruments by criteria
     $uuid
     """
     And An existing song with id "#songId" and musician "#musicianId"
+    And An existing catalog instrument with id "0e7a0d5f-3d2a-4bc1-8d4d-100000000001" and name "Guitarra"
     And An existing song with id "#anotherSongId" and musician "#musicianId"
+    And An existing catalog instrument with id "0e7a0d5f-3d2a-4bc1-8d4d-100000000001" and name "Guitarra"
     And A band membership exists for musician "#musicianId" in the song "#songId" band
     And A band membership exists for musician "#musicianId" in the song "#anotherSongId" band
     And An existing song instrument with id "#instrumentId" for song "#songId" and musician "#musicianId"
@@ -51,7 +53,7 @@ Feature: List song instruments by criteria
           {
             "id": "#instrumentId",
             "name": "Lead Guitar",
-            "instrumentType": "guitar",
+            "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
             "songId": "#songId",
             "musicianId": "#musicianId",
             "upload": null
@@ -59,7 +61,7 @@ Feature: List song instruments by criteria
           {
             "id": "#secondInstrumentId",
             "name": "Lead Guitar",
-            "instrumentType": "guitar",
+            "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
             "songId": "#songId",
             "musicianId": "#musicianId",
             "upload": null
@@ -80,7 +82,7 @@ Feature: List song instruments by criteria
           {
             "id": "#instrumentId",
             "name": "Lead Guitar",
-            "instrumentType": "guitar",
+            "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
             "songId": "#songId",
             "musicianId": "#musicianId",
             "upload": null
@@ -88,7 +90,7 @@ Feature: List song instruments by criteria
           {
             "id": "#secondInstrumentId",
             "name": "Lead Guitar",
-            "instrumentType": "guitar",
+            "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
             "songId": "#songId",
             "musicianId": "#musicianId",
             "upload": null
@@ -110,7 +112,7 @@ Feature: List song instruments by criteria
           {
             "id": "#instrumentId",
             "name": "Lead Guitar",
-            "instrumentType": "guitar",
+            "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
             "songId": "#songId",
             "musicianId": "#musicianId",
             "upload": {
@@ -121,7 +123,7 @@ Feature: List song instruments by criteria
           {
             "id": "#secondInstrumentId",
             "name": "Lead Guitar",
-            "instrumentType": "guitar",
+            "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
             "songId": "#songId",
             "musicianId": "#musicianId",
             "upload": null

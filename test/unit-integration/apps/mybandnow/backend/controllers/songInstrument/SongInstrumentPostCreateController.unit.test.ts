@@ -40,7 +40,7 @@ describe('SongInstrumentPostCreateController', () => {
       body: {
         id: 'instrument-id',
         name: 'Lead Guitar',
-        instrumentType: 'guitar',
+        instrumentId: '0e7a0d5f-3d2a-4bc1-8d4d-100000000001',
         musicianId: 'owner-musician-id'
       }
     });
@@ -67,7 +67,13 @@ describe('SongInstrumentPostCreateController', () => {
       new SongInstrumentCheckSongOwnershipQuery('path-song-id', 'owner-musician-id')
     );
     expect(commandBus.dispatch).toHaveBeenCalledExactlyOnceWith(
-      new CreateSongInstrumentCommand('instrument-id', 'Lead Guitar', 'path-song-id', 'guitar', 'owner-musician-id')
+      new CreateSongInstrumentCommand(
+        'instrument-id',
+        'Lead Guitar',
+        'path-song-id',
+        '0e7a0d5f-3d2a-4bc1-8d4d-100000000001',
+        'owner-musician-id'
+      )
     );
     expect(res.status).toHaveBeenCalledWith(httpStatus.CREATED);
     expect(res.end).toHaveBeenCalledOnce();
@@ -97,7 +103,7 @@ describe('SongInstrumentPostCreateController', () => {
       body: {
         id: 'instrument-id',
         name: 'Lead Guitar',
-        instrumentType: 'guitar',
+        instrumentId: '0e7a0d5f-3d2a-4bc1-8d4d-100000000002',
         musicianId: 'another-musician-id'
       }
     });
@@ -124,7 +130,13 @@ describe('SongInstrumentPostCreateController', () => {
       new SongInstrumentCheckSongOwnershipQuery('path-song-id', 'owner-musician-id')
     );
     expect(commandBus.dispatch).toHaveBeenCalledExactlyOnceWith(
-      new CreateSongInstrumentCommand('instrument-id', 'Lead Guitar', 'path-song-id', 'guitar', 'another-musician-id')
+      new CreateSongInstrumentCommand(
+        'instrument-id',
+        'Lead Guitar',
+        'path-song-id',
+        '0e7a0d5f-3d2a-4bc1-8d4d-100000000002',
+        'another-musician-id'
+      )
     );
     expect(res.status).toHaveBeenCalledWith(httpStatus.CREATED);
     expect(res.end).toHaveBeenCalledOnce();
@@ -154,7 +166,7 @@ describe('SongInstrumentPostCreateController', () => {
       body: {
         id: 'instrument-id',
         name: 'Lead Guitar',
-        instrumentType: 'guitar',
+        instrumentId: '0e7a0d5f-3d2a-4bc1-8d4d-100000000003',
         musicianId: 'assigned-musician-id'
       }
     });

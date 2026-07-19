@@ -120,7 +120,8 @@ describe('SongInstrumentGetByIdController', () => {
       expect.objectContaining({
         id: songInstrument.id.value,
         video: expect.objectContaining({
-          url: signedPlaybackUrl
+          url: signedPlaybackUrl,
+          startTimeMs: 0
         })
       })
     );
