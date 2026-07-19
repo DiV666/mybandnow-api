@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Storage } from '@google-cloud/storage';
 import type Logger from '../../../../../../src/Contexts/Shared/domain/Logger.js';
 import { GcsStorageRepository } from '../../../../../../src/Contexts/Orchestrator/SongInstrumentProcess/infrastructure/GcsStorageRepository.js';
@@ -7,9 +7,11 @@ const storageMocks = vi.hoisted(() => {
   const upload = vi.fn();
   const deleteFile = vi.fn();
   const download = vi.fn();
+  const getSignedUrl = vi.fn();
   const file = vi.fn(() => ({
     delete: deleteFile,
-    download
+    download,
+    getSignedUrl
   }));
   const bucket = vi.fn(() => ({
     upload,
@@ -27,6 +29,7 @@ const storageMocks = vi.hoisted(() => {
     upload,
     deleteFile,
     download,
+    getSignedUrl,
     file,
     bucket,
     constructorSpy,
@@ -41,10 +44,15 @@ vi.mock('@google-cloud/storage', () => ({
 describe('GcsStorageRepository', () => {
   let logger: Logger;
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   beforeEach(() => {
     storageMocks.upload.mockReset();
     storageMocks.deleteFile.mockReset();
     storageMocks.download.mockReset();
+    storageMocks.getSignedUrl.mockReset();
     storageMocks.file.mockClear();
     storageMocks.bucket.mockClear();
     storageMocks.constructorSpy.mockClear();
@@ -72,6 +80,29 @@ describe('GcsStorageRepository', () => {
         private_key: 'private-key'
       }
     });
+  });
+
+  it('returns a short-lived signed playback url for a durable GCS object', async () => {
+    vi.spyOn(Date, 'now').mockReturnValue(1_700_000_000_000);
+    storageMocks.getSignedUrl.mockResolvedValue([
+      'https://storage.googleapis.com/tmp-bucket/song-instrument-uploads/video.mp4?signature=123'
+    ]);
+    const repository = new GcsStorageRepository(
+      logger,
+      'tmp-bucket',
+      'service-account@example.com',
+      Buffer.from('private-key').toString('base64')
+    );
+
+    const signedUrl = await repository.getSignedUrl('song-instrument-uploads/video.mp4');
+
+    expect(storageMocks.bucket).toHaveBeenCalledWith('tmp-bucket');
+    expect(storageMocks.file).toHaveBeenCalledWith('song-instrument-uploads/video.mp4');
+    expect(storageMocks.getSignedUrl).toHaveBeenCalledExactlyOnceWith({
+      action: 'read',
+      expires: 1_700_000_900_000
+    });
+    expect(signedUrl).toBe('https://storage.googleapis.com/tmp-bucket/song-instrument-uploads/video.mp4?signature=123');
   });
 
   it('downloads a durable GCS object into a temp local file', async () => {

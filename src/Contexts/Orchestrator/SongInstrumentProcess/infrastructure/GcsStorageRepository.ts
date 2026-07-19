@@ -5,6 +5,8 @@ import { Storage } from '@google-cloud/storage';
 import Logger from '../../../Shared/domain/Logger.js';
 import { StorageRepository } from '../domain/StorageRepository.js';
 
+const PLAYBACK_SIGNED_URL_TTL_IN_MS = 15 * 60 * 1000;
+
 export class GcsStorageRepository implements StorageRepository {
   private readonly storage: Storage;
 
@@ -43,6 +45,22 @@ export class GcsStorageRepository implements StorageRepository {
     this.logger.info('[GcsStorageRepository] Downloaded successfully.');
 
     return tempFilePath;
+  }
+
+  async getSignedUrl(sourcePath: string): Promise<string> {
+    this.logger.info(
+      `[GcsStorageRepository] Generating signed url for ${sourcePath} from GCS bucket ${this.bucketName}...`
+    );
+    const [signedUrl] = await this.storage
+      .bucket(this.bucketName)
+      .file(sourcePath)
+      .getSignedUrl({
+        action: 'read',
+        expires: Date.now() + PLAYBACK_SIGNED_URL_TTL_IN_MS
+      });
+    this.logger.info('[GcsStorageRepository] Signed url generated successfully.');
+
+    return signedUrl;
   }
 
   async deleteFile(destinationPath: string): Promise<void> {

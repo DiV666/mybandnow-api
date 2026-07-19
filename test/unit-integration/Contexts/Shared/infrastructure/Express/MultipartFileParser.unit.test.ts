@@ -189,6 +189,78 @@ describe('MultipartFileParser', () => {
     createWriteStreamSpy.mockRestore();
   });
 
+  it('accepts uploads larger than the previous 25 MB default limit', async () => {
+    // Arrange
+    const parser = new MultipartFileParser();
+    const request = createMultipartRequest({
+      boundary: 'test-boundary',
+      parts: [
+        {
+          name: 'video',
+          filename: 'track.mp4',
+          contentType: 'video/mp4',
+          body: createValidMp4OfSize(30 * 1024 * 1024)
+        }
+      ]
+    });
+
+    // Act
+    const result = await parser.parse(request as unknown as Request);
+    createdFiles.push(result.tempFilePath);
+    const persistedContent = await fs.readFile(result.tempFilePath);
+
+    // Assert
+    expect(persistedContent).toHaveLength(30 * 1024 * 1024);
+  });
+
+  it('accepts uploads at the exact new 80 MB default limit', async () => {
+    // Arrange
+    const parser = new MultipartFileParser();
+    const request = createMultipartRequest({
+      boundary: 'test-boundary',
+      parts: [
+        {
+          name: 'video',
+          filename: 'track.mp4',
+          contentType: 'video/mp4',
+          body: createValidMp4OfSize(80 * 1024 * 1024)
+        }
+      ]
+    });
+
+    // Act
+    const result = await parser.parse(request as unknown as Request);
+    createdFiles.push(result.tempFilePath);
+    const persistedContent = await fs.readFile(result.tempFilePath);
+
+    // Assert
+    expect(persistedContent).toHaveLength(80 * 1024 * 1024);
+  });
+
+  it('rejects uploads that exceed the new 80 MB default limit', async () => {
+    // Arrange
+    const parser = new MultipartFileParser();
+    const request = createMultipartRequest({
+      boundary: 'test-boundary',
+      parts: [
+        {
+          name: 'video',
+          filename: 'track.mp4',
+          contentType: 'video/mp4',
+          body: createValidMp4OfSize(81 * 1024 * 1024)
+        }
+      ]
+    });
+
+    // Act / Assert
+    await expect(parser.parse(request as unknown as Request)).rejects.toEqual(
+      expect.objectContaining<Partial<InvalidArgumentException>>({
+        message: `Video file exceeds the ${80 * 1024 * 1024} byte limit`,
+        details: { limitBytes: 80 * 1024 * 1024, reason: 'file_too_large' }
+      })
+    );
+  });
+
   it('rejects the upload when the file exceeds the configured size limit', async () => {
     // Arrange
     const parser = new MultipartFileParser({ maxFileSizeBytes: 8 });
@@ -261,6 +333,16 @@ type MultipartPart = {
 };
 
 const fsModule = fsNode;
+
+function createValidMp4OfSize(sizeInBytes: number): Buffer {
+  const validHeader = Buffer.from('000000186674797069736f6d0000020069736f6d69736f32', 'hex');
+
+  if (sizeInBytes < validHeader.length) {
+    throw new Error(`sizeInBytes must be at least ${validHeader.length}`);
+  }
+
+  return Buffer.concat([validHeader, Buffer.alloc(sizeInBytes - validHeader.length, 0)]);
+}
 
 function createMultipartRequest({
   boundary,

@@ -7,7 +7,7 @@ import path from 'node:path';
 import type { Request } from 'express';
 import { InvalidArgumentException } from '../../domain/exceptions/InvalidArgumentException.js';
 
-const DEFAULT_MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024;
+const DEFAULT_MAX_FILE_SIZE_BYTES = 80 * 1024 * 1024;
 
 export interface MultipartFileResult {
   tempFilePath: string;
@@ -30,7 +30,7 @@ export class MultipartFileParser {
         headers: req.headers,
         limits: {
           files: 1,
-          fileSize: this.maxFileSizeBytes
+          fileSize: this.maxFileSizeBytes + 1
         }
       });
       let tempFilePath = '';

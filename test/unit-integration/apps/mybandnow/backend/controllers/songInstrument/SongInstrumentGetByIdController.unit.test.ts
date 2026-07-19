@@ -13,6 +13,8 @@ import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Context
 import { SongInstrumentFindByIdQuery } from '../../../../../../../src/Contexts/Moat/SongInstrument/application/findById/SongInstrumentFindByIdQuery.js';
 import { SongInstrumentFindByIdResponse } from '../../../../../../../src/Contexts/Moat/SongInstrument/application/findById/SongInstrumentFindByIdResponse.js';
 import { SongInstrumentMother } from '../../../../../../../test/unit-integration/Contexts/Moat/SongInstrument/domain/SongInstrumentMother.js';
+import { SongInstrumentVideoMother } from '../../../../../../../test/unit-integration/Contexts/Moat/SongInstrumentVideo/domain/SongInstrumentVideoMother.js';
+import { SongInstrumentVideoSongInstrumentId } from '../../../../../../../src/Contexts/Moat/SongInstrumentVideo/domain/value-object/SongInstrumentVideoSongInstrumentId.js';
 import { ForbiddenException } from '../../../../../../../src/Contexts/Shared/domain/exceptions/ForbiddenException.js';
 
 describe('SongInstrumentGetByIdController', () => {
@@ -64,6 +66,64 @@ describe('SongInstrumentGetByIdController', () => {
     );
     expect(res.status).toHaveBeenCalledWith(httpStatus.OK);
     expect(res.json).toHaveBeenCalledWith(responseBody);
+  });
+
+  it('returns the signed playback url in the API response when the instrument has a processed video', async () => {
+    // Arrange
+    const logger = mock<Logger>();
+    const commandBus = mock<CommandBus>();
+    const queryBus = mock<QueryBus>();
+    const exceptionHandler = new ApiExceptionsHttpStatusCodeMapping();
+    const controller = new SongInstrumentGetByIdController(logger, commandBus, queryBus, exceptionHandler);
+    const songInstrument = SongInstrumentMother.create();
+    const signedPlaybackUrl =
+      'https://storage.googleapis.com/tmp-bucket/song-instrument-uploads/video.mp4?signature=123';
+    const video = SongInstrumentVideoMother.create({
+      songInstrumentId: new SongInstrumentVideoSongInstrumentId(songInstrument.id.value),
+      url: { value: signedPlaybackUrl } as never
+    });
+    const responseBody = new SongInstrumentFindByIdResponse(songInstrument.toPrimitives(), video.toPrimitives());
+
+    const context = {
+      security: {
+        BearerAuth: {
+          id: 'authenticated-user-id'
+        }
+      },
+      request: {
+        params: {
+          songId: songInstrument.songId.value,
+          instrumentId: songInstrument.id.value
+        }
+      }
+    } as unknown as Context;
+    const req = mock<Request>();
+    const res = mock<Response>();
+    res.status.mockReturnValue(res);
+    queryBus.ask
+      .mockResolvedValueOnce(
+        new MusicianSearchByUserIdResponse({
+          id: 'band-member-musician-id',
+          userId: 'authenticated-user-id',
+          username: 'band-member',
+          name: 'Band Member'
+        })
+      )
+      .mockResolvedValueOnce(responseBody);
+
+    // Act
+    await controller.run(context, req, res);
+
+    // Assert
+    expect(res.status).toHaveBeenCalledWith(httpStatus.OK);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: songInstrument.id.value,
+        video: expect.objectContaining({
+          url: signedPlaybackUrl
+        })
+      })
+    );
   });
 
   it('throws forbidden when the authenticated user has no musician profile', async () => {

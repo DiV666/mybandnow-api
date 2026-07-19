@@ -6,6 +6,7 @@ import type { SongInstrumentPersistenceRepository } from '@Contexts/Moat/SongIns
 import type { SongInstrumentAuthorizationRepository } from '@Contexts/Moat/SongInstrument/domain/repository/SongInstrumentAuthorizationRepository.js';
 import type { SongInstrumentVideoPersistenceRepository } from '@Contexts/Moat/SongInstrumentVideo/domain/repository/SongInstrumentVideoPersistenceRepository.js';
 import type { SongInstrumentUploadPersistenceRepository } from '@Contexts/Moat/SongInstrumentUpload/domain/repository/SongInstrumentUploadPersistenceRepository.js';
+import type { StorageRepository } from '@Contexts/Orchestrator/SongInstrumentProcess/domain/StorageRepository.js';
 import { SongInstrumentMother } from '@Test/unit-integration/Contexts/Moat/SongInstrument/domain/SongInstrumentMother.js';
 import { SongInstrumentId } from '@Contexts/Moat/SongInstrument/domain/value-object/SongInstrumentId.js';
 import { SongInstrumentSongId } from '@Contexts/Moat/SongInstrument/domain/value-object/SongInstrumentSongId.js';
@@ -25,11 +26,13 @@ describe('SongInstrumentFindById', () => {
     const authorizationRepository = mock<SongInstrumentAuthorizationRepository>();
     const songInstrumentVideoRepository = mock<SongInstrumentVideoPersistenceRepository>();
     const songInstrumentUploadRepository = mock<SongInstrumentUploadPersistenceRepository>();
+    const storageRepository = mock<StorageRepository>();
     const useCase = new SongInstrumentFindById(
       songInstrumentRepository,
       authorizationRepository,
       songInstrumentVideoRepository,
-      songInstrumentUploadRepository
+      songInstrumentUploadRepository,
+      storageRepository
     );
     const songInstrument = SongInstrumentMother.create();
     const query = new SongInstrumentFindByIdQuery(
@@ -54,6 +57,7 @@ describe('SongInstrumentFindById', () => {
     expect(songInstrumentVideoRepository.searchBySongInstrumentId).toHaveBeenCalledExactlyOnceWith(
       new SongInstrumentVideoSongInstrumentId(query.instrumentId)
     );
+    expect(storageRepository.getSignedUrl).not.toHaveBeenCalled();
     expect(response).toEqual(new SongInstrumentFindByIdResponse(songInstrument.toPrimitives(), null));
     expect(response).toMatchObject({ upload: null });
   });
@@ -64,15 +68,111 @@ describe('SongInstrumentFindById', () => {
     const authorizationRepository = mock<SongInstrumentAuthorizationRepository>();
     const songInstrumentVideoRepository = mock<SongInstrumentVideoPersistenceRepository>();
     const songInstrumentUploadRepository = mock<SongInstrumentUploadPersistenceRepository>();
+    const storageRepository = mock<StorageRepository>();
     const useCase = new SongInstrumentFindById(
       songInstrumentRepository,
       authorizationRepository,
       songInstrumentVideoRepository,
-      songInstrumentUploadRepository
+      songInstrumentUploadRepository,
+      storageRepository
     );
     const songInstrument = SongInstrumentMother.create();
     const video = SongInstrumentVideoMother.create({
-      songInstrumentId: new SongInstrumentVideoSongInstrumentId(songInstrument.id.value)
+      songInstrumentId: new SongInstrumentVideoSongInstrumentId(songInstrument.id.value),
+      url: { value: 'song-instrument-uploads/alternate-video.mp4' } as never
+    });
+    const signedPlaybackUrl = 'https://storage.googleapis.com/bucket/alternate-video.mp4?signature=456';
+    const query = new SongInstrumentFindByIdQuery(
+      songInstrument.songId.value,
+      songInstrument.id.value,
+      songInstrument.musicianId.value
+    );
+
+    authorizationRepository.isBandMember.mockResolvedValue(true);
+    songInstrumentRepository.search.mockResolvedValue(songInstrument);
+    songInstrumentVideoRepository.searchBySongInstrumentId.mockResolvedValue(video);
+    storageRepository.getSignedUrl.mockResolvedValue(signedPlaybackUrl);
+
+    // Act
+    const response = await useCase.run(query);
+
+    // Assert
+    expect(storageRepository.getSignedUrl).toHaveBeenCalledExactlyOnceWith(
+      'song-instrument-uploads/alternate-video.mp4'
+    );
+    expect(response).toEqual(
+      new SongInstrumentFindByIdResponse(songInstrument.toPrimitives(), {
+        ...video.toPrimitives(),
+        url: signedPlaybackUrl
+      })
+    );
+  });
+
+  it('returns the signed playback url when a video exists for the requested instrument', async () => {
+    // Arrange
+    const songInstrumentRepository = mock<SongInstrumentPersistenceRepository>();
+    const authorizationRepository = mock<SongInstrumentAuthorizationRepository>();
+    const songInstrumentVideoRepository = mock<SongInstrumentVideoPersistenceRepository>();
+    const songInstrumentUploadRepository = mock<SongInstrumentUploadPersistenceRepository>();
+    const storageRepository = mock<StorageRepository>();
+    const useCase = new SongInstrumentFindById(
+      songInstrumentRepository,
+      authorizationRepository,
+      songInstrumentVideoRepository,
+      songInstrumentUploadRepository,
+      storageRepository
+    );
+    const songInstrument = SongInstrumentMother.create();
+    const video = SongInstrumentVideoMother.create({
+      songInstrumentId: new SongInstrumentVideoSongInstrumentId(songInstrument.id.value),
+      url: { value: 'song-instrument-uploads/internal-video.mp4' } as never
+    });
+    const signedPlaybackUrl = 'https://storage.googleapis.com/bucket/internal-video.mp4?signature=123';
+    const query = new SongInstrumentFindByIdQuery(
+      songInstrument.songId.value,
+      songInstrument.id.value,
+      songInstrument.musicianId.value
+    );
+
+    authorizationRepository.isBandMember.mockResolvedValue(true);
+    songInstrumentRepository.search.mockResolvedValue(songInstrument);
+    songInstrumentVideoRepository.searchBySongInstrumentId.mockResolvedValue(video);
+    storageRepository.getSignedUrl.mockResolvedValue(signedPlaybackUrl);
+
+    // Act
+    const response = await useCase.run(query);
+
+    // Assert
+    expect(storageRepository.getSignedUrl).toHaveBeenCalledExactlyOnceWith(
+      'song-instrument-uploads/internal-video.mp4'
+    );
+    expect(response).toEqual(
+      new SongInstrumentFindByIdResponse(songInstrument.toPrimitives(), {
+        ...video.toPrimitives(),
+        url: signedPlaybackUrl
+      })
+    );
+  });
+
+  it('returns the persisted absolute video url unchanged when the playback url is already public', async () => {
+    // Arrange
+    const songInstrumentRepository = mock<SongInstrumentPersistenceRepository>();
+    const authorizationRepository = mock<SongInstrumentAuthorizationRepository>();
+    const songInstrumentVideoRepository = mock<SongInstrumentVideoPersistenceRepository>();
+    const songInstrumentUploadRepository = mock<SongInstrumentUploadPersistenceRepository>();
+    const storageRepository = mock<StorageRepository>();
+    const useCase = new SongInstrumentFindById(
+      songInstrumentRepository,
+      authorizationRepository,
+      songInstrumentVideoRepository,
+      songInstrumentUploadRepository,
+      storageRepository
+    );
+    const songInstrument = SongInstrumentMother.create();
+    const publicVideoUrl = 'https://example.com/song-instrument-video.mp4';
+    const video = SongInstrumentVideoMother.create({
+      songInstrumentId: new SongInstrumentVideoSongInstrumentId(songInstrument.id.value),
+      url: { value: publicVideoUrl } as never
     });
     const query = new SongInstrumentFindByIdQuery(
       songInstrument.songId.value,
@@ -88,7 +188,13 @@ describe('SongInstrumentFindById', () => {
     const response = await useCase.run(query);
 
     // Assert
-    expect(response).toEqual(new SongInstrumentFindByIdResponse(songInstrument.toPrimitives(), video.toPrimitives()));
+    expect(storageRepository.getSignedUrl).not.toHaveBeenCalled();
+    expect(response).toEqual(
+      new SongInstrumentFindByIdResponse(songInstrument.toPrimitives(), {
+        ...video.toPrimitives(),
+        url: publicVideoUrl
+      })
+    );
   });
 
   it('returns the active failed upload status with its public error message', async () => {
@@ -97,11 +203,13 @@ describe('SongInstrumentFindById', () => {
     const authorizationRepository = mock<SongInstrumentAuthorizationRepository>();
     const songInstrumentVideoRepository = mock<SongInstrumentVideoPersistenceRepository>();
     const songInstrumentUploadRepository = mock<SongInstrumentUploadPersistenceRepository>();
+    const storageRepository = mock<StorageRepository>();
     const useCase = Reflect.construct(SongInstrumentFindById, [
       songInstrumentRepository,
       authorizationRepository,
       songInstrumentVideoRepository,
-      songInstrumentUploadRepository
+      songInstrumentUploadRepository,
+      storageRepository
     ]) as SongInstrumentFindById;
     const activeUpload = SongInstrumentUploadMother.create({
       status: { value: SongInstrumentUploadStatusValues.FAILED } as never
@@ -138,17 +246,77 @@ describe('SongInstrumentFindById', () => {
     });
   });
 
+  it('returns the instrument payload and upload status when signed url generation fails', async () => {
+    // Arrange
+    const songInstrumentRepository = mock<SongInstrumentPersistenceRepository>();
+    const authorizationRepository = mock<SongInstrumentAuthorizationRepository>();
+    const songInstrumentVideoRepository = mock<SongInstrumentVideoPersistenceRepository>();
+    const songInstrumentUploadRepository = mock<SongInstrumentUploadPersistenceRepository>();
+    const storageRepository = mock<StorageRepository>();
+    const useCase = new SongInstrumentFindById(
+      songInstrumentRepository,
+      authorizationRepository,
+      songInstrumentVideoRepository,
+      songInstrumentUploadRepository,
+      storageRepository
+    );
+    const activeUpload = SongInstrumentUploadMother.create({
+      status: { value: SongInstrumentUploadStatusValues.PROCESSING } as never
+    });
+    const songInstrument = SongInstrumentMother.create({
+      activeUploadAttemptId: { value: activeUpload.id.value } as never
+    });
+    const video = SongInstrumentVideoMother.create({
+      songInstrumentId: new SongInstrumentVideoSongInstrumentId(songInstrument.id.value),
+      url: { value: 'song-instrument-uploads/internal-video.mp4' } as never
+    });
+    const query = new SongInstrumentFindByIdQuery(
+      songInstrument.songId.value,
+      songInstrument.id.value,
+      songInstrument.musicianId.value
+    );
+
+    authorizationRepository.isBandMember.mockResolvedValue(true);
+    songInstrumentRepository.search.mockResolvedValue(songInstrument);
+    songInstrumentVideoRepository.searchBySongInstrumentId.mockResolvedValue(video);
+    songInstrumentUploadRepository.search.mockResolvedValue(activeUpload);
+    storageRepository.getSignedUrl.mockRejectedValue(new Error('Signed URL generation failed'));
+
+    // Act
+    const response = await useCase.run(query);
+
+    // Assert
+    expect(storageRepository.getSignedUrl).toHaveBeenCalledExactlyOnceWith(
+      'song-instrument-uploads/internal-video.mp4'
+    );
+    expect(songInstrumentUploadRepository.search).toHaveBeenCalledOnce();
+    expect(response).toEqual(
+      new SongInstrumentFindByIdResponse(
+        songInstrument.toPrimitives(),
+        {
+          ...video.toPrimitives(),
+          url: 'song-instrument-uploads/internal-video.mp4'
+        },
+        {
+          status: SongInstrumentUploadStatusValues.PROCESSING
+        }
+      )
+    );
+  });
+
   it('throws not found when the instrument belongs to a different song', async () => {
     // Arrange
     const songInstrumentRepository = mock<SongInstrumentPersistenceRepository>();
     const authorizationRepository = mock<SongInstrumentAuthorizationRepository>();
     const songInstrumentVideoRepository = mock<SongInstrumentVideoPersistenceRepository>();
     const songInstrumentUploadRepository = mock<SongInstrumentUploadPersistenceRepository>();
+    const storageRepository = mock<StorageRepository>();
     const useCase = new SongInstrumentFindById(
       songInstrumentRepository,
       authorizationRepository,
       songInstrumentVideoRepository,
-      songInstrumentUploadRepository
+      songInstrumentUploadRepository,
+      storageRepository
     );
     const songInstrument = SongInstrumentMother.create();
     const query = new SongInstrumentFindByIdQuery(
@@ -175,11 +343,13 @@ describe('SongInstrumentFindById', () => {
     const authorizationRepository = mock<SongInstrumentAuthorizationRepository>();
     const songInstrumentVideoRepository = mock<SongInstrumentVideoPersistenceRepository>();
     const songInstrumentUploadRepository = mock<SongInstrumentUploadPersistenceRepository>();
+    const storageRepository = mock<StorageRepository>();
     const useCase = new SongInstrumentFindById(
       songInstrumentRepository,
       authorizationRepository,
       songInstrumentVideoRepository,
-      songInstrumentUploadRepository
+      songInstrumentUploadRepository,
+      storageRepository
     );
     const songInstrument = SongInstrumentMother.create();
     const query = new SongInstrumentFindByIdQuery(

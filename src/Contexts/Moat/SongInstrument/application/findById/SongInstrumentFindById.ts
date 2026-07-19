@@ -12,13 +12,15 @@ import { SongInstrumentFindByIdResponse } from './SongInstrumentFindByIdResponse
 import { SongInstrumentUploadPersistenceRepository } from '@Contexts/Moat/SongInstrumentUpload/domain/repository/SongInstrumentUploadPersistenceRepository.js';
 import { SongInstrumentUploadId } from '@Contexts/Moat/SongInstrumentUpload/domain/value-object/SongInstrumentUploadId.js';
 import { toPublicSongInstrumentUploadResponse } from '../PublicSongInstrumentUploadResponse.js';
+import type { StorageRepository } from '@Contexts/Orchestrator/SongInstrumentProcess/domain/StorageRepository.js';
 
 export class SongInstrumentFindById {
   constructor(
     private readonly songInstrumentRepository: SongInstrumentPersistenceRepository,
     private readonly authorizationRepository: SongInstrumentAuthorizationRepository,
     private readonly songInstrumentVideoRepository: SongInstrumentVideoPersistenceRepository,
-    private readonly songInstrumentUploadRepository: SongInstrumentUploadPersistenceRepository
+    private readonly songInstrumentUploadRepository: SongInstrumentUploadPersistenceRepository,
+    private readonly storageRepository: StorageRepository
   ) {}
 
   async run(query: SongInstrumentFindByIdQuery): Promise<SongInstrumentFindByIdResponse> {
@@ -45,11 +47,29 @@ export class SongInstrumentFindById {
           new SongInstrumentUploadId(songInstrument.activeUploadAttemptId.value)
         )
       : null;
+    const signedVideo = video
+      ? {
+          ...video.toPrimitives(),
+          url: isAbsoluteHttpUrl(video.url.value) ? video.url.value : await this.getPlaybackUrl(video.url.value)
+        }
+      : null;
 
     return new SongInstrumentFindByIdResponse(
       songInstrument.toPrimitives(),
-      video?.toPrimitives() ?? null,
+      signedVideo,
       toPublicSongInstrumentUploadResponse(upload)
     );
   }
+
+  private async getPlaybackUrl(url: string): Promise<string> {
+    try {
+      return await this.storageRepository.getSignedUrl(url);
+    } catch {
+      return url;
+    }
+  }
+}
+
+function isAbsoluteHttpUrl(value: string): boolean {
+  return /^https?:\/\//iu.test(value);
 }
