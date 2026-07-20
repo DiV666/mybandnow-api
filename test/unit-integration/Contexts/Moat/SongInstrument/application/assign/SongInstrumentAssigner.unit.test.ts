@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { mock } from 'vitest-mock-extended';
-import type Logger from '@Contexts/Shared/domain/Logger.js';
 import type { CommandBus } from '@Contexts/Shared/domain/CommandBus.js';
+import type Logger from '@Contexts/Shared/domain/Logger.js';
 import { ForbiddenException } from '@Contexts/Shared/domain/exceptions/ForbiddenException.js';
 import type { SongInstrumentPersistenceRepository } from '@Contexts/Moat/SongInstrument/domain/repository/SongInstrumentPersistenceRepository.js';
 import type { SongInstrumentAuthorizationRepository } from '@Contexts/Moat/SongInstrument/domain/repository/SongInstrumentAuthorizationRepository.js';
@@ -22,7 +22,7 @@ describe('SongInstrumentAssigner', () => {
     const songRepository = mock<SongPersistenceRepository>();
     const useCase = new SongInstrumentAssigner(
       logger,
-      commandBus,
+      () => commandBus,
       songInstrumentRepository,
       authorizationRepository,
       songRepository
@@ -30,6 +30,7 @@ describe('SongInstrumentAssigner', () => {
     const song = SongMother.create();
     const currentMusicianId = '55555555-5555-4555-8555-555555555555';
     const newMusicianId = '66666666-6666-4666-8666-666666666666';
+    const ownerMusicianId = '99999999-9999-4999-8999-999999999999';
     const songInstrument = SongInstrumentMother.create({
       songId: song.id as never,
       musicianId: songInstrumentMusicianId(currentMusicianId)
@@ -37,7 +38,7 @@ describe('SongInstrumentAssigner', () => {
     const command = new AssignSongInstrumentMusicianCommand(
       song.id.value,
       songInstrument.id.value,
-      '99999999-9999-4999-8999-999999999999',
+      ownerMusicianId,
       newMusicianId
     );
 
@@ -47,13 +48,13 @@ describe('SongInstrumentAssigner', () => {
 
     await useCase.run(command);
 
+    expect(commandBus.dispatch).toHaveBeenCalledWith(
+      new AddBandMemberCommand(song.bandId.value, ownerMusicianId, newMusicianId)
+    );
     expect(songInstrumentRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({
         musicianId: expect.objectContaining({ value: newMusicianId })
       })
-    );
-    expect(commandBus.dispatch).toHaveBeenCalledWith(
-      new AddBandMemberCommand(song.bandId.value, '99999999-9999-4999-8999-999999999999', newMusicianId)
     );
   });
 
@@ -65,13 +66,14 @@ describe('SongInstrumentAssigner', () => {
     const songRepository = mock<SongPersistenceRepository>();
     const useCase = new SongInstrumentAssigner(
       logger,
-      commandBus,
+      () => commandBus,
       songInstrumentRepository,
       authorizationRepository,
       songRepository
     );
     const assignedMusicianId = '77777777-7777-4777-8777-777777777777';
     const currentMusicianId = '88888888-8888-4888-8888-888888888888';
+    const ownerMusicianId = '99999999-9999-4999-8999-999999999999';
     const song = SongMother.create();
     const songInstrument = SongInstrumentMother.create({
       songId: song.id as never,
@@ -80,7 +82,7 @@ describe('SongInstrumentAssigner', () => {
     const command = new AssignSongInstrumentMusicianCommand(
       song.id.value,
       songInstrument.id.value,
-      '99999999-9999-4999-8999-999999999999',
+      ownerMusicianId,
       assignedMusicianId
     );
 
@@ -90,13 +92,13 @@ describe('SongInstrumentAssigner', () => {
 
     await useCase.run(command);
 
+    expect(commandBus.dispatch).toHaveBeenCalledWith(
+      new AddBandMemberCommand(song.bandId.value, ownerMusicianId, assignedMusicianId)
+    );
     expect(songInstrumentRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({
         musicianId: expect.objectContaining({ value: assignedMusicianId })
       })
-    );
-    expect(commandBus.dispatch).toHaveBeenCalledWith(
-      new AddBandMemberCommand(song.bandId.value, '99999999-9999-4999-8999-999999999999', assignedMusicianId)
     );
   });
 
@@ -108,7 +110,7 @@ describe('SongInstrumentAssigner', () => {
     const songRepository = mock<SongPersistenceRepository>();
     const useCase = new SongInstrumentAssigner(
       logger,
-      commandBus,
+      () => commandBus,
       songInstrumentRepository,
       authorizationRepository,
       songRepository
@@ -134,7 +136,7 @@ describe('SongInstrumentAssigner', () => {
     const songRepository = mock<SongPersistenceRepository>();
     const useCase = new SongInstrumentAssigner(
       logger,
-      commandBus,
+      () => commandBus,
       songInstrumentRepository,
       authorizationRepository,
       songRepository

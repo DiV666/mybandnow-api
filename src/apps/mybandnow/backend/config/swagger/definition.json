@@ -719,6 +719,48 @@
       }
     },
     "/v1/bands/{bandId}/members": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "bandMemberGetByBand",
+        "tags": ["Band"],
+        "summary": "List the members of a band",
+        "description": "List the members of a band when the authenticated musician is the owner or a member.",
+        "parameters": [
+          {
+            "name": "bandId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The members of the band",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BandMemberListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
       "post": {
         "security": [
           {
@@ -1273,6 +1315,35 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "BandMemberListItemResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["musicianId", "role"],
+        "properties": {
+          "musicianId": {
+            "$ref": "#/components/schemas/UUID"
+          },
+          "role": {
+            "type": "string"
+          }
+        }
+      },
+      "BandMemberListResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["items", "total"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BandMemberListItemResponse"
+            }
+          },
+          "total": {
+            "type": "integer"
           }
         }
       },

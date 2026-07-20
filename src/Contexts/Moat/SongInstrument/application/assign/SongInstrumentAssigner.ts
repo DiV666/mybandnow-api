@@ -1,5 +1,5 @@
+import type { CommandBusProvider } from '@Contexts/Shared/domain/CommandBus.js';
 import Logger from '@Contexts/Shared/domain/Logger.js';
-import { CommandBus } from '@Contexts/Shared/domain/CommandBus.js';
 import { ForbiddenException } from '@Contexts/Shared/domain/exceptions/ForbiddenException.js';
 import { SongInstrumentPersistenceRepository } from '../../domain/repository/SongInstrumentPersistenceRepository.js';
 import { SongInstrumentAuthorizationRepository } from '../../domain/repository/SongInstrumentAuthorizationRepository.js';
@@ -15,7 +15,7 @@ import { SongId } from '@Contexts/Moat/Song/domain/value-object/SongId.js';
 export class SongInstrumentAssigner {
   constructor(
     private readonly logger: Logger,
-    private readonly commandBus: CommandBus,
+    private readonly commandBusProvider: CommandBusProvider,
     private readonly songInstrumentRepository: SongInstrumentPersistenceRepository,
     private readonly authorizationRepository: SongInstrumentAuthorizationRepository,
     private readonly songRepository: SongPersistenceRepository
@@ -43,7 +43,7 @@ export class SongInstrumentAssigner {
       throw new SongInstrumentNotExistException(command.instrumentId);
     }
 
-    await this.commandBus.dispatch(
+    await this.commandBusProvider().dispatch(
       new AddBandMemberCommand(song.bandId.value, command.authenticatedMusicianId, command.musicianId)
     );
 

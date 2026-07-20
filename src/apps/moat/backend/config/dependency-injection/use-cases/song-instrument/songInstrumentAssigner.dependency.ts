@@ -6,7 +6,7 @@ export function register(container: ContainerBuilder) {
   container
     .register('Moat.SongInstrument.SongInstrumentAssigner', SongInstrumentAssigner)
     .addArgument(new Reference('Shared.BunyanLogger'))
-    .addArgument(new Reference('Shared.CommandBus'))
+    .addArgument(() => container.get('Shared.CommandBus'))
     .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'))
     .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'))
     .addArgument(new Reference('Moat.Song.SongRepository'));

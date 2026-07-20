@@ -10,6 +10,7 @@ import { register as registerUserRegister } from '../use-cases/user/userRegister
 import { register as registerMusicianCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/musician/musicianCreator.dependency.js';
 import { register as registerMusicianFindById } from '@Apps/moat/backend/config/dependency-injection/use-cases/musician/musicianFindById.dependency.js';
 import { register as registerBandCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandCreator.dependency.js';
+import { register as registerBandListMembers } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandListMembers.dependency.js';
 import { register as registerBandMemberAdder } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandMemberAdder.dependency.js';
 import { register as registerBandUpdater } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandUpdater.dependency.js';
 import { register as registerBandRemover } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandRemover.dependency.js';
@@ -87,6 +88,7 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   registerMusicianCreator(container);
   registerMusicianFindById(container);
   registerBandCreator(container);
+  registerBandListMembers(container);
   registerBandMemberAdder(container);
   registerBandUpdater(container);
   registerBandRemover(container);
