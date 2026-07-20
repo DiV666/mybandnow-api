@@ -11,6 +11,21 @@
   - para reproducción/descarga, dejar de exponer keys internas (`song-instrument-uploads/...`) y resolverlas bajo demanda vía backend/proxy que entregue una URL firmada corta o haga streaming controlado.
 - **Condición importante**: no responder éxito antes de que el archivo quede bajo control durable del sistema.
 
+## Invitaciones por email para bandas y asignaciones
+
+- **Decisión actual de la POC**:
+  - `POST /v1/bands/{bandId}/members` y `PATCH /v1/songs/{songId}/instruments/{instrumentId}` solo aceptan emails que ya resuelven a un usuario existente con perfil de músico.
+  - si el email no existe o todavía no tiene perfil de músico, el backend responde error.
+- **Mejora futura deseada**:
+  - crear un flujo de invitación por email cuando el destinatario todavía no exista o no tenga perfil,
+  - persistir estado de invitación pendiente,
+  - enviar email transaccional con link seguro para alta/aceptación,
+  - completar automáticamente la membresía o asignación pendiente una vez aceptada la invitación.
+- **Riesgos a resolver más adelante**:
+  - expiración y revocación de invitaciones,
+  - evitar duplicados si se reenvía al mismo email,
+  - auditar quién invitó, cuándo y a qué banda/canción.
+
 ## Internacionalización del catálogo de instrumentos
 
 - **Problema actual**: el catálogo `Instruments` guarda `name` y `description` como texto plano en un único idioma.

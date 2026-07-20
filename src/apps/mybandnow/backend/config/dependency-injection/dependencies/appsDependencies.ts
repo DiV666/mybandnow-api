@@ -1,6 +1,7 @@
 import { register as registerBandGetMatchByCriteriaController } from '../controllers/band/bandGetMatchByCriteria.dependency.js';
 import { register as registerBandGetSearchController } from '../controllers/band/bandGetSearch.dependency.js';
 import { register as registerBandDeleteRemoveController } from '../controllers/band/bandDeleteRemove.dependency.js';
+import { register as registerBandMemberPostCreateController } from '../controllers/band/bandMemberPostCreate.dependency.js';
 import { register as registerBandPutUpdateController } from '../controllers/band/bandPutUpdate.dependency.js';
 import { register as registerBandSongGetByBandController } from '../controllers/band/bandSongGetByBand.dependency.js';
 import { register as registerBandSongPostCreateController } from '../controllers/band/bandSongPostCreate.dependency.js';
@@ -13,6 +14,7 @@ import { register as registerProfilePostController } from '../controllers/musici
 import { register as registerSongGetMatchByCriteriaController } from '../controllers/song/songGetMatchByCriteria.dependency.js';
 import { register as registerSongInstrumentGetByIdController } from '../controllers/songInstrument/songInstrumentGetById.dependency.js';
 import { register as registerSongInstrumentGetMatchByCriteriaController } from '../controllers/songInstrument/songInstrumentGetMatchByCriteria.dependency.js';
+import { register as registerSongInstrumentPatchAssignController } from '../controllers/songInstrument/songInstrumentPatchAssign.dependency.js';
 import { register as registerSongInstrumentPatchVideoController } from '../controllers/songInstrument/songInstrumentPatchVideo.dependency.js';
 import { register as registerSongInstrumentPostCreateController } from '../controllers/songInstrument/songInstrumentPostCreate.dependency.js';
 import { register as registerSongInstrumentUploadPostUploadController } from '../controllers/songInstrumentUpload/songInstrumentUploadPostUpload.dependency.js';
@@ -39,6 +41,7 @@ export function registerAppsDependencies(container: ContainerBuilder) {
   registerBandGetMatchByCriteriaController(container);
   registerBandGetSearchController(container);
   registerBandDeleteRemoveController(container);
+  registerBandMemberPostCreateController(container);
   registerBandPutUpdateController(container);
   registerBandSongGetByBandController(container);
   registerBandSongPostCreateController(container);
@@ -51,6 +54,7 @@ export function registerAppsDependencies(container: ContainerBuilder) {
   registerSongGetMatchByCriteriaController(container);
   registerSongInstrumentGetByIdController(container);
   registerSongInstrumentGetMatchByCriteriaController(container);
+  registerSongInstrumentPatchAssignController(container);
   registerSongInstrumentPatchVideoController(container);
   registerSongInstrumentPostCreateController(container);
   registerSongInstrumentUploadPostUploadController(container);

@@ -55,6 +55,17 @@ export class SongInstrument extends AggregateRoot {
     return this.activeUploadAttemptId?.value === uploadAttemptId;
   }
 
+  reassignMusician(musicianId: string): SongInstrument {
+    if (this.musicianId.value === musicianId) {
+      return this;
+    }
+
+    return SongInstrument.fromPrimitives({
+      ...this.toPrimitives(),
+      musicianId
+    });
+  }
+
   static fromPrimitives(
     plainData: Primitives<SongInstrument> & { activeUploadAttemptId?: string | null }
   ): SongInstrument {

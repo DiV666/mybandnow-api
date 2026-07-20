@@ -294,6 +294,64 @@
             "$ref": "#/components/responses/NotFound"
           }
         }
+      },
+      "patch": {
+        "tags": ["SongInstrument"],
+        "summary": "Assign or reassign a musician to an existing song instrument",
+        "description": "Update the musician assigned to an existing song instrument slot. If the musician is not already in the song band, the backend creates a MEMBER band link automatically.",
+        "operationId": "songInstrumentPatchAssign",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "songId",
+            "in": "path",
+            "required": true,
+            "description": "Song identifier",
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          },
+          {
+            "name": "instrumentId",
+            "in": "path",
+            "required": true,
+            "description": "Song instrument identifier",
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SongInstrumentAssignRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The song instrument assignment has been updated"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
       }
     },
     "/v1/songs/{songId}/instruments/{instrumentId}/video": {
@@ -656,6 +714,56 @@
           },
           "500": {
             "$ref": "#/components/responses/Unknown"
+          }
+        }
+      }
+    },
+    "/v1/bands/{bandId}/members": {
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "bandMemberPostCreate",
+        "tags": ["Band"],
+        "summary": "Add an existing musician to a band by email",
+        "description": "Create a MEMBER band membership for the musician resolved from email. Invitations are not implemented in this POC.",
+        "parameters": [
+          {
+            "name": "bandId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BandMemberCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The band member has been created"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
         }
       }
@@ -1428,6 +1536,30 @@
           "startTimeMs": {
             "type": "integer",
             "minimum": 0
+          }
+        }
+      },
+      "BandMemberCreateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["musicianEmail"],
+        "properties": {
+          "musicianEmail": {
+            "type": "string",
+            "format": "email",
+            "description": "Must belong to an existing user with a musician profile. Invitations are out of scope for this POC."
+          }
+        }
+      },
+      "SongInstrumentAssignRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["musicianEmail"],
+        "properties": {
+          "musicianEmail": {
+            "type": "string",
+            "format": "email",
+            "description": "Must belong to an existing user with a musician profile. The backend auto-links the musician to the song band when needed."
           }
         }
       },

@@ -9,7 +9,7 @@ import { SongInstrumentPersistenceRepository } from '../../../SongInstrument/dom
 import { SongInstrumentId } from '../../../SongInstrument/domain/value-object/SongInstrumentId.js';
 import { SongInstrumentNotExistException } from '../../../SongInstrument/domain/exception/SongInstrumentNotExistException.js';
 
-type SongInstrumentVideoCreateInput = Omit<SongInstrumentVideoPrimitives, 'createdAt' | 'startTimeMs'>;
+export type SongInstrumentVideoCreateInput = Omit<SongInstrumentVideoPrimitives, 'createdAt' | 'startTimeMs'>;
 
 export class SongInstrumentVideoCreator {
   constructor(
@@ -60,7 +60,8 @@ export class SongInstrumentVideoCreator {
     }
   }
 
-  async run({ id, size, duration, url, songInstrumentId }: SongInstrumentVideoCreateInput): Promise<void> {
+  async run(input: SongInstrumentVideoCreateInput): Promise<void> {
+    const { id, size, duration, url, songInstrumentId } = input;
     const inputParams = { id, size, duration, url, songInstrumentId };
     const songInstrument = await this.songInstrumentRepository.search(new SongInstrumentId(songInstrumentId));
 

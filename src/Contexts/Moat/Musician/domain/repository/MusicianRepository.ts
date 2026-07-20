@@ -7,6 +7,7 @@ import { Nullable } from '@Contexts/Shared/domain/Nullable.js';
 export interface MusicianRepository {
   save(musician: Musician): Promise<void>;
   search(id: MusicianId): Promise<Nullable<Musician>>;
+  searchByEmail(email: string): Promise<Nullable<Musician>>;
   searchByUserId(userId: MusicianUserId): Promise<Nullable<Musician>>;
   searchByUsername(username: MusicianUsername): Promise<Nullable<Musician>>;
 }

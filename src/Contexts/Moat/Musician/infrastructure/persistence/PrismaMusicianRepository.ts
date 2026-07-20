@@ -128,6 +128,27 @@ export class PrismaMusicianRepository implements MusicianRepository {
     });
   }
 
+  async searchByEmail(email: string): Promise<Nullable<Musician>> {
+    const musicianDb = await this.prisma.musician.findFirst({
+      where: {
+        user: {
+          email
+        }
+      }
+    });
+
+    if (!musicianDb) {
+      return null;
+    }
+
+    return Musician.fromPrimitives({
+      id: musicianDb.id,
+      userId: musicianDb.userId,
+      name: musicianDb.realName ?? '',
+      username: musicianDb.username
+    });
+  }
+
   async searchByUserId(userId: MusicianUserId): Promise<Nullable<Musician>> {
     const musicianDb = await this.prisma.musician.findUnique({
       where: { userId: userId.value }

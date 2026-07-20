@@ -2,16 +2,20 @@ import { register as registerUserLogin } from '../use-cases/user/userLogin.depen
 import { LocalJwtBearerToken } from '@Contexts/Mybandnow/Shared/infrastructure/Authentication/LocalJwtBearerToken.js';
 import { UserPrismaRepository } from '@Contexts/Mybandnow/User/infrastructure/persistence/UserPrismaRepository.js';
 import { PrismaMusicianRepository } from '@Contexts/Moat/Musician/infrastructure/persistence/PrismaMusicianRepository.js';
+import { MusicianSearchByEmail } from '@Contexts/Moat/Musician/application/searchByEmail/MusicianSearchByEmail.js';
+import { MusicianSearchByEmailQueryHandler } from '@Contexts/Moat/Musician/application/searchByEmail/MusicianSearchByEmailQueryHandler.js';
 import { MusicianSearchByUserIdQueryHandler } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQueryHandler.js';
 import { MusicianSearchByUserId } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserId.js';
 import { register as registerUserRegister } from '../use-cases/user/userRegister.dependency.js';
 import { register as registerMusicianCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/musician/musicianCreator.dependency.js';
 import { register as registerMusicianFindById } from '@Apps/moat/backend/config/dependency-injection/use-cases/musician/musicianFindById.dependency.js';
 import { register as registerBandCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandCreator.dependency.js';
+import { register as registerBandMemberAdder } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandMemberAdder.dependency.js';
 import { register as registerBandUpdater } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandUpdater.dependency.js';
 import { register as registerBandRemover } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandRemover.dependency.js';
 import { register as registerBandFinder } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandFinder.dependency.js';
 import { register as registerBandMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandMatcher.dependency.js';
+import { register as registerSongInstrumentAssigner } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentAssigner.dependency.js';
 import { register as registerSongInstrumentCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentCreator.dependency.js';
 import { register as registerSongInstrumentFindById } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentFindById.dependency.js';
 import { register as registerSongInstrumentMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentMatcher.dependency.js';
@@ -83,6 +87,7 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   registerMusicianCreator(container);
   registerMusicianFindById(container);
   registerBandCreator(container);
+  registerBandMemberAdder(container);
   registerBandUpdater(container);
   registerBandRemover(container);
   registerBandFinder(container);
@@ -98,6 +103,7 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
     .addArgument(new Reference('Moat.Song.SongCreator'))
     .addTag('commandHandler');
 
+  registerSongInstrumentAssigner(container);
   registerSongInstrumentCreator(container);
   registerSongInstrumentFindById(container);
   registerSongInstrumentMatcher(container);
@@ -113,8 +119,17 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
     .addArgument(new Reference('Moat.Musician.MusicianRepository'));
 
   container
+    .register('Moat.Musician.MusicianSearchByEmail', MusicianSearchByEmail)
+    .addArgument(new Reference('Moat.Musician.MusicianRepository'));
+
+  container
     .register('Moat.Musician.MusicianSearchByUserIdQueryHandler', MusicianSearchByUserIdQueryHandler)
     .addArgument(new Reference('Moat.Musician.MusicianSearchByUserId'))
+    .addTag('queryHandler');
+
+  container
+    .register('Moat.Musician.MusicianSearchByEmailQueryHandler', MusicianSearchByEmailQueryHandler)
+    .addArgument(new Reference('Moat.Musician.MusicianSearchByEmail'))
     .addTag('queryHandler');
 
   container
