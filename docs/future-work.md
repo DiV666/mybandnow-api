@@ -14,17 +14,36 @@
 ## Invitaciones por email para bandas y asignaciones
 
 - **Decisión actual de la POC**:
-  - `POST /v1/bands/{bandId}/members` y `PATCH /v1/songs/{songId}/instruments/{instrumentId}` solo aceptan emails que ya resuelven a un usuario existente con perfil de músico.
+  - `POST /v1/bands/{bandId}/members` solo acepta emails que ya resuelven a un usuario existente con perfil de músico.
+  - `PATCH /v1/songs/{songId}/instruments/{instrumentId}` asigna directamente por `musicianId`.
+  - `POST /v1/songs/{songId}/instruments/{instrumentId}/invite` resuelve `musicianEmail` de forma **síncrona**: si el músico existe, lo añade a la banda si hace falta y lo asigna automáticamente al instrumento.
   - si el email no existe o todavía no tiene perfil de músico, el backend responde error.
 - **Mejora futura deseada**:
-  - crear un flujo de invitación por email cuando el destinatario todavía no exista o no tenga perfil,
-  - persistir estado de invitación pendiente,
-  - enviar email transaccional con link seguro para alta/aceptación,
-  - completar automáticamente la membresía o asignación pendiente una vez aceptada la invitación.
+  - mantener el endpoint dedicado `POST /v1/songs/{songId}/instruments/{instrumentId}/invite`, pero cambiar su implementación interna a un flujo **asíncrono**.
+  - crear una entidad de invitación pendiente para banda y otra variante con **intención de asignación** para canción/instrumento.
+  - persistir como mínimo:
+    - `bandId`,
+    - `email`,
+    - `invitedByMusicianId`,
+    - `status` (`PENDING`, `ACCEPTED`, `REVOKED`, `EXPIRED`),
+    - y, para invitaciones desde canción, `pendingAssignment { songId, instrumentId }`.
+  - enviar un email transaccional con link seguro de aceptación.
+  - al aceptar la invitación:
+    - materializar la membresía en la banda,
+    - consumir la intención pendiente si existe,
+    - y completar automáticamente la asignación del instrumento.
+- **Dirección de diseño recomendada**:
+  - mantener separados los dos casos de uso:
+    - invitación simple a banda,
+    - invitación desde canción con intención de asignación.
+  - reutilizar el endpoint `/invite` de canción para no romper el contrato del frontend cuando el flujo pase de síncrono a asíncrono.
+  - evitar mezclar la asignación normal por `musicianId` con la lógica de invitación por email.
 - **Riesgos a resolver más adelante**:
   - expiración y revocación de invitaciones,
   - evitar duplicados si se reenvía al mismo email,
-  - auditar quién invitó, cuándo y a qué banda/canción.
+  - conflictos si el instrumento cambia de músico mientras la invitación sigue pendiente,
+  - auditar quién invitó, cuándo y a qué banda/canción,
+  - decidir si el backend crea primero el usuario/perfil o si la aceptación obliga a completar onboarding antes de materializar la asignación.
 
 ## Internacionalización del catálogo de instrumentos
 

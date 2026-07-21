@@ -17,6 +17,7 @@ import { register as registerBandRemover } from '@Apps/moat/backend/config/depen
 import { register as registerBandFinder } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandFinder.dependency.js';
 import { register as registerBandMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandMatcher.dependency.js';
 import { register as registerSongInstrumentAssigner } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentAssigner.dependency.js';
+import { register as registerSongInstrumentInviter } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentInviter.dependency.js';
 import { register as registerSongInstrumentCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentCreator.dependency.js';
 import { register as registerSongInstrumentFindById } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentFindById.dependency.js';
 import { register as registerSongInstrumentMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentMatcher.dependency.js';
@@ -106,6 +107,7 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
     .addTag('commandHandler');
 
   registerSongInstrumentAssigner(container);
+  registerSongInstrumentInviter(container);
   registerSongInstrumentCreator(container);
   registerSongInstrumentFindById(container);
   registerSongInstrumentMatcher(container);

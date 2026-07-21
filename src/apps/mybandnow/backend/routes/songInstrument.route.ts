@@ -50,6 +50,15 @@ export async function songInstrumentPatchAssign(
   );
 }
 
+export async function songInstrumentPostInvite(
+  context: OpenAPIContext,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  await runController('Apps.Mybandnow.Backend.controllers.SongInstrumentPostInviteController', context, req, res, next);
+}
+
 export async function songInstrumentPatchVideo(
   context: OpenAPIContext,
   req: Request,

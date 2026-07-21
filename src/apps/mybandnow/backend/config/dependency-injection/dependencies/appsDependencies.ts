@@ -18,6 +18,7 @@ import { register as registerSongInstrumentGetMatchByCriteriaController } from '
 import { register as registerSongInstrumentPatchAssignController } from '../controllers/songInstrument/songInstrumentPatchAssign.dependency.js';
 import { register as registerSongInstrumentPatchVideoController } from '../controllers/songInstrument/songInstrumentPatchVideo.dependency.js';
 import { register as registerSongInstrumentPostCreateController } from '../controllers/songInstrument/songInstrumentPostCreate.dependency.js';
+import { register as registerSongInstrumentPostInviteController } from '../controllers/songInstrument/songInstrumentPostInvite.dependency.js';
 import { register as registerSongInstrumentUploadPostUploadController } from '../controllers/songInstrumentUpload/songInstrumentUploadPostUpload.dependency.js';
 import { register as registerInstrumentsGetMatchByCriteriaController } from '../controllers/instruments/instrumentsGetMatchByCriteria.dependency.js';
 import { register as registerInstrumentsGetSearchController } from '../controllers/instruments/instrumentsGetSearch.dependency.js';
@@ -59,6 +60,7 @@ export function registerAppsDependencies(container: ContainerBuilder) {
   registerSongInstrumentPatchAssignController(container);
   registerSongInstrumentPatchVideoController(container);
   registerSongInstrumentPostCreateController(container);
+  registerSongInstrumentPostInviteController(container);
   registerSongInstrumentUploadPostUploadController(container);
   registerInstrumentsGetMatchByCriteriaController(container);
   registerInstrumentsGetSearchController(container);

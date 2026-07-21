@@ -354,6 +354,66 @@
         }
       }
     },
+    "/v1/songs/{songId}/instruments/{instrumentId}/invite": {
+      "post": {
+        "tags": ["SongInstrument"],
+        "summary": "Invite an existing musician to the song band and assign the instrument synchronously",
+        "description": "Resolve an existing musician profile by email, ensure the musician belongs to the song band as MEMBER, and assign the musician to the instrument slot. True email invitations are out of scope for this POC.",
+        "operationId": "songInstrumentPostInvite",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "songId",
+            "in": "path",
+            "required": true,
+            "description": "Song identifier",
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          },
+          {
+            "name": "instrumentId",
+            "in": "path",
+            "required": true,
+            "description": "Song instrument identifier",
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SongInstrumentInviteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The musician has been linked to the band and assigned to the song instrument"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/v1/songs/{songId}/instruments/{instrumentId}/video": {
       "patch": {
         "tags": ["SongInstrument"],
@@ -1634,6 +1694,18 @@
               }
             ],
             "description": "Identifier of the musician to assign to the song instrument."
+          }
+        }
+      },
+      "SongInstrumentInviteRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["musicianEmail"],
+        "properties": {
+          "musicianEmail": {
+            "type": "string",
+            "format": "email",
+            "description": "Must belong to an existing user with a musician profile. True email invitations are out of scope for this POC."
           }
         }
       },
