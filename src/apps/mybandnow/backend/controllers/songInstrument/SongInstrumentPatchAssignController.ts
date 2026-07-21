@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { Context } from 'openapi-backend';
+import { MusicianFindByIdQuery } from '@Contexts/Moat/Musician/application/findById/MusicianFindByIdQuery.js';
+import { MusicianFindByIdResponse } from '@Contexts/Moat/Musician/application/findById/MusicianFindByIdResponse.js';
 import { MusicianSearchByUserIdQuery } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
 import { MusicianSearchByUserIdResponse } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { MusicianSearchByEmailQuery } from '@Contexts/Moat/Musician/application/searchByEmail/MusicianSearchByEmailQuery.js';
-import { MusicianSearchByEmailResponse } from '@Contexts/Moat/Musician/application/searchByEmail/MusicianSearchByEmailResponse.js';
+import { MusicianNotExistException } from '@Contexts/Moat/Musician/domain/exception/MusicianNotExistException.js';
 import { AssignSongInstrumentMusicianCommand } from '@Contexts/Moat/SongInstrument/application/assign/AssignSongInstrumentMusicianCommand.js';
 import { SongInstrumentNotExistException } from '@Contexts/Moat/SongInstrument/domain/exception/SongInstrumentNotExistException.js';
 import { ForbiddenException } from '@Contexts/Shared/domain/exceptions/ForbiddenException.js';
@@ -12,7 +13,7 @@ import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/Inv
 import ApiController from '@Contexts/Shared/infrastructure/Express/ApiController.js';
 
 interface SongInstrumentAssignRequestBody {
-  musicianEmail: string;
+  musicianId: string;
 }
 
 export default class SongInstrumentPatchAssignController extends ApiController {
@@ -20,7 +21,7 @@ export default class SongInstrumentPatchAssignController extends ApiController {
     const authenticatedUserId = context.security.BearerAuth.id as string;
     const songId = context.request.params.songId as string;
     const instrumentId = context.request.params.instrumentId as string;
-    const { musicianEmail } = req.body as SongInstrumentAssignRequestBody;
+    const { musicianId } = req.body as SongInstrumentAssignRequestBody;
 
     const musicianResponse = await this.queryBus.ask<MusicianSearchByUserIdResponse>(
       new MusicianSearchByUserIdQuery(authenticatedUserId)
@@ -30,24 +31,21 @@ export default class SongInstrumentPatchAssignController extends ApiController {
       throw new ForbiddenException('Profile required');
     }
 
-    const targetMusicianResponse = await this.queryBus.ask<MusicianSearchByEmailResponse>(
-      new MusicianSearchByEmailQuery(musicianEmail)
-    );
+    try {
+      await this.queryBus.ask<MusicianFindByIdResponse>(new MusicianFindByIdQuery(musicianId));
+    } catch (error) {
+      if (error instanceof MusicianNotExistException) {
+        throw new InvalidArgumentException({
+          code: 'INVALID_ARGUMENT',
+          message: 'The provided musician id is not valid for song instrument assignment.'
+        });
+      }
 
-    if (!targetMusicianResponse.musician) {
-      throw new InvalidArgumentException({
-        code: 'INVALID_ARGUMENT',
-        message: 'The provided musician email is not valid for assignment.'
-      });
+      throw error;
     }
 
     await this.commandBus.dispatch(
-      new AssignSongInstrumentMusicianCommand(
-        songId,
-        instrumentId,
-        musicianResponse.musician.id,
-        targetMusicianResponse.musician.id
-      )
+      new AssignSongInstrumentMusicianCommand(songId, instrumentId, musicianResponse.musician.id, musicianId)
     );
 
     res.status(httpStatus.OK).end();

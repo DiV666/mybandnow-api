@@ -1625,12 +1625,15 @@
       "SongInstrumentAssignRequest": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["musicianEmail"],
+        "required": ["musicianId"],
         "properties": {
-          "musicianEmail": {
-            "type": "string",
-            "format": "email",
-            "description": "Must belong to an existing user with a musician profile. The backend auto-links the musician to the song band when needed."
+          "musicianId": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UUID"
+              }
+            ],
+            "description": "Identifier of the musician to assign to the song instrument."
           }
         }
       },

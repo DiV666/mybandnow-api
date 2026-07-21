@@ -8,15 +8,17 @@ import type { CommandBus } from '../../../../../../../src/Contexts/Shared/domain
 import type { QueryBus } from '../../../../../../../src/Contexts/Shared/domain/QueryBus.js';
 import ApiExceptionsHttpStatusCodeMapping from '../../../../../../../src/Contexts/Shared/infrastructure/Express/ApiExceptionsHttpStatusCodeMapping.js';
 import SongInstrumentPatchAssignController from '../../../../../../../src/apps/mybandnow/backend/controllers/songInstrument/SongInstrumentPatchAssignController.js';
+import { MusicianFindByIdQuery } from '../../../../../../../src/Contexts/Moat/Musician/application/findById/MusicianFindByIdQuery.js';
+import { MusicianFindByIdResponse } from '../../../../../../../src/Contexts/Moat/Musician/application/findById/MusicianFindByIdResponse.js';
 import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
 import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { MusicianSearchByEmailQuery } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByEmail/MusicianSearchByEmailQuery.js';
-import { MusicianSearchByEmailResponse } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByEmail/MusicianSearchByEmailResponse.js';
+import { MusicianNotExistException } from '../../../../../../../src/Contexts/Moat/Musician/domain/exception/MusicianNotExistException.js';
 import { AssignSongInstrumentMusicianCommand } from '../../../../../../../src/Contexts/Moat/SongInstrument/application/assign/AssignSongInstrumentMusicianCommand.js';
+import { ForbiddenException } from '../../../../../../../src/Contexts/Shared/domain/exceptions/ForbiddenException.js';
 import { InvalidArgumentException } from '../../../../../../../src/Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
 
 describe('SongInstrumentPatchAssignController', () => {
-  it('dispatches the assignment command using the musician resolved from email', async () => {
+  it('dispatches the assignment command using the provided musician id', async () => {
     const logger = mock<Logger>();
     const commandBus = mock<CommandBus>();
     const queryBus = mock<QueryBus>();
@@ -38,7 +40,7 @@ describe('SongInstrumentPatchAssignController', () => {
     } as unknown as Context;
     const req = mock<Request>({
       body: {
-        musicianEmail: 'assigned@example.com'
+        musicianId: 'assigned-musician-id'
       }
     });
     const res = mock<Response>();
@@ -53,18 +55,17 @@ describe('SongInstrumentPatchAssignController', () => {
         })
       )
       .mockResolvedValueOnce(
-        new MusicianSearchByEmailResponse({
+        new MusicianFindByIdResponse({
           id: 'assigned-musician-id',
-          userId: 'assigned-user-id',
-          username: 'assigned-user',
-          name: 'Assigned User'
+          username: 'assigned-musician',
+          name: 'Assigned Musician'
         })
       );
 
     await controller.run(context, req, res);
 
     expect(queryBus.ask).toHaveBeenNthCalledWith(1, new MusicianSearchByUserIdQuery('authenticated-user-id'));
-    expect(queryBus.ask).toHaveBeenNthCalledWith(2, new MusicianSearchByEmailQuery('assigned@example.com'));
+    expect(queryBus.ask).toHaveBeenNthCalledWith(2, new MusicianFindByIdQuery('assigned-musician-id'));
     expect(commandBus.dispatch).toHaveBeenCalledExactlyOnceWith(
       new AssignSongInstrumentMusicianCommand(
         'song-id',
@@ -77,7 +78,7 @@ describe('SongInstrumentPatchAssignController', () => {
     expect(res.end).toHaveBeenCalledOnce();
   });
 
-  it('throws bad request when the email is not linked to an existing musician profile', async () => {
+  it('throws bad request when the provided musician id does not resolve', async () => {
     const logger = mock<Logger>();
     const commandBus = mock<CommandBus>();
     const queryBus = mock<QueryBus>();
@@ -99,7 +100,7 @@ describe('SongInstrumentPatchAssignController', () => {
     } as unknown as Context;
     const req = mock<Request>({
       body: {
-        musicianEmail: 'missing@example.com'
+        musicianId: 'missing-musician-id'
       }
     });
     const res = mock<Response>();
@@ -112,9 +113,47 @@ describe('SongInstrumentPatchAssignController', () => {
           name: 'Song Owner'
         })
       )
-      .mockResolvedValueOnce(new MusicianSearchByEmailResponse(null));
+      .mockRejectedValueOnce(new MusicianNotExistException('missing-musician-id'));
 
-    await expect(controller.run(context, req, res)).rejects.toThrow(InvalidArgumentException);
+    const result = controller.run(context, req, res);
+
+    await expect(result).rejects.toThrow(InvalidArgumentException);
+    await expect(result).rejects.toMatchObject({
+      code: 'INVALID_ARGUMENT',
+      message: 'The provided musician id is not valid for song instrument assignment.'
+    });
+    expect(commandBus.dispatch).not.toHaveBeenCalled();
+  });
+
+  it('throws forbidden when the authenticated user has no musician profile', async () => {
+    const logger = mock<Logger>();
+    const commandBus = mock<CommandBus>();
+    const queryBus = mock<QueryBus>();
+    const exceptionHandler = new ApiExceptionsHttpStatusCodeMapping();
+    const controller = new SongInstrumentPatchAssignController(logger, commandBus, queryBus, exceptionHandler);
+
+    const context = {
+      security: {
+        BearerAuth: {
+          id: 'authenticated-user-id'
+        }
+      },
+      request: {
+        params: {
+          songId: 'song-id',
+          instrumentId: 'song-instrument-id'
+        }
+      }
+    } as unknown as Context;
+    const req = mock<Request>({
+      body: {
+        musicianId: 'assigned-musician-id'
+      }
+    });
+    const res = mock<Response>();
+    queryBus.ask.mockResolvedValueOnce(new MusicianSearchByUserIdResponse(null));
+
+    await expect(controller.run(context, req, res)).rejects.toThrow(ForbiddenException);
     expect(commandBus.dispatch).not.toHaveBeenCalled();
   });
 });
