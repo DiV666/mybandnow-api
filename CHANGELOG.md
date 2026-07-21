@@ -4,6 +4,27 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 ## [No publicado]
 
+## [0.3.0] - 2026-07-21
+
+### Añadido
+
+- Endpoint dedicado `GET /v1/bands/{bandId}/members` para listar miembros de la banda con autorización por propietario o pertenencia.
+- Endpoint `POST /v1/songs/{songId}/instruments/{instrumentId}/invite` para resolver un músico existente por email, añadirlo a la banda si hace falta y asignarlo al instrumento en la POC síncrona.
+- Endpoints de consulta del catálogo de instrumentos y criterios de canciones.
+- Exposición del estado de subida en `SongInstrument` y soporte de sincronización de vídeo con el catálogo actual.
+
+### Cambiado
+
+- Cambio del endpoint de asignación de músico en canción para usar `musicianId` como contrato principal en lugar de `musicianEmail`.
+- Alineación de `SongInstrument` con el catálogo de instrumentos y refactor del flujo de intentos de subida.
+- Actualización de guías internas de skills y limpieza de documentación auxiliar obsoleta.
+
+### Arreglado
+
+- Firma segura de URLs de reproducción y endurecimiento del flujo de finalización de subidas de `SongInstrument`.
+- Prevención de publicaciones duplicadas del outbox y mejora de la calidad de logs de fallo/publicación.
+- Endurecimiento de la validación del usuario autenticado persistido y saneado seguro de mensajes de validación.
+
 ## [0.2.0] - 2026-07-14
 
 ### Añadido
