@@ -9,6 +9,7 @@ import { SongInstrumentVideoDuration } from './value-object/SongInstrumentVideoD
 import { SongInstrumentVideoSize } from './value-object/SongInstrumentVideoSize.js';
 import { SongInstrumentVideoStartTimeMs } from './value-object/SongInstrumentVideoStartTimeMs.js';
 import { SongInstrumentVideoUpdatedDomainEvent } from './SongInstrumentVideoUpdatedDomainEvent.js';
+import { SongInstrumentVideoReplacedDomainEvent } from './SongInstrumentVideoReplacedDomainEvent.js';
 import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
 
 export type SongInstrumentVideoPrimitives = {
@@ -75,6 +76,29 @@ export class SongInstrumentVideo extends AggregateRoot {
         aggregateId: id,
         createdAt: createdAtRaw instanceof Date ? createdAtRaw.toISOString() : createdAtRaw,
         ...primitives
+      })
+    );
+
+    return model;
+  }
+
+  replaceUpload(params: { size: number; duration: number; url: string }): SongInstrumentVideo {
+    const model = SongInstrumentVideo.fromPrimitives({
+      id: this.id.value,
+      size: params.size,
+      duration: params.duration,
+      url: params.url,
+      songInstrumentId: this.songInstrumentId.value,
+      startTimeMs: 0,
+      createdAt: this.createdAt.value
+    });
+
+    model.record(
+      new SongInstrumentVideoReplacedDomainEvent({
+        aggregateId: this.id.value,
+        songInstrumentId: this.songInstrumentId.value,
+        oldUrl: this.url.value,
+        newUrl: model.url.value
       })
     );
 

@@ -120,17 +120,10 @@ export class SongInstrumentVideoCreator {
     );
 
     if (currentSongInstrumentVideo) {
-      const updatedSongInstrumentVideo = SongInstrumentVideo.fromPrimitives({
-        id: currentSongInstrumentVideo.id.value,
-        size,
-        duration,
-        url,
-        songInstrumentId,
-        startTimeMs: 0,
-        createdAt: currentSongInstrumentVideo.createdAt.value
-      });
+      const updatedSongInstrumentVideo = currentSongInstrumentVideo.replaceUpload({ size, duration, url });
 
       await this.persistenceRepository.save(updatedSongInstrumentVideo);
+      await this.eventBus.publish(updatedSongInstrumentVideo.pullDomainEvents());
       return;
     }
 

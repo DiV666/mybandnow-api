@@ -34,6 +34,7 @@ import { ValidateSongInstrumentUploadOnUploadRequested } from '../../../subscrib
 import { CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted } from '../../../subscribers/CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted.js';
 import { FailSongInstrumentUploadOnSongInstrumentProcessFailed } from '../../../subscribers/FailSongInstrumentUploadOnSongInstrumentProcessFailed.js';
 import { CreateSongInstrumentVideoOnSongInstrumentUploadCompleted } from '../../../subscribers/CreateSongInstrumentVideoOnSongInstrumentUploadCompleted.js';
+import { DeletePreviousSongInstrumentVideoOnSongInstrumentVideoReplaced } from '../../../subscribers/DeletePreviousSongInstrumentVideoOnSongInstrumentVideoReplaced.js';
 import type { CommandBus } from '@Contexts/Shared/domain/CommandBus.js';
 import { MultipartFileParser } from '@Contexts/Shared/infrastructure/Express/MultipartFileParser.js';
 
@@ -123,6 +124,16 @@ export function registerAppsDependencies(container: ContainerBuilder) {
       CreateSongInstrumentVideoOnSongInstrumentUploadCompleted
     )
     .addArgument('moat.song_instrument_upload.completed')
+    .addArgument(new Reference('Shared.BunyanLogger'))
+    .addArgument(() => container.get<CommandBus>('Shared.CommandBus'))
+    .addTag('domainEventSubscriber');
+
+  container
+    .register(
+      'Apps.Mybandnow.Backend.subscribers.DeletePreviousSongInstrumentVideoOnSongInstrumentVideoReplaced',
+      DeletePreviousSongInstrumentVideoOnSongInstrumentVideoReplaced
+    )
+    .addArgument('rubricae.moat.1.command.songinstrumentvideo.replaced')
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(() => container.get<CommandBus>('Shared.CommandBus'))
     .addTag('domainEventSubscriber');

@@ -22,6 +22,7 @@ import { register as registerSongInstrumentInviter } from '@Apps/moat/backend/co
 import { register as registerSongInstrumentCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentCreator.dependency.js';
 import { register as registerSongInstrumentFindById } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentFindById.dependency.js';
 import { register as registerSongInstrumentMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentMatcher.dependency.js';
+import { register as registerDeletePreviousSongInstrumentVideo } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-video/deletePreviousSongInstrumentVideo.dependency.js';
 import { register as registerSongInstrumentVideoCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-video/songInstrumentVideoCreator.dependency.js';
 import { register as registerSongInstrumentVideoUpdateStartTime } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-video/songInstrumentVideoUpdateStartTime.dependency.js';
 import { register as registerSongInstrumentUploadUploader } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-upload/songInstrumentUploadUploader.dependency.js';
@@ -114,6 +115,7 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   registerSongInstrumentCreator(container);
   registerSongInstrumentFindById(container);
   registerSongInstrumentMatcher(container);
+  registerDeletePreviousSongInstrumentVideo(container);
   registerSongInstrumentVideoCreator(container);
   registerSongInstrumentVideoUpdateStartTime(container);
   registerSongInstrumentUploadUploader(container);

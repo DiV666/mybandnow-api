@@ -152,7 +152,7 @@ describe('SongInstrumentVideoCreator should', () => {
     testCase.assertPublishDomainEventNotCalled();
   });
 
-  it('updates the current song instrument video when a newer active upload completes', async () => {
+  it('publishes a replacement event after updating the current song instrument video with a newer active upload', async () => {
     const currentSongInstrumentVideo = SongInstrumentVideoMother.create();
     const replacementSongInstrumentVideo = SongInstrumentVideoMother.create({
       songInstrumentId: currentSongInstrumentVideo.songInstrumentId,
@@ -184,7 +184,17 @@ describe('SongInstrumentVideoCreator should', () => {
         size: replacementSongInstrumentVideo.size
       })
     );
-    testCase.assertPublishDomainEventNotCalled();
+    expect(testCase.eventBus().publish).toHaveBeenCalledWith([
+      expect.objectContaining({
+        eventName: 'rubricae.moat.1.command.songinstrumentvideo.replaced',
+        aggregateId: currentSongInstrumentVideo.id.value,
+        attributes: {
+          songInstrumentId: currentSongInstrumentVideo.songInstrumentId.value,
+          oldUrl: currentSongInstrumentVideo.url.value,
+          newUrl: replacementSongInstrumentVideo.url.value
+        }
+      })
+    ]);
   });
 
   it('return success when save races with another identical replay and the persisted video matches the command', async () => {
