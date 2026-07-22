@@ -51,7 +51,7 @@ describe('SongInstrumentUploadUploader', () => {
 
     await uploader.run({
       songId: songInstrument.songId.value,
-      instrumentId: songInstrument.id.value,
+      songInstrumentId: songInstrument.id.value,
       musicianId: songInstrument.musicianId.value,
       fileReference: 'path/to/file.mp3'
     });
@@ -96,7 +96,7 @@ describe('SongInstrumentUploadUploader', () => {
 
     await uploader.run({
       songId: songInstrument.songId.value,
-      instrumentId: songInstrument.id.value,
+      songInstrumentId: songInstrument.id.value,
       musicianId: songInstrument.musicianId.value,
       fileReference: 'path/to/retry-file.mp4'
     });
@@ -129,7 +129,7 @@ describe('SongInstrumentUploadUploader', () => {
     await expect(
       uploader.run({
         songId: '2915fcdf-8ae3-44f7-af0f-75a2ea6d6d18',
-        instrumentId: '2a356dd8-fd63-46b8-aa3d-bf2cdf7fd2a3',
+        songInstrumentId: '2a356dd8-fd63-46b8-aa3d-bf2cdf7fd2a3',
         musicianId: '9416de0f-6513-4adf-ab75-ff075950179b',
         fileReference: 'path/to/file.mp3'
       })
@@ -147,7 +147,7 @@ describe('SongInstrumentUploadUploader', () => {
     await expect(
       uploader.run({
         songId: songInstrument.songId.value,
-        instrumentId: songInstrument.id.value,
+        songInstrumentId: songInstrument.id.value,
         musicianId: '3ae51c35-8b20-4e86-bff1-a2f7af8ed649',
         fileReference: 'path/to/file.mp3'
       })
@@ -165,7 +165,7 @@ describe('SongInstrumentUploadUploader', () => {
     await expect(
       uploader.run({
         songId: '54dbbe97-77ec-4787-99a1-c085e952cd70',
-        instrumentId: songInstrument.id.value,
+        songInstrumentId: songInstrument.id.value,
         musicianId: songInstrument.musicianId.value,
         fileReference: 'path/to/file.mp3'
       })

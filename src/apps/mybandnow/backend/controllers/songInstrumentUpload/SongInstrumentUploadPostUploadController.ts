@@ -32,7 +32,7 @@ export default class SongInstrumentUploadPostUploadController extends ApiControl
   async run(context: Context, req: Request, res: Response): Promise<void> {
     const authenticatedUserId = context.security.BearerAuth.id as string;
     const songId = context.request.params.songId as string;
-    const instrumentId = context.request.params.instrumentId as string;
+    const songInstrumentId = context.request.params.songInstrumentId as string;
     let tempFilePath: string | null = null;
     let durableFileReference: string | null = null;
 
@@ -46,11 +46,16 @@ export default class SongInstrumentUploadPostUploadController extends ApiControl
         throw new ForbiddenException('Profile required');
       }
 
-      durableFileReference = this.buildDurableFileReference(songId, instrumentId);
+      durableFileReference = this.buildDurableFileReference(songId, songInstrumentId);
       await this.storageRepository.uploadFile(tempFilePath, durableFileReference);
 
       await this.commandBus.dispatch(
-        new SongInstrumentUploadUploadCommand(songId, instrumentId, musicianResponse.musician.id, durableFileReference)
+        new SongInstrumentUploadUploadCommand(
+          songId,
+          songInstrumentId,
+          musicianResponse.musician.id,
+          durableFileReference
+        )
       );
 
       res.status(httpStatus.ACCEPTED).end();
@@ -60,7 +65,7 @@ export default class SongInstrumentUploadPostUploadController extends ApiControl
           {
             code: error.code,
             details: error.details,
-            instrumentId,
+            songInstrumentId,
             songId
           },
           `[SongInstrumentUploadPostUploadController] Rejected invalid upload request: ${error.message}`
@@ -74,8 +79,8 @@ export default class SongInstrumentUploadPostUploadController extends ApiControl
     }
   }
 
-  private buildDurableFileReference(songId: string, instrumentId: string): string {
-    return `instrument-videos/${songId}/${instrumentId}/${randomUUID()}.mp4`;
+  private buildDurableFileReference(songId: string, songInstrumentId: string): string {
+    return `instrument-videos/${songId}/${songInstrumentId}/${randomUUID()}.mp4`;
   }
 
   private async deleteTempFile(tempFilePath: string | null): Promise<void> {

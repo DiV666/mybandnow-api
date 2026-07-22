@@ -29,18 +29,18 @@ export class SongInstrumentVideoUpdateStartTime {
       throw new ForbiddenException('Only band members can update song instrument videos.');
     }
 
-    const songInstrument = await this.songInstrumentRepository.search(new SongInstrumentId(command.instrumentId));
+    const songInstrument = await this.songInstrumentRepository.search(new SongInstrumentId(command.songInstrumentId));
 
     if (!songInstrument || songInstrument.songId.value !== command.songId) {
-      throw new SongInstrumentNotExistException(command.instrumentId);
+      throw new SongInstrumentNotExistException(command.songInstrumentId);
     }
 
     const songInstrumentVideo = await this.songInstrumentVideoRepository.searchBySongInstrumentId(
-      new SongInstrumentVideoSongInstrumentId(command.instrumentId)
+      new SongInstrumentVideoSongInstrumentId(command.songInstrumentId)
     );
 
     if (!songInstrumentVideo) {
-      throw new SongInstrumentVideoNotExistException(command.instrumentId);
+      throw new SongInstrumentVideoNotExistException(command.songInstrumentId);
     }
 
     const updatedSongInstrumentVideo = songInstrumentVideo.updateStartTimeMs(command.startTimeMs);

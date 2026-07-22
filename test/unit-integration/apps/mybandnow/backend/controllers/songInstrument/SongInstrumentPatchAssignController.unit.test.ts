@@ -34,7 +34,7 @@ describe('SongInstrumentPatchAssignController', () => {
       request: {
         params: {
           songId: 'song-id',
-          instrumentId: 'song-instrument-id'
+          songInstrumentId: 'song-instrument-id'
         }
       }
     } as unknown as Context;
@@ -94,7 +94,7 @@ describe('SongInstrumentPatchAssignController', () => {
       request: {
         params: {
           songId: 'song-id',
-          instrumentId: 'song-instrument-id'
+          songInstrumentId: 'song-instrument-id'
         }
       }
     } as unknown as Context;
@@ -141,7 +141,7 @@ describe('SongInstrumentPatchAssignController', () => {
       request: {
         params: {
           songId: 'song-id',
-          instrumentId: 'song-instrument-id'
+          songInstrumentId: 'song-instrument-id'
         }
       }
     } as unknown as Context;

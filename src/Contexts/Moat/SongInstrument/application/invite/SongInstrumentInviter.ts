@@ -42,7 +42,7 @@ export class SongInstrumentInviter {
 
     await this.assignmentCore.run({
       songId: command.songId,
-      instrumentId: command.instrumentId,
+      songInstrumentId: command.songInstrumentId,
       authenticatedMusicianId: command.authenticatedMusicianId,
       musicianId: musician.id.value
     });

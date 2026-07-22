@@ -13,7 +13,7 @@ export default class SongInstrumentGetByIdController extends ApiController {
   async run(context: Context, _req: Request, res: Response): Promise<void> {
     const authenticatedUserId = context.security.BearerAuth.id as string;
     const songId = context.request.params.songId as string;
-    const instrumentId = context.request.params.instrumentId as string;
+    const songInstrumentId = context.request.params.songInstrumentId as string;
 
     const musicianResponse = await this.queryBus.ask<MusicianSearchByUserIdResponse>(
       new MusicianSearchByUserIdQuery(authenticatedUserId)
@@ -24,7 +24,7 @@ export default class SongInstrumentGetByIdController extends ApiController {
     }
 
     const response = await this.queryBus.ask<SongInstrumentFindByIdResponse>(
-      new SongInstrumentFindByIdQuery(songId, instrumentId, musicianResponse.musician.id)
+      new SongInstrumentFindByIdQuery(songId, songInstrumentId, musicianResponse.musician.id)
     );
 
     res.status(httpStatus.OK).json(response);

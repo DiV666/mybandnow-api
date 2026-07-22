@@ -17,7 +17,7 @@ export default class SongInstrumentPostInviteController extends ApiController {
   async run(context: Context, req: Request, res: Response): Promise<void> {
     const authenticatedUserId = context.security.BearerAuth.id as string;
     const songId = context.request.params.songId as string;
-    const instrumentId = context.request.params.instrumentId as string;
+    const songInstrumentId = context.request.params.songInstrumentId as string;
     const { musicianEmail } = req.body as SongInstrumentInviteRequestBody;
 
     const musicianResponse = await this.queryBus.ask<MusicianSearchByUserIdResponse>(
@@ -29,7 +29,7 @@ export default class SongInstrumentPostInviteController extends ApiController {
     }
 
     await this.commandBus.dispatch(
-      new InviteSongInstrumentMusicianCommand(songId, instrumentId, musicianResponse.musician.id, musicianEmail)
+      new InviteSongInstrumentMusicianCommand(songId, songInstrumentId, musicianResponse.musician.id, musicianEmail)
     );
 
     res.status(httpStatus.OK).end();

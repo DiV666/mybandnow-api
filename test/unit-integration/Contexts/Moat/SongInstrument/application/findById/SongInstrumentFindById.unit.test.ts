@@ -53,9 +53,11 @@ describe('SongInstrumentFindById', () => {
       new SongInstrumentSongId(query.songId),
       new SongInstrumentMusicianId(query.musicianId)
     );
-    expect(songInstrumentRepository.search).toHaveBeenCalledExactlyOnceWith(new SongInstrumentId(query.instrumentId));
+    expect(songInstrumentRepository.search).toHaveBeenCalledExactlyOnceWith(
+      new SongInstrumentId(query.songInstrumentId)
+    );
     expect(songInstrumentVideoRepository.searchBySongInstrumentId).toHaveBeenCalledExactlyOnceWith(
-      new SongInstrumentVideoSongInstrumentId(query.instrumentId)
+      new SongInstrumentVideoSongInstrumentId(query.songInstrumentId)
     );
     expect(storageRepository.getSignedUrl).not.toHaveBeenCalled();
     expect(response).toEqual(new SongInstrumentFindByIdResponse(songInstrument.toPrimitives(), null));

@@ -242,7 +242,7 @@
         }
       }
     },
-    "/v1/songs/{songId}/instruments/{instrumentId}": {
+    "/v1/songs/{songId}/instruments/{songInstrumentId}": {
       "get": {
         "tags": ["SongInstrument"],
         "summary": "Get a song instrument",
@@ -264,7 +264,7 @@
             }
           },
           {
-            "name": "instrumentId",
+            "name": "songInstrumentId",
             "in": "path",
             "required": true,
             "description": "Song instrument identifier",
@@ -297,9 +297,9 @@
       },
       "patch": {
         "tags": ["SongInstrument"],
-        "summary": "Assign or reassign a musician to an existing song instrument",
-        "description": "Update the musician assigned to an existing song instrument slot. If the musician is not already in the song band, the backend creates a MEMBER band link automatically.",
-        "operationId": "songInstrumentPatchAssign",
+        "summary": "Edit an existing song instrument",
+        "description": "Update the metadata of an existing song instrument slot when the authenticated musician owns the song.",
+        "operationId": "songInstrumentPatchEdit",
         "security": [
           {
             "BearerAuth": []
@@ -316,7 +316,67 @@
             }
           },
           {
-            "name": "instrumentId",
+            "name": "songInstrumentId",
+            "in": "path",
+            "required": true,
+            "description": "Song instrument identifier",
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SongInstrumentEditRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The song instrument has been updated"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/songs/{songId}/instruments/{songInstrumentId}/musician-assign": {
+      "patch": {
+        "tags": ["SongInstrument"],
+        "summary": "Assign or reassign a musician to an existing song instrument",
+        "description": "Update the musician assigned to an existing song instrument slot. If the musician is not already in the song band, the backend creates a MEMBER band link automatically.",
+        "operationId": "songInstrumentPatchMusicianAssign",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "songId",
+            "in": "path",
+            "required": true,
+            "description": "Song identifier",
+            "schema": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          },
+          {
+            "name": "songInstrumentId",
             "in": "path",
             "required": true,
             "description": "Song instrument identifier",
@@ -354,7 +414,7 @@
         }
       }
     },
-    "/v1/songs/{songId}/instruments/{instrumentId}/invite": {
+    "/v1/songs/{songId}/instruments/{songInstrumentId}/invite": {
       "post": {
         "tags": ["SongInstrument"],
         "summary": "Invite an existing musician to the song band and assign the instrument synchronously",
@@ -376,7 +436,7 @@
             }
           },
           {
-            "name": "instrumentId",
+            "name": "songInstrumentId",
             "in": "path",
             "required": true,
             "description": "Song instrument identifier",
@@ -414,7 +474,7 @@
         }
       }
     },
-    "/v1/songs/{songId}/instruments/{instrumentId}/video": {
+    "/v1/songs/{songId}/instruments/{songInstrumentId}/video": {
       "patch": {
         "tags": ["SongInstrument"],
         "summary": "Update song instrument video sync metadata",
@@ -436,7 +496,7 @@
             }
           },
           {
-            "name": "instrumentId",
+            "name": "songInstrumentId",
             "in": "path",
             "required": true,
             "description": "Song instrument identifier",
@@ -474,7 +534,7 @@
         }
       }
     },
-    "/v1/songs/{songId}/instruments/{instrumentId}/upload": {
+    "/v1/songs/{songId}/instruments/{songInstrumentId}/upload": {
       "post": {
         "tags": ["SongInstrumentUpload"],
         "summary": "Upload a song instrument video for asynchronous validation",
@@ -496,7 +556,7 @@
             }
           },
           {
-            "name": "instrumentId",
+            "name": "songInstrumentId",
             "in": "path",
             "required": true,
             "description": "Song instrument identifier",
@@ -1739,6 +1799,24 @@
             "type": "string",
             "format": "email",
             "description": "Must belong to an existing user with a musician profile. Invitations are out of scope for this POC."
+          }
+        }
+      },
+      "SongInstrumentEditRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "instrumentId"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "instrumentId": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UUID"
+              }
+            ],
+            "description": "Must reference an existing instrument in the Instruments catalog."
           }
         }
       },

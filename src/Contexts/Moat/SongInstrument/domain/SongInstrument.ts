@@ -66,6 +66,18 @@ export class SongInstrument extends AggregateRoot {
     });
   }
 
+  editMetadata(name: string, instrumentId: string): SongInstrument {
+    if (this.name.value === name && this.instrumentId.value === instrumentId) {
+      return this;
+    }
+
+    return SongInstrument.fromPrimitives({
+      ...this.toPrimitives(),
+      name,
+      instrumentId
+    });
+  }
+
   static fromPrimitives(
     plainData: Primitives<SongInstrument> & { activeUploadAttemptId?: string | null }
   ): SongInstrument {

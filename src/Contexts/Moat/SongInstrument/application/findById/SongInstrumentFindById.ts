@@ -33,14 +33,14 @@ export class SongInstrumentFindById {
       throw new ForbiddenException('Only band members can read song instruments.');
     }
 
-    const songInstrument = await this.songInstrumentRepository.search(new SongInstrumentId(query.instrumentId));
+    const songInstrument = await this.songInstrumentRepository.search(new SongInstrumentId(query.songInstrumentId));
 
     if (!songInstrument || songInstrument.songId.value !== query.songId) {
-      throw new SongInstrumentNotExistException(query.instrumentId);
+      throw new SongInstrumentNotExistException(query.songInstrumentId);
     }
 
     const video = await this.songInstrumentVideoRepository.searchBySongInstrumentId(
-      new SongInstrumentVideoSongInstrumentId(query.instrumentId)
+      new SongInstrumentVideoSongInstrumentId(query.songInstrumentId)
     );
     const upload = songInstrument.activeUploadAttemptId
       ? await this.songInstrumentUploadRepository.search(

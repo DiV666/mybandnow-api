@@ -51,7 +51,7 @@ describe('SongInstrumentUploadPostUploadController', () => {
       request: {
         params: {
           songId: 'path-song-id',
-          instrumentId: 'path-instrument-id'
+          songInstrumentId: 'path-instrument-id'
         }
       }
     } as unknown as Context;
@@ -114,7 +114,7 @@ describe('SongInstrumentUploadPostUploadController', () => {
       request: {
         params: {
           songId: 'path-song-id',
-          instrumentId: 'path-instrument-id'
+          songInstrumentId: 'path-instrument-id'
         }
       }
     } as unknown as Context;
@@ -171,7 +171,7 @@ describe('SongInstrumentUploadPostUploadController', () => {
       request: {
         params: {
           songId: 'path-song-id',
-          instrumentId: 'path-instrument-id'
+          songInstrumentId: 'path-instrument-id'
         }
       }
     } as unknown as Context;
@@ -199,7 +199,7 @@ describe('SongInstrumentUploadPostUploadController', () => {
           reason: 'invalid_mime_type',
           receivedMimeType: 'text/plain'
         },
-        instrumentId: 'path-instrument-id',
+        songInstrumentId: 'path-instrument-id',
         songId: 'path-song-id'
       },
       '[SongInstrumentUploadPostUploadController] Rejected invalid upload request: Content-Type must be video/mp4'
@@ -234,7 +234,7 @@ describe('SongInstrumentUploadPostUploadController', () => {
       request: {
         params: {
           songId: 'path-song-id',
-          instrumentId: 'path-instrument-id'
+          songInstrumentId: 'path-instrument-id'
         }
       }
     } as unknown as Context;

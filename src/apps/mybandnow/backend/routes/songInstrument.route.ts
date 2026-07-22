@@ -35,7 +35,16 @@ export async function songInstrumentGetById(
   await runController('Apps.Mybandnow.Backend.controllers.SongInstrumentGetByIdController', context, req, res, next);
 }
 
-export async function songInstrumentPatchAssign(
+export async function songInstrumentPatchEdit(
+  context: OpenAPIContext,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  await runController('Apps.Mybandnow.Backend.controllers.SongInstrumentPatchEditController', context, req, res, next);
+}
+
+export async function songInstrumentPatchMusicianAssign(
   context: OpenAPIContext,
   req: Request,
   res: Response,

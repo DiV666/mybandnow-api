@@ -21,11 +21,11 @@ export class SongInstrumentUploadUploader {
 
   async run(command: {
     songId: string;
-    instrumentId: string;
+    songInstrumentId: string;
     musicianId: string;
     fileReference: string;
   }): Promise<void> {
-    const songInstrumentId = new SongInstrumentId(command.instrumentId);
+    const songInstrumentId = new SongInstrumentId(command.songInstrumentId);
     const songInstrument = await this.songInstrumentRepository.search(songInstrumentId);
 
     if (!songInstrument || songInstrument.songId.value !== command.songId) {

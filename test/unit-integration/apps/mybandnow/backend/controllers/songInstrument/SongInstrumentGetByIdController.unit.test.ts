@@ -37,7 +37,7 @@ describe('SongInstrumentGetByIdController', () => {
       request: {
         params: {
           songId: songInstrument.songId.value,
-          instrumentId: songInstrument.id.value
+          songInstrumentId: songInstrument.id.value
         }
       }
     } as unknown as Context;
@@ -93,7 +93,7 @@ describe('SongInstrumentGetByIdController', () => {
       request: {
         params: {
           songId: songInstrument.songId.value,
-          instrumentId: songInstrument.id.value
+          songInstrumentId: songInstrument.id.value
         }
       }
     } as unknown as Context;
@@ -144,7 +144,7 @@ describe('SongInstrumentGetByIdController', () => {
       request: {
         params: {
           songId: '4da5fa54-261c-41ee-bdcb-c1d339820316',
-          instrumentId: '49040ff8-d099-49d6-a2a7-f342c7910b26'
+          songInstrumentId: '49040ff8-d099-49d6-a2a7-f342c7910b26'
         }
       }
     } as unknown as Context;

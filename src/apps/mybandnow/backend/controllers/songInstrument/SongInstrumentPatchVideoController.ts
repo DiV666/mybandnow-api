@@ -13,7 +13,7 @@ export default class SongInstrumentPatchVideoController extends ApiController {
   async run(context: Context, req: Request, res: Response): Promise<void> {
     const authenticatedUserId = context.security.BearerAuth.id as string;
     const songId = context.request.params.songId as string;
-    const instrumentId = context.request.params.instrumentId as string;
+    const songInstrumentId = context.request.params.songInstrumentId as string;
 
     const musicianResponse = await this.queryBus.ask<MusicianSearchByUserIdResponse>(
       new MusicianSearchByUserIdQuery(authenticatedUserId)
@@ -26,7 +26,7 @@ export default class SongInstrumentPatchVideoController extends ApiController {
     await this.commandBus.dispatch(
       new SongInstrumentVideoUpdateStartTimeCommand(
         songId,
-        instrumentId,
+        songInstrumentId,
         musicianResponse.musician.id,
         req.body.startTimeMs
       )

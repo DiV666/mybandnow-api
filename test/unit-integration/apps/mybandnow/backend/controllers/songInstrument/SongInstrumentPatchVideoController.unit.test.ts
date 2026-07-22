@@ -29,7 +29,7 @@ describe('SongInstrumentPatchVideoController', () => {
       request: {
         params: {
           songId: '7f1de13d-309d-4265-a484-99341d367bf5',
-          instrumentId: '6632f6bb-f4db-4769-b83d-3d7a84cbd3c2'
+          songInstrumentId: '6632f6bb-f4db-4769-b83d-3d7a84cbd3c2'
         }
       }
     } as unknown as Context;

@@ -13,7 +13,7 @@ import { SongId } from '@Contexts/Moat/Song/domain/value-object/SongId.js';
 
 interface SongInstrumentAssignmentRequest {
   songId: string;
-  instrumentId: string;
+  songInstrumentId: string;
   authenticatedMusicianId: string;
   musicianId: string;
 }
@@ -28,10 +28,10 @@ export class SongInstrumentAssignmentCore {
   ) {}
 
   async run(command: SongInstrumentAssignmentRequest): Promise<void> {
-    const songInstrument = await this.songInstrumentRepository.search(new SongInstrumentId(command.instrumentId));
+    const songInstrument = await this.songInstrumentRepository.search(new SongInstrumentId(command.songInstrumentId));
 
     if (!songInstrument || songInstrument.songId.value !== command.songId) {
-      throw new SongInstrumentNotExistException(command.instrumentId);
+      throw new SongInstrumentNotExistException(command.songInstrumentId);
     }
 
     const isOwner = await this.authorizationRepository.isSongOwnedBy(
@@ -46,7 +46,7 @@ export class SongInstrumentAssignmentCore {
     const song = await this.songRepository.search(new SongId(command.songId));
 
     if (!song) {
-      throw new SongInstrumentNotExistException(command.instrumentId);
+      throw new SongInstrumentNotExistException(command.songInstrumentId);
     }
 
     await this.commandBusProvider().dispatch(
@@ -61,7 +61,11 @@ export class SongInstrumentAssignmentCore {
 
     await this.songInstrumentRepository.save(reassignedSongInstrument);
     this.logger.info(
-      { songId: command.songId, instrumentId: command.instrumentId, musicianId: command.musicianId },
+      {
+        songId: command.songId,
+        songInstrumentId: command.songInstrumentId,
+        musicianId: command.musicianId
+      },
       'moat.songinstrument.assign.success'
     );
   }
