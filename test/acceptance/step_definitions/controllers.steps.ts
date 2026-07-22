@@ -30,21 +30,18 @@ const DEFAULT_CATALOG_INSTRUMENT_ID = '0e7a0d5f-3d2a-4bc1-8d4d-100000000001';
 Given(
   'An authenticated user {string} with password {string}',
   async function (this: MybandnowWorld, username: string, password: string) {
-    const NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341';
-    const userIdValue = uuidv5(username, NAMESPACE);
-    const encryptor = container.get<PasswordEncryptor>('Mybandnow.User.PasswordEncryptor');
-    const userRepository = container.get<UserPersistenceRepository>('Mybandnow.User.UserRepository');
+    const userIdValue = await saveAuthenticatedUser(username, password);
+    const accessToken = await getToken(username, userIdValue);
+    this.setAuthToken(accessToken);
+  }
+);
 
-    const hashedPassword = await encryptor.hash(password);
-    const user = User.create(
-      new UserId(userIdValue),
-      new UserEmail(`${username}@example.com`),
-      new UserPassword(hashedPassword)
-    );
-    await userRepository.save(user);
-
-    const access_token = await getToken(username, password, userIdValue);
-    this.setAuthToken(access_token);
+Given(
+  'An authenticated admin user {string} with password {string}',
+  async function (this: MybandnowWorld, username: string, password: string) {
+    const userIdValue = await saveAuthenticatedUser(username, password);
+    const accessToken = await getToken(username, userIdValue, ['admin-scope']);
+    this.setAuthToken(accessToken);
   }
 );
 
@@ -52,7 +49,16 @@ Given(
   'I authenticate as user {string} with id {string}',
   async function (this: MybandnowWorld, username: string, userId: string) {
     userId = this.dataUtil.replaceTokensWithCustomOrFakerValues(userId) as string;
-    const accessToken = await getToken(username, undefined, userId);
+    const accessToken = await getToken(username, userId);
+    this.setAuthToken(accessToken);
+  }
+);
+
+Given(
+  'I authenticate as admin user {string} with id {string}',
+  async function (this: MybandnowWorld, username: string, userId: string) {
+    userId = this.dataUtil.replaceTokensWithCustomOrFakerValues(userId) as string;
+    const accessToken = await getToken(username, userId, ['admin-scope']);
     this.setAuthToken(accessToken);
   }
 );
@@ -278,12 +284,12 @@ Before(async (): Promise<void> => {
  * @return {Promise<string>} The access token.
  */
 
-async function getToken(username: string, _password?: string, userIdValue?: string): Promise<string> {
+async function getToken(username: string, userIdValue?: string, extraRoles: string[] = []): Promise<string> {
   const { v5: uuidv5 } = await import('uuid');
   const subId = userIdValue || uuidv5(username, '1b671a64-40d5-491e-99b0-da01ff1f3341');
   const payload = {
     email: `${username}@example.com`,
-    roles: ['admin', 'user:create', 'user:read', 'user:update', 'user:delete'],
+    roles: ['admin', 'user:create', 'user:read', 'user:update', 'user:delete', ...extraRoles],
     preferred_username: username
   };
 
@@ -292,6 +298,12 @@ async function getToken(username: string, _password?: string, userIdValue?: stri
     expiresIn: '1h',
     subject: subId
   });
+}
+
+async function saveAuthenticatedUser(username: string, password: string): Promise<string> {
+  const userIdValue = uuidv5(username, '1b671a64-40d5-491e-99b0-da01ff1f3341');
+  await savePersistedUser(username, userIdValue, password);
+  return userIdValue;
 }
 
 async function savePersistedUser(username: string, userIdValue: string, password: string): Promise<void> {

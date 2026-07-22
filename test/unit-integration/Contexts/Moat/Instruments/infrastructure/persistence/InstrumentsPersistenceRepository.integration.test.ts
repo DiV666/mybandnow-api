@@ -65,4 +65,21 @@ describe('InstrumentsPersistenceRepository', () => {
       expect(found).not.toBeNull();
     });
   });
+
+  describe('#update', () => {
+    it('should update an existing instrument name and description', async () => {
+      const model = InstrumentsMother.random();
+      await persistenceRepository.save(model);
+
+      const updatedModel = model.update({
+        name: `${model.name.value} updated`,
+        description: `${model.description.value} updated`
+      });
+
+      await persistenceRepository.save(updatedModel);
+
+      const found = await persistenceRepository.search(model.id);
+      testCase.assertSimilar(found, updatedModel);
+    });
+  });
 });

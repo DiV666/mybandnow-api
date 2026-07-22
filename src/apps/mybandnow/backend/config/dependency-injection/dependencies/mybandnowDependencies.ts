@@ -27,6 +27,7 @@ import { register as registerSongInstrumentUploadUploader } from '@Apps/moat/bac
 import { register as registerSongInstrumentUploadStatusUpdater } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-upload/songInstrumentUploadStatusUpdater.dependency.js';
 import { register as registerInstrumentsFinder } from '@Apps/moat/backend/config/dependency-injection/use-cases/instruments/instrumentsFinder.dependency.js';
 import { register as registerInstrumentsMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/instruments/instrumentsMatcher.dependency.js';
+import { register as registerInstrumentsUpdater } from '@Apps/moat/backend/config/dependency-injection/use-cases/instruments/instrumentsUpdater.dependency.js';
 import { BandPrismaRepository } from '@Contexts/Moat/Band/infrastructure/persistence/BandPrismaRepository.js';
 import { SongPrismaRepository } from '@Contexts/Moat/Song/infrastructure/persistence/SongPrismaRepository.js';
 import { SongCheckBandMembership } from '@Contexts/Moat/Song/application/checkBandMembership/SongCheckBandMembership.js';
@@ -117,6 +118,7 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   registerSongInstrumentUploadStatusUpdater(container);
   registerInstrumentsFinder(container);
   registerInstrumentsMatcher(container);
+  registerInstrumentsUpdater(container);
 
   container
     .register('Moat.Musician.MusicianSearchByUserId', MusicianSearchByUserId)

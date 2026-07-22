@@ -22,6 +22,7 @@ import { register as registerSongInstrumentPostInviteController } from '../contr
 import { register as registerSongInstrumentUploadPostUploadController } from '../controllers/songInstrumentUpload/songInstrumentUploadPostUpload.dependency.js';
 import { register as registerInstrumentsGetMatchByCriteriaController } from '../controllers/instruments/instrumentsGetMatchByCriteria.dependency.js';
 import { register as registerInstrumentsGetSearchController } from '../controllers/instruments/instrumentsGetSearch.dependency.js';
+import { register as registerInstrumentsPutUpdateController } from '../controllers/instruments/instrumentsPutUpdate.dependency.js';
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 import ContinuationLocalStorageExpress from '../../../middlewares/ContinuationLocalStorageExpress.js';
 import CorrelationIdHeader from '../../../middlewares/CorrelationIdHeader.js';
@@ -64,6 +65,7 @@ export function registerAppsDependencies(container: ContainerBuilder) {
   registerSongInstrumentUploadPostUploadController(container);
   registerInstrumentsGetMatchByCriteriaController(container);
   registerInstrumentsGetSearchController(container);
+  registerInstrumentsPutUpdateController(container);
 
   // Middlewares
   container.register('Shared.Express.MultipartFileParser', MultipartFileParser);

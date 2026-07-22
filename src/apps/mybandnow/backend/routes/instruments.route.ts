@@ -25,3 +25,12 @@ export async function instrumentsGetSearch(
 ): Promise<void> {
   await runController('Apps.Mybandnow.Backend.controllers.InstrumentsGetSearchController', context, req, res, next);
 }
+
+export async function instrumentsPutUpdate(
+  context: OpenAPIContext,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  await runController('Apps.Mybandnow.Backend.controllers.InstrumentsPutUpdateController', context, req, res, next);
+}
