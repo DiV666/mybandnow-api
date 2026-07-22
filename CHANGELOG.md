@@ -4,6 +4,17 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 ## [No publicado]
 
+## [0.4.0] - 2026-07-22
+
+### Añadido
+
+- Endpoint `PUT /v1/instruments/{id}` para actualizar nombre y descripción de instrumentos con protección de permisos de administrador.
+- Separación del flujo `PATCH` de instrumentos de canción para editar metadatos por un lado y reasignar músico por otro endpoint dedicado.
+
+### Arreglado
+
+- Limpieza del archivo de vídeo final anterior en GCS cuando un `SongInstrument` vuelve a subir un vídeo finalizado, manteniendo el cleanup detrás de la capa de aplicación.
+
 ## [0.3.0] - 2026-07-21
 
 ### Añadido
