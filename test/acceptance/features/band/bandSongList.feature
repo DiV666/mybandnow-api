@@ -38,7 +38,8 @@ Feature: List songs of a band
             "id": "#songId",
             "bandId": "#bandId",
             "title": "Road to Green",
-            "originalVideoclipUrl": "https://cdn.example.com/original.mp4"
+            "originalVideoclipUrl": "https://cdn.example.com/original.mp4",
+            "originalVideoClipDurationSeconds": null
           }
         ],
         "total": 1

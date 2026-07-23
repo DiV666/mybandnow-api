@@ -4,6 +4,7 @@ import { Song } from '../Song.js';
 import { SongBandId } from '../value-object/SongBandId.js';
 import { SongId } from '../value-object/SongId.js';
 import { SongMusicianId } from '../value-object/SongMusicianId.js';
+import { SongOriginalVideoClipDurationSeconds } from '../value-object/SongOriginalVideoClipDurationSeconds.js';
 
 export interface SongPersistenceRepository {
   search(id: SongId): Promise<Nullable<Song>>;
@@ -12,4 +13,8 @@ export interface SongPersistenceRepository {
   matching(criteria: Criteria, musicianId: SongMusicianId): Promise<Array<Song>>;
   matchingCount(criteria: Criteria, musicianId: SongMusicianId): Promise<number>;
   save(song: Song): Promise<void>;
+  updateOriginalVideoClipDurationSeconds(
+    id: SongId,
+    durationSeconds: SongOriginalVideoClipDurationSeconds
+  ): Promise<void>;
 }

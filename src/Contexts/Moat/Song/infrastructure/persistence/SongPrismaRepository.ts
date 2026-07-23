@@ -13,6 +13,7 @@ import { SongPersistenceRepository } from '../../domain/repository/SongPersisten
 import { SongBandId } from '../../domain/value-object/SongBandId.js';
 import { SongId } from '../../domain/value-object/SongId.js';
 import { SongMusicianId } from '../../domain/value-object/SongMusicianId.js';
+import { SongOriginalVideoClipDurationSeconds } from '../../domain/value-object/SongOriginalVideoClipDurationSeconds.js';
 
 export class SongPrismaRepository implements SongPersistenceRepository, SongAuthorizationRepository {
   private client = PrismaClientFactory.createClient();
@@ -105,6 +106,16 @@ export class SongPrismaRepository implements SongPersistenceRepository, SongAuth
     } catch (error: unknown) {
       this.throwTranslatedPersistenceError(primitives, error);
     }
+  }
+
+  async updateOriginalVideoClipDurationSeconds(
+    id: SongId,
+    durationSeconds: SongOriginalVideoClipDurationSeconds
+  ): Promise<void> {
+    await this.client.song.update({
+      where: { id: id.value },
+      data: { originalVideoClipDurationSeconds: durationSeconds.value }
+    });
   }
 
   async isBandMember(bandId: SongBandId, musicianId: SongMusicianId): Promise<boolean> {

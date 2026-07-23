@@ -36,8 +36,11 @@ import { SongCheckBandMembership } from '@Contexts/Moat/Song/application/checkBa
 import { SongCheckBandMembershipQueryHandler } from '@Contexts/Moat/Song/application/checkBandMembership/SongCheckBandMembershipQueryHandler.js';
 import { SongCreator } from '@Contexts/Moat/Song/application/create/SongCreator.js';
 import { CreateSongCommandHandler } from '@Contexts/Moat/Song/application/create/CreateSongCommandHandler.js';
+import { EnrichSongOriginalVideoClipDurationCommandHandler } from '@Contexts/Moat/Song/application/enrichOriginalVideoClipDuration/EnrichSongOriginalVideoClipDurationCommandHandler.js';
+import { SongOriginalVideoClipDurationEnricher } from '@Contexts/Moat/Song/application/enrichOriginalVideoClipDuration/SongOriginalVideoClipDurationEnricher.js';
 import { SongListByBand } from '@Contexts/Moat/Song/application/listByBand/SongListByBand.js';
 import { SongListByBandQueryHandler } from '@Contexts/Moat/Song/application/listByBand/SongListByBandQueryHandler.js';
+import { YouTubeOriginalVideoClipDurationProvider } from '@Contexts/Moat/Song/infrastructure/YouTubeOriginalVideoClipDurationProvider.js';
 import { register as registerSongMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/song/songMatcher.dependency.js';
 import { SongInstrumentPrismaRepository } from '@Contexts/Moat/SongInstrument/infrastructure/persistence/SongInstrumentPrismaRepository.js';
 import { SongInstrumentVideoPrismaRepository } from '@Contexts/Moat/SongInstrumentVideo/infrastructure/persistence/SongInstrumentVideoPrismaRepository.js';
@@ -52,6 +55,7 @@ import { InternalAuthentication } from '@Contexts/Mybandnow/Shared/infrastructur
 import { LocalJwtGenerator } from '@Contexts/Mybandnow/User/infrastructure/service/LocalJwtGenerator.js';
 import { BcryptPasswordEncryptor } from '@Contexts/Mybandnow/User/infrastructure/auth/BcryptPasswordEncryptor.js';
 import { env } from '@Contexts/Shared/infrastructure/config/env.js';
+import { HttpClient } from '@Contexts/Shared/infrastructure/Http/HttpClient.js';
 
 export function registerMybandnowDependencies(container: ContainerBuilder) {
   // Authentication
@@ -71,6 +75,15 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   container.register('Moat.Musician.MusicianRepository', PrismaMusicianRepository);
   container.register('Moat.Band.BandRepository', BandPrismaRepository).addArgument(new Reference('Shared.Outbox'));
   container.register('Moat.Song.SongRepository', SongPrismaRepository).addArgument(new Reference('Shared.Outbox'));
+  container
+    .register('Moat.Song.OriginalVideoClipDurationHttpClient', HttpClient)
+    .addArgument(new Reference('Shared.BunyanLogger'))
+    .addArgument(null)
+    .addArgument({ integration: 'youtube' });
+  container
+    .register('Moat.Song.OriginalVideoClipDurationProvider', YouTubeOriginalVideoClipDurationProvider)
+    .addArgument(new Reference('Shared.BunyanLogger'))
+    .addArgument(new Reference('Moat.Song.OriginalVideoClipDurationHttpClient'));
   container
     .register('Moat.SongInstrument.SongInstrumentRepository', SongInstrumentPrismaRepository)
     .addArgument(new Reference('Shared.Outbox'));
@@ -107,6 +120,20 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   container
     .register('Moat.Song.CreateSongCommandHandler', CreateSongCommandHandler)
     .addArgument(new Reference('Moat.Song.SongCreator'))
+    .addTag('commandHandler');
+
+  container
+    .register('Moat.Song.SongOriginalVideoClipDurationEnricher', SongOriginalVideoClipDurationEnricher)
+    .addArgument(new Reference('Shared.BunyanLogger'))
+    .addArgument(new Reference('Moat.Song.OriginalVideoClipDurationProvider'))
+    .addArgument(new Reference('Moat.Song.SongRepository'));
+
+  container
+    .register(
+      'Moat.Song.EnrichSongOriginalVideoClipDurationCommandHandler',
+      EnrichSongOriginalVideoClipDurationCommandHandler
+    )
+    .addArgument(new Reference('Moat.Song.SongOriginalVideoClipDurationEnricher'))
     .addTag('commandHandler');
 
   registerSongInstrumentAssigner(container);

@@ -5,6 +5,7 @@ import { SongBandId } from '@Contexts/Moat/Song/domain/value-object/SongBandId.j
 import { SongId } from '@Contexts/Moat/Song/domain/value-object/SongId.js';
 import { SongMusicianId } from '@Contexts/Moat/Song/domain/value-object/SongMusicianId.js';
 import { SongTitle } from '@Contexts/Moat/Song/domain/value-object/SongTitle.js';
+import { SongOriginalVideoClipDurationSeconds } from '@Contexts/Moat/Song/domain/value-object/SongOriginalVideoClipDurationSeconds.js';
 import container from '@Test/apps/mybandnow/backend/config/dependency-injection/index.js';
 import { EnvironmentArranger } from '@Test/utils/arranger/EnvironmentArranger.js';
 import { PrismaClientFactory } from '@Contexts/Shared/infrastructure/persistence/prisma/PrismaClientFactory.js';
@@ -113,7 +114,7 @@ describe('SongPersistenceRepository', () => {
   });
 
   describe('#save', () => {
-    it('should save a song with its original videoclip url without creating a videoclip', async () => {
+    it('should save a song with its original videoclip url and null original video clip duration without creating a videoclip', async () => {
       const song = SongMother.random();
       const ownerId = '123e4567-e89b-12d3-a456-426614174102';
       const memberId = '123e4567-e89b-12d3-a456-426614174103';
@@ -124,12 +125,36 @@ describe('SongPersistenceRepository', () => {
       const savedSong = await persistenceRepository.search(song.id);
       const persistedSong = (await prisma.song.findUnique({
         where: { id: song.id.value }
-      })) as ({ originalVideoclipUrl: string } & { id: string }) | null;
+      })) as
+        | ({ originalVideoclipUrl: string; originalVideoClipDurationSeconds: number | null } & { id: string })
+        | null;
       const videoclip = await prisma.videoclip.findUnique({ where: { songId: song.id.value } });
 
       expect(savedSong).toBeDefined();
+      expect(savedSong?.toPrimitives().originalVideoClipDurationSeconds).toBeNull();
       expect(persistedSong?.originalVideoclipUrl).toBe(song.originalVideoclipUrl.value);
+      expect(persistedSong?.originalVideoClipDurationSeconds).toBeNull();
       expect(videoclip).toBeNull();
+    });
+
+    it('should update the original video clip duration seconds for an existing song', async () => {
+      const song = SongMother.random();
+      const ownerId = '123e4567-e89b-12d3-a456-426614174122';
+      const memberId = '123e4567-e89b-12d3-a456-426614174123';
+
+      await createBandDependencies(song.bandId.value, ownerId, memberId);
+      await persistenceRepository.save(song);
+
+      await persistenceRepository.updateOriginalVideoClipDurationSeconds(
+        song.id,
+        new SongOriginalVideoClipDurationSeconds(213)
+      );
+
+      const updatedSong = await persistenceRepository.search(song.id);
+      const persistedSong = await prisma.song.findUnique({ where: { id: song.id.value } });
+
+      expect(updatedSong?.toPrimitives().originalVideoClipDurationSeconds).toBe(213);
+      expect(persistedSong?.originalVideoClipDurationSeconds).toBe(213);
     });
 
     it('should reject duplicate song ids without overwriting the existing row', async () => {

@@ -3,8 +3,7 @@ import axios, {
   type AxiosRequestConfig,
   type AxiosResponse,
   type AxiosError,
-  type InternalAxiosRequestConfig,
-  AxiosHeaders
+  type InternalAxiosRequestConfig
 } from 'axios';
 import Logger from '../../domain/Logger.js';
 import { sanitizeStringForLogging } from '../../domain/LoggingRedactionPolicy.js';
@@ -23,6 +22,10 @@ interface HttpClientRequestMetadata {
 
 export interface HttpClientRequestConfig extends AxiosRequestConfig {
   logContext?: HttpClientRequestLogContext;
+}
+
+interface CorrelationIdHeaders {
+  set(headerName: string, value: string): unknown;
 }
 
 interface HttpClientInternalRequestConfig extends InternalAxiosRequestConfig {
@@ -112,7 +115,7 @@ export class HttpClient {
     return this.axiosInstance.delete<T>(url, config) as Promise<T>;
   }
 
-  private setCorrelationIdHeader(headers: AxiosHeaders, correlationId?: string): void {
+  private setCorrelationIdHeader(headers: CorrelationIdHeaders, correlationId?: string): void {
     if (correlationId) {
       headers.set('x-correlation-id', correlationId);
     }

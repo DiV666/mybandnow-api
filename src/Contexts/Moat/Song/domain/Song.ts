@@ -1,8 +1,10 @@
 import { AggregateRoot } from '@Contexts/Shared/domain/AggregateRoot.js';
+import { Nullable } from '@Contexts/Shared/domain/Nullable.js';
 import { Primitives } from '@Contexts/Shared/domain/Primitives.js';
 import { SongCreatedDomainEvent } from './SongCreatedDomainEvent.js';
 import { SongBandId } from './value-object/SongBandId.js';
 import { SongId } from './value-object/SongId.js';
+import { SongOriginalVideoClipDurationSeconds } from './value-object/SongOriginalVideoClipDurationSeconds.js';
 import { SongOriginalVideoclipUrl } from './value-object/SongOriginalVideoclipUrl.js';
 import { SongTitle } from './value-object/SongTitle.js';
 
@@ -11,13 +13,14 @@ export class Song extends AggregateRoot {
     readonly id: SongId,
     readonly bandId: SongBandId,
     readonly title: SongTitle,
-    readonly originalVideoclipUrl: SongOriginalVideoclipUrl
+    readonly originalVideoclipUrl: SongOriginalVideoclipUrl,
+    readonly originalVideoClipDurationSeconds: Nullable<SongOriginalVideoClipDurationSeconds>
   ) {
     super();
   }
 
   static create(params: { id: string; title: string; bandId: string; originalVideoclipUrl: string }): Song {
-    const model = Song.fromPrimitives(params);
+    const model = Song.fromPrimitives({ ...params, originalVideoClipDurationSeconds: null });
     const primitives = model.toPrimitives();
 
     model.record(
@@ -37,7 +40,10 @@ export class Song extends AggregateRoot {
       new SongId(plainData.id),
       new SongBandId(plainData.bandId),
       new SongTitle(plainData.title),
-      new SongOriginalVideoclipUrl(plainData.originalVideoclipUrl)
+      new SongOriginalVideoclipUrl(plainData.originalVideoclipUrl),
+      plainData.originalVideoClipDurationSeconds === null
+        ? null
+        : new SongOriginalVideoClipDurationSeconds(plainData.originalVideoClipDurationSeconds)
     );
   }
 
@@ -46,7 +52,8 @@ export class Song extends AggregateRoot {
       id: this.id.value,
       bandId: this.bandId.value,
       title: this.title.value,
-      originalVideoclipUrl: this.originalVideoclipUrl.value
+      originalVideoclipUrl: this.originalVideoclipUrl.value,
+      originalVideoClipDurationSeconds: this.originalVideoClipDurationSeconds?.value ?? null
     };
   }
 }

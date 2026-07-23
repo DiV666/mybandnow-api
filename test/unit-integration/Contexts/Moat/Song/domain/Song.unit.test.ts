@@ -22,6 +22,11 @@ describe('Song should', () => {
         originalVideoclipUrl: 'https://cdn.example.com/original.mp4'
       });
 
+      expect(song.toPrimitives()).toEqual(
+        expect.objectContaining({
+          originalVideoClipDurationSeconds: null
+        })
+      );
       expect(song.pullDomainEvents()).toEqual([
         expect.objectContaining({
           aggregateId: '123e4567-e89b-12d3-a456-426614174000',

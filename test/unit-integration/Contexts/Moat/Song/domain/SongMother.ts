@@ -11,18 +11,20 @@ export class SongMother {
       id: SongIdMother.random(),
       bandId: SongBandIdMother.random(),
       title: SongTitleMother.random(),
-      originalVideoclipUrl: SongOriginalVideoclipUrlMother.random()
+      originalVideoclipUrl: SongOriginalVideoclipUrlMother.random(),
+      originalVideoClipDurationSeconds: null
     };
   }
 
   static create(...params: Partial<Song>[]): Song {
-    const data = Object.assign({}, SongMother.defaults(), ...params) as Required<Song>;
+    const data = Object.assign({}, SongMother.defaults(), ...params) as Song;
 
     return Song.fromPrimitives({
       id: data.id.value,
       bandId: data.bandId.value,
       title: data.title.value,
-      originalVideoclipUrl: data.originalVideoclipUrl.value
+      originalVideoclipUrl: data.originalVideoclipUrl.value,
+      originalVideoClipDurationSeconds: data.originalVideoClipDurationSeconds?.value ?? null
     });
   }
 

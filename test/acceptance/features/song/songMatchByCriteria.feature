@@ -73,13 +73,15 @@ Feature: List songs by criteria
             "id": "#accessibleSongId",
             "bandId": "#accessibleBandId",
             "title": "Alpha Song",
-            "originalVideoclipUrl": "https://cdn.example.com/original.mp4"
+            "originalVideoclipUrl": "https://cdn.example.com/original.mp4",
+            "originalVideoClipDurationSeconds": null
           },
           {
             "id": "#secondAccessibleSongId",
             "bandId": "#secondAccessibleBandId",
             "title": "Beta Song",
-            "originalVideoclipUrl": "https://cdn.example.com/original.mp4"
+            "originalVideoclipUrl": "https://cdn.example.com/original.mp4",
+            "originalVideoClipDurationSeconds": null
           }
         ],
         "total": 2

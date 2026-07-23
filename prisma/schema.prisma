@@ -68,14 +68,15 @@ model BandMember {
 }
 
 model Song {
-  id                    String                 @id @default(uuid())
-  title                 String
-  band                  Band                   @relation(fields: [bandId], references: [id], onDelete: Cascade)
-  bandId                String
-  originalVideoclipUrl  String
-  songInstrumentUploads SongInstrumentUpload[]
-  songInstruments       SongInstrument[]
-  videoclip             Videoclip?
+  id                             String                 @id @default(uuid())
+  title                          String
+  band                           Band                   @relation(fields: [bandId], references: [id], onDelete: Cascade)
+  bandId                         String
+  originalVideoclipUrl           String
+  originalVideoClipDurationSeconds Int?
+  songInstrumentUploads          SongInstrumentUpload[]
+  songInstruments                SongInstrument[]
+  videoclip                      Videoclip?
 
   @@index([bandId])
   @@index([title])
