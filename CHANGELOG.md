@@ -4,6 +4,14 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 
 ## [No publicado]
 
+### Añadido
+
+- Enriquecimiento asíncrono de canciones con `originalVideoClipDurationSeconds` a partir del videoclip original de YouTube, incluyendo persistencia, contrato OpenAPI y cobertura de pruebas.
+
+### Arreglado
+
+- Eliminación del límite que impedía usar `startTimeMs` por encima de la duración del clip en vídeos de instrumentos para permitir offsets globales en la POC.
+
 ## [0.4.0] - 2026-07-22
 
 ### Añadido
