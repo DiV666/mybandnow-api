@@ -6,7 +6,6 @@ import {
 import { SongInstrumentVideoMother } from './SongInstrumentVideoMother.js';
 import { SongInstrumentVideoCreatedDomainEventMother } from './SongInstrumentVideoCreatedDomainEventMother.js';
 import { FakeClock } from '@Test/utils/mocks/FakeClock.js';
-import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
 
 describe('SongInstrumentVideo should', () => {
   describe('#fromPrimitives and #toPrimitives', () => {
@@ -43,7 +42,7 @@ describe('SongInstrumentVideo should', () => {
       expect(primitives.startTimeMs).toBe(0);
     });
 
-    it('throw when sync start time exceeds the video duration in milliseconds', () => {
+    it('allow a sync start time greater than the video duration in milliseconds', () => {
       const model = SongInstrumentVideoMother.create();
 
       const primitives: SongInstrumentVideoPrimitives = {
@@ -51,7 +50,61 @@ describe('SongInstrumentVideo should', () => {
         startTimeMs: model.duration.value * 1000 + 1
       };
 
-      expect(() => SongInstrumentVideo.fromPrimitives(primitives)).toThrow(InvalidArgumentException);
+      const newModel = SongInstrumentVideo.fromPrimitives(primitives);
+
+      expect(newModel.startTimeMs.value).toBe(primitives.startTimeMs);
+    });
+  });
+
+  describe('#updateStartTimeMs', () => {
+    it('record an updated domain event when the start time changes', () => {
+      const model = SongInstrumentVideoMother.create();
+      const updatedModel = model.updateStartTimeMs(model.duration.value * 1000 + 5000);
+      const [domainEvent] = updatedModel.pullDomainEvents();
+
+      expect(updatedModel.startTimeMs.value).toBe(model.duration.value * 1000 + 5000);
+      expect(domainEvent.eventName).toBe('rubricae.moat.1.command.songinstrumentvideo.updated');
+      expect(domainEvent.aggregateId).toBe(model.id.value);
+      expect(domainEvent.attributes).toEqual({
+        createdAt: updatedModel.createdAt.value.toISOString(),
+        size: updatedModel.size.value,
+        duration: updatedModel.duration.value,
+        url: updatedModel.url.value,
+        songInstrumentId: updatedModel.songInstrumentId.value,
+        startTimeMs: updatedModel.startTimeMs.value
+      });
+    });
+
+    it('not record a domain event when the start time does not change', () => {
+      const model = SongInstrumentVideoMother.create();
+      const updatedModel = model.updateStartTimeMs(model.startTimeMs.value);
+
+      expect(updatedModel).toBe(model);
+      expect(updatedModel.pullDomainEvents()).toEqual([]);
+    });
+  });
+
+  describe('#replaceUpload', () => {
+    it('reset startTimeMs and record a replaced domain event when the upload changes', () => {
+      const model = SongInstrumentVideoMother.create();
+      const replacedModel = model.replaceUpload({
+        size: model.size.value + 10,
+        duration: model.duration.value + 20,
+        url: `${model.url.value}-replaced`
+      });
+      const [domainEvent] = replacedModel.pullDomainEvents();
+
+      expect(replacedModel.startTimeMs.value).toBe(0);
+      expect(replacedModel.size.value).toBe(model.size.value + 10);
+      expect(replacedModel.duration.value).toBe(model.duration.value + 20);
+      expect(replacedModel.url.value).toBe(`${model.url.value}-replaced`);
+      expect(domainEvent.eventName).toBe('rubricae.moat.1.command.songinstrumentvideo.replaced');
+      expect(domainEvent.aggregateId).toBe(model.id.value);
+      expect(domainEvent.attributes).toEqual({
+        songInstrumentId: model.songInstrumentId.value,
+        oldUrl: model.url.value,
+        newUrl: `${model.url.value}-replaced`
+      });
     });
   });
 });

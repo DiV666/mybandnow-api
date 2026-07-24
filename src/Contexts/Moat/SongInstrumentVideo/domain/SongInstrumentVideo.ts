@@ -10,7 +10,6 @@ import { SongInstrumentVideoSize } from './value-object/SongInstrumentVideoSize.
 import { SongInstrumentVideoStartTimeMs } from './value-object/SongInstrumentVideoStartTimeMs.js';
 import { SongInstrumentVideoUpdatedDomainEvent } from './SongInstrumentVideoUpdatedDomainEvent.js';
 import { SongInstrumentVideoReplacedDomainEvent } from './SongInstrumentVideoReplacedDomainEvent.js';
-import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
 
 export type SongInstrumentVideoPrimitives = {
   id: string;
@@ -22,6 +21,9 @@ export type SongInstrumentVideoPrimitives = {
   createdAt: Date;
 };
 
+// `startTimeMs` models the clip position inside the current global composition timeline.
+// For the current product behavior it is validated only as a non-negative offset, even
+// when it exceeds the clip's own duration.
 export class SongInstrumentVideo extends AggregateRoot {
   constructor(
     readonly id: SongInstrumentVideoId,
@@ -33,7 +35,6 @@ export class SongInstrumentVideo extends AggregateRoot {
     readonly createdAt: SongInstrumentVideoCreatedAt
   ) {
     super();
-    SongInstrumentVideo.ensureStartTimeMsIsWithinDuration(startTimeMs.value, duration.value);
   }
 
   static create(
@@ -127,13 +128,5 @@ export class SongInstrumentVideo extends AggregateRoot {
       startTimeMs: this.startTimeMs.value,
       createdAt: this.createdAt.value
     };
-  }
-
-  private static ensureStartTimeMsIsWithinDuration(startTimeMs: number, duration: number): void {
-    if (startTimeMs > duration * 1000) {
-      throw new InvalidArgumentException({
-        message: `SongInstrumentVideo startTimeMs <${startTimeMs}> exceeds duration <${duration}> seconds`
-      });
-    }
   }
 }
