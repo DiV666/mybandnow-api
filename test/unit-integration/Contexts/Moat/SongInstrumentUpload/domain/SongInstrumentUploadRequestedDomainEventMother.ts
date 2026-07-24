@@ -6,17 +6,23 @@ export class SongInstrumentUploadRequestedDomainEventMother {
   static create({
     aggregateId,
     fileReference,
+    songId,
+    songInstrumentId,
     eventId,
     occurredOn
   }: {
     aggregateId: string;
     fileReference: string;
+    songId: string;
+    songInstrumentId: string;
     eventId?: string;
     occurredOn?: Date;
   }): SongInstrumentUploadRequestedDomainEvent {
     return new SongInstrumentUploadRequestedDomainEvent({
       aggregateId,
       fileReference,
+      songId,
+      songInstrumentId,
       eventId,
       occurredOn
     });
@@ -28,7 +34,9 @@ export class SongInstrumentUploadRequestedDomainEventMother {
   ): SongInstrumentUploadRequestedDomainEvent {
     return new SongInstrumentUploadRequestedDomainEvent({
       aggregateId: songInstrumentUpload.id.value,
-      fileReference: fileReference.value
+      fileReference: fileReference.value,
+      songId: songInstrumentUpload.songId.value,
+      songInstrumentId: songInstrumentUpload.songInstrumentId.value
     });
   }
 }

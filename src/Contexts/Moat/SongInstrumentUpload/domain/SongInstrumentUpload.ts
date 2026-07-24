@@ -72,7 +72,9 @@ export class SongInstrumentUpload extends AggregateRoot {
     this.record(
       new SongInstrumentUploadRequestedDomainEvent({
         aggregateId: this.id.value,
-        fileReference: fileReference.value
+        fileReference: fileReference.value,
+        songId: this.songId.value,
+        songInstrumentId: this.songInstrumentId.value
       })
     );
   }

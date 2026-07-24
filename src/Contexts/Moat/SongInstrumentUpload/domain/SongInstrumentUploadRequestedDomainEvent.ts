@@ -3,17 +3,23 @@ import { DomainEvent } from '@Contexts/Shared/domain/DomainEvent.js';
 type SongInstrumentUploadRequestedDomainEventAttributes = {
   attemptId: string;
   fileReference: string;
+  songId: string;
+  songInstrumentId: string;
 };
 
 export class SongInstrumentUploadRequestedDomainEvent extends DomainEvent {
   static readonly EVENT_NAME = 'moat.song_instrument_upload.upload_requested';
   readonly attemptId: string;
   readonly fileReference: string;
+  readonly songId: string;
+  readonly songInstrumentId: string;
 
   constructor(params: {
     aggregateId: string;
     attemptId?: string;
     fileReference: string;
+    songId: string;
+    songInstrumentId: string;
     eventId?: string;
     occurredOn?: Date;
     meta?: Record<string, unknown>;
@@ -27,9 +33,13 @@ export class SongInstrumentUploadRequestedDomainEvent extends DomainEvent {
     });
     this.attemptId = params.attemptId ?? params.aggregateId;
     this.fileReference = params.fileReference;
+    this.songId = params.songId;
+    this.songInstrumentId = params.songInstrumentId;
     this.attributes = {
       attemptId: this.attemptId,
-      fileReference: this.fileReference
+      fileReference: this.fileReference,
+      songId: this.songId,
+      songInstrumentId: this.songInstrumentId
     };
   }
 
@@ -45,6 +55,8 @@ export class SongInstrumentUploadRequestedDomainEvent extends DomainEvent {
       aggregateId: params.aggregateId,
       attemptId: attrs.attemptId,
       fileReference: attrs.fileReference,
+      songId: attrs.songId,
+      songInstrumentId: attrs.songInstrumentId,
       eventId: params.eventId,
       occurredOn: params.occurredOn,
       meta: params.meta

@@ -28,8 +28,8 @@ describe('DeletePreviousSongInstrumentVideoOnSongInstrumentVideoReplaced', () =>
     const domainEvent = new SongInstrumentVideoReplacedDomainEvent({
       aggregateId: '12345678-1234-4234-8234-123456789012',
       songInstrumentId: '22345678-1234-4234-8234-123456789012',
-      oldUrl: 'song-instrument-uploads/old-process.mp4',
-      newUrl: 'song-instrument-uploads/new-process.mp4'
+      oldUrl: 'song-instrument-videos/band-id/song-id/old-process.mp4',
+      newUrl: 'song-instrument-videos/band-id/song-id/new-process.mp4'
     });
 
     // Act
@@ -45,8 +45,8 @@ describe('DeletePreviousSongInstrumentVideoOnSongInstrumentVideoReplaced', () =>
     expect(command).toBeInstanceOf(DeletePreviousSongInstrumentVideoCommand);
     expect(command).toMatchObject({
       songInstrumentId: '22345678-1234-4234-8234-123456789012',
-      oldUrl: 'song-instrument-uploads/old-process.mp4',
-      newUrl: 'song-instrument-uploads/new-process.mp4'
+      oldUrl: 'song-instrument-videos/band-id/song-id/old-process.mp4',
+      newUrl: 'song-instrument-videos/band-id/song-id/new-process.mp4'
     });
   });
 
@@ -61,8 +61,8 @@ describe('DeletePreviousSongInstrumentVideoOnSongInstrumentVideoReplaced', () =>
       aggregateId: '12345678-1234-4234-8234-123456789012',
       attributes: {
         songInstrumentId: '22345678-1234-4234-8234-123456789012',
-        oldUrl: 'song-instrument-uploads/old-process.mp4',
-        newUrl: 'song-instrument-uploads/new-process.mp4'
+        oldUrl: 'song-instrument-videos/band-id/song-id/old-process.mp4',
+        newUrl: 'song-instrument-videos/band-id/song-id/new-process.mp4'
       }
     } as unknown as SongInstrumentVideoReplacedDomainEvent;
 
@@ -75,8 +75,8 @@ describe('DeletePreviousSongInstrumentVideoOnSongInstrumentVideoReplaced', () =>
     expect(command).toBeInstanceOf(DeletePreviousSongInstrumentVideoCommand);
     expect(command).toMatchObject({
       songInstrumentId: '22345678-1234-4234-8234-123456789012',
-      oldUrl: 'song-instrument-uploads/old-process.mp4',
-      newUrl: 'song-instrument-uploads/new-process.mp4'
+      oldUrl: 'song-instrument-videos/band-id/song-id/old-process.mp4',
+      newUrl: 'song-instrument-videos/band-id/song-id/new-process.mp4'
     });
   });
 

@@ -1,6 +1,6 @@
 import assert from 'assert';
 import * as fs from 'fs';
-import { AfterAll, Before, Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber';
+import { After, AfterAll, Before, Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber';
 import container from '../../apps/mybandnow/backend/config/dependency-injection/index.js';
 import { EnvironmentArranger } from '../../utils/arranger/EnvironmentArranger.js';
 import { MybandnowWorld } from './MybandnowWorld.js';
@@ -275,6 +275,11 @@ Then('the response should be empty', function (this: MybandnowWorld) {
 Before(async (): Promise<void> => {
   const prismaEnvironmentArranger: Promise<EnvironmentArranger> = container.get('Shared.PrismaEnvironmentArranger');
   await (await prismaEnvironmentArranger).arrange();
+  clearSongInstrumentStorage();
+});
+
+After((): void => {
+  clearSongInstrumentStorage();
 });
 
 /**
@@ -798,6 +803,15 @@ async function getAuthenticatedMusician(thisWorld: MybandnowWorld): Promise<{ id
   }
 
   return musician;
+}
+
+type ClearableSongInstrumentStorage = {
+  clear?: () => void;
+};
+
+function clearSongInstrumentStorage(): void {
+  const storage = container.get<ClearableSongInstrumentStorage>('Orchestrator.SongInstrumentProcess.StorageRepository');
+  storage.clear?.();
 }
 
 function authenticatedUserIdFromPayload(payload: jsonwebtoken.JwtPayload): string {

@@ -18,7 +18,7 @@ describe('ValidateSongInstrumentUploadOnUploadRequested', () => {
     commandBusResolver = vi.fn().mockReturnValue(commandBus);
   });
 
-  it('dispatches SongInstrumentProcessValidateCommand with aggregateId and fileReference from the domain event', async () => {
+  it('dispatches SongInstrumentProcessValidateCommand with aggregateId, fileReference, and upload ownership data from the domain event', async () => {
     // Arrange
     const subscriber = new ValidateSongInstrumentUploadOnUploadRequested(
       'moat.song_instrument_upload.upload_requested',
@@ -27,7 +27,9 @@ describe('ValidateSongInstrumentUploadOnUploadRequested', () => {
     );
     const domainEvent = new SongInstrumentUploadRequestedDomainEvent({
       aggregateId: '12345678-1234-4234-8234-123456789012',
-      fileReference: 'uploads/songInstrumentUpload.mp4'
+      fileReference: 'song-instrument-uploads/song-id/song-instrument-id/video-id.mp4',
+      songId: 'song-id',
+      songInstrumentId: 'song-instrument-id'
     });
 
     // Act
@@ -43,7 +45,9 @@ describe('ValidateSongInstrumentUploadOnUploadRequested', () => {
     expect(command).toBeInstanceOf(SongInstrumentProcessValidateCommand);
     expect(command).toMatchObject({
       aggregateId: domainEvent.aggregateId,
-      fileReference: domainEvent.fileReference
+      fileReference: domainEvent.fileReference,
+      songId: domainEvent.songId,
+      songInstrumentId: domainEvent.songInstrumentId
     });
   });
 
@@ -57,7 +61,9 @@ describe('ValidateSongInstrumentUploadOnUploadRequested', () => {
     const domainEvent = {
       aggregateId: '12345678-1234-4234-8234-123456789012',
       attributes: {
-        fileReference: 'uploads/from-rabbitmq.mp4'
+        fileReference: 'song-instrument-uploads/song-id/song-instrument-id/video-id.mp4',
+        songId: 'song-id',
+        songInstrumentId: 'song-instrument-id'
       }
     } as unknown as SongInstrumentUploadRequestedDomainEvent;
 
@@ -70,7 +76,9 @@ describe('ValidateSongInstrumentUploadOnUploadRequested', () => {
     expect(command).toBeInstanceOf(SongInstrumentProcessValidateCommand);
     expect(command).toMatchObject({
       aggregateId: domainEvent.aggregateId,
-      fileReference: 'uploads/from-rabbitmq.mp4'
+      fileReference: 'song-instrument-uploads/song-id/song-instrument-id/video-id.mp4',
+      songId: 'song-id',
+      songInstrumentId: 'song-instrument-id'
     });
   });
 

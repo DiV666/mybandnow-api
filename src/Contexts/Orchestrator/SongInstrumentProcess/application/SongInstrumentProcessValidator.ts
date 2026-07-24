@@ -13,6 +13,8 @@ import { FfprobeLog } from '../domain/value-object/FfprobeLog.js';
 import { SongInstrumentProcessValidateCommand } from './SongInstrumentProcessValidateCommand.js';
 import { FileReference } from '@Contexts/Shared/domain/value-object/FileReference.js';
 import { SongInstrumentProcessStatusValues } from '../domain/value-object/SongInstrumentProcessStatus.js';
+import { SongPersistenceRepository } from '@Contexts/Moat/Song/domain/repository/SongPersistenceRepository.js';
+import { SongId } from '@Contexts/Moat/Song/domain/value-object/SongId.js';
 
 export class SongInstrumentProcessValidator {
   constructor(
@@ -20,6 +22,7 @@ export class SongInstrumentProcessValidator {
     private storage: StorageRepository,
     private fileSystem: FileSystemRepository,
     private songInstrumentProcessRepository: SongInstrumentProcessPersistenceRepository,
+    private songRepository: SongPersistenceRepository,
     private logger: Logger,
     private eventBus: EventBus
   ) {}
@@ -29,7 +32,7 @@ export class SongInstrumentProcessValidator {
     const sourceFileReference = new FileReference(command.fileReference);
     const songInstrumentProcessIdentifier = songInstrumentProcessId.value;
     const fileReference = sourceFileReference.value;
-    const destinationPath = new GcsPath(`song-instrument-uploads/${songInstrumentProcessIdentifier}.mp4`);
+    const destinationPath = await this.buildDestinationPath(command, songInstrumentProcessIdentifier);
     let downloadedTempFileReference: FileReference | null = null;
     let shouldDeleteDurableSourceFile = false;
     let shouldDeleteDestinationFile = false;
@@ -52,6 +55,8 @@ export class SongInstrumentProcessValidator {
         return;
       }
 
+      shouldDeleteDurableSourceFile = true;
+
       const metadata = await this.validationService.validate(downloadedTempFileReference.value);
 
       if (metadata.codec !== 'h264') {
@@ -67,7 +72,6 @@ export class SongInstrumentProcessValidator {
 
       await this.completeProcess(downloadedTempFileReference, songInstrumentProcessId, destinationPath, metadata);
 
-      shouldDeleteDurableSourceFile = true;
       shouldDeleteDestinationFile = false;
 
       this.logger.info(
@@ -117,7 +121,7 @@ export class SongInstrumentProcessValidator {
     sourceFileReference: FileReference,
     destinationPath: GcsPath
   ): Promise<boolean> {
-    if (!sourceFileReference.value.startsWith('instrument-videos/')) {
+    if (!sourceFileReference.value.startsWith('song-instrument-uploads/')) {
       return false;
     }
 
@@ -126,6 +130,21 @@ export class SongInstrumentProcessValidator {
     return (
       existingProcess?.status.value === SongInstrumentProcessStatusValues.COMPLETED &&
       existingProcess.gcsPath?.value === destinationPath.value
+    );
+  }
+
+  private async buildDestinationPath(
+    command: SongInstrumentProcessValidateCommand,
+    songInstrumentProcessIdentifier: string
+  ): Promise<GcsPath> {
+    const song = await this.songRepository.search(new SongId(command.songId));
+
+    if (!song) {
+      throw new Error(`Song ${command.songId} not found while processing upload ${songInstrumentProcessIdentifier}`);
+    }
+
+    return new GcsPath(
+      `song-instrument-videos/${song.bandId.value}/${command.songId}/${command.songInstrumentId}_${songInstrumentProcessIdentifier}.mp4`
     );
   }
 

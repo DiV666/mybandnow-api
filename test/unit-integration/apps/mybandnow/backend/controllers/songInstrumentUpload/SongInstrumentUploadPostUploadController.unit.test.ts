@@ -7,7 +7,6 @@ import { unlink } from 'node:fs/promises';
 import type Logger from '../../../../../../../src/Contexts/Shared/domain/Logger.js';
 import type { CommandBus } from '../../../../../../../src/Contexts/Shared/domain/CommandBus.js';
 import type { QueryBus } from '../../../../../../../src/Contexts/Shared/domain/QueryBus.js';
-import type { StorageRepository } from '../../../../../../../src/Contexts/Orchestrator/SongInstrumentProcess/domain/StorageRepository.js';
 import ApiExceptionsHttpStatusCodeMapping from '../../../../../../../src/Contexts/Shared/infrastructure/Express/ApiExceptionsHttpStatusCodeMapping.js';
 import { MultipartFileParser } from '../../../../../../../src/Contexts/Shared/infrastructure/Express/MultipartFileParser.js';
 import SongInstrumentUploadPostUploadController from '../../../../../../../src/apps/mybandnow/backend/controllers/songInstrumentUpload/SongInstrumentUploadPostUploadController.js';
@@ -20,16 +19,11 @@ vi.mock('node:fs/promises', () => ({
   unlink: vi.fn()
 }));
 
-vi.mock('node:crypto', () => ({
-  randomUUID: () => 'fixed-uuid'
-}));
-
 describe('SongInstrumentUploadPostUploadController', () => {
-  it('uploads the temp file to durable GCS storage before dispatching the async upload command', async () => {
+  it('dispatches the async upload command with the parsed temp file path', async () => {
     const logger = mock<Logger>();
     const commandBus = mock<CommandBus>();
     const queryBus = mock<QueryBus>();
-    const storageRepository = mock<StorageRepository>();
     const exceptionHandler = new ApiExceptionsHttpStatusCodeMapping();
     const fileParser = mock<MultipartFileParser>();
     const controller = new SongInstrumentUploadPostUploadController(
@@ -37,8 +31,7 @@ describe('SongInstrumentUploadPostUploadController', () => {
       commandBus,
       queryBus,
       exceptionHandler,
-      fileParser,
-      storageRepository
+      fileParser
     );
     vi.mocked(unlink).mockResolvedValue(undefined);
 
@@ -71,16 +64,12 @@ describe('SongInstrumentUploadPostUploadController', () => {
     await controller.run(context, req, res);
 
     expect(queryBus.ask).toHaveBeenCalledWith(new MusicianSearchByUserIdQuery('authenticated-user-id'));
-    expect(storageRepository.uploadFile).toHaveBeenCalledWith(
-      '/srv/uploads/upload.mp4',
-      'instrument-videos/path-song-id/path-instrument-id/fixed-uuid.mp4'
-    );
     expect(commandBus.dispatch).toHaveBeenCalledWith(
       new SongInstrumentUploadUploadCommand(
         'path-song-id',
         'path-instrument-id',
         'musician-id',
-        'instrument-videos/path-song-id/path-instrument-id/fixed-uuid.mp4'
+        '/srv/uploads/upload.mp4'
       )
     );
     expect(unlink).toHaveBeenCalledWith('/srv/uploads/upload.mp4');
@@ -88,11 +77,10 @@ describe('SongInstrumentUploadPostUploadController', () => {
     expect(res.end).toHaveBeenCalledOnce();
   });
 
-  it('deletes the durable GCS object when the request fails after the GCS handoff', async () => {
+  it('deletes the temp file when the request fails after parsing', async () => {
     const logger = mock<Logger>();
     const commandBus = mock<CommandBus>();
     const queryBus = mock<QueryBus>();
-    const storageRepository = mock<StorageRepository>();
     const exceptionHandler = new ApiExceptionsHttpStatusCodeMapping();
     const fileParser = mock<MultipartFileParser>();
     const controller = new SongInstrumentUploadPostUploadController(
@@ -100,8 +88,7 @@ describe('SongInstrumentUploadPostUploadController', () => {
       commandBus,
       queryBus,
       exceptionHandler,
-      fileParser,
-      storageRepository
+      fileParser
     );
     vi.mocked(unlink).mockResolvedValue(undefined);
 
@@ -135,13 +122,6 @@ describe('SongInstrumentUploadPostUploadController', () => {
 
     await expect(controller.run(context, req, res)).rejects.toThrow('dispatch failed');
 
-    expect(storageRepository.uploadFile).toHaveBeenCalledWith(
-      tempFilePath,
-      'instrument-videos/path-song-id/path-instrument-id/fixed-uuid.mp4'
-    );
-    expect(storageRepository.deleteFile).toHaveBeenCalledWith(
-      'instrument-videos/path-song-id/path-instrument-id/fixed-uuid.mp4'
-    );
     expect(unlink).toHaveBeenCalledWith(tempFilePath);
     expect(res.status).not.toHaveBeenCalled();
   });
@@ -150,7 +130,6 @@ describe('SongInstrumentUploadPostUploadController', () => {
     const logger = mock<Logger>();
     const commandBus = mock<CommandBus>();
     const queryBus = mock<QueryBus>();
-    const storageRepository = mock<StorageRepository>();
     const exceptionHandler = new ApiExceptionsHttpStatusCodeMapping();
     const fileParser = mock<MultipartFileParser>();
     const controller = new SongInstrumentUploadPostUploadController(
@@ -158,8 +137,7 @@ describe('SongInstrumentUploadPostUploadController', () => {
       commandBus,
       queryBus,
       exceptionHandler,
-      fileParser,
-      storageRepository
+      fileParser
     );
 
     const context = {
@@ -205,14 +183,13 @@ describe('SongInstrumentUploadPostUploadController', () => {
       '[SongInstrumentUploadPostUploadController] Rejected invalid upload request: Content-Type must be video/mp4'
     );
     expect(queryBus.ask).not.toHaveBeenCalled();
-    expect(storageRepository.uploadFile).not.toHaveBeenCalled();
+    expect(commandBus.dispatch).not.toHaveBeenCalled();
   });
 
   it('deletes the temp file when authorization fails after parsing', async () => {
     const logger = mock<Logger>();
     const commandBus = mock<CommandBus>();
     const queryBus = mock<QueryBus>();
-    const storageRepository = mock<StorageRepository>();
     const exceptionHandler = new ApiExceptionsHttpStatusCodeMapping();
     const fileParser = mock<MultipartFileParser>();
     const controller = new SongInstrumentUploadPostUploadController(
@@ -220,8 +197,7 @@ describe('SongInstrumentUploadPostUploadController', () => {
       commandBus,
       queryBus,
       exceptionHandler,
-      fileParser,
-      storageRepository
+      fileParser
     );
     vi.mocked(unlink).mockResolvedValue(undefined);
 
@@ -247,7 +223,6 @@ describe('SongInstrumentUploadPostUploadController', () => {
 
     await expect(controller.run(context, req, res)).rejects.toThrow('Profile required');
 
-    expect(storageRepository.uploadFile).not.toHaveBeenCalled();
     expect(commandBus.dispatch).not.toHaveBeenCalled();
     expect(unlink).toHaveBeenCalledWith(tempFilePath);
     expect(res.status).not.toHaveBeenCalled();

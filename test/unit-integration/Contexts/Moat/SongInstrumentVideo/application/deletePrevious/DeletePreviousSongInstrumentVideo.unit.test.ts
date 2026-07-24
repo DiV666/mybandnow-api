@@ -20,8 +20,8 @@ describe('DeletePreviousSongInstrumentVideo', () => {
     // Arrange
     const command = new DeletePreviousSongInstrumentVideoCommand(
       '22345678-1234-4234-8234-123456789012',
-      'song-instrument-uploads/old-process.mp4',
-      'song-instrument-uploads/new-process.mp4'
+      'song-instrument-videos/band-id/song-id/old-process.mp4',
+      'song-instrument-videos/band-id/song-id/new-process.mp4'
     );
 
     // Act
@@ -29,15 +29,15 @@ describe('DeletePreviousSongInstrumentVideo', () => {
 
     // Assert
     expect(storageRepository.deleteFile).toHaveBeenCalledOnce();
-    expect(storageRepository.deleteFile).toHaveBeenCalledWith('song-instrument-uploads/old-process.mp4');
+    expect(storageRepository.deleteFile).toHaveBeenCalledWith('song-instrument-videos/band-id/song-id/old-process.mp4');
   });
 
   it('does not delete anything when the old and new finalized object paths are the same', async () => {
     // Arrange
     const command = new DeletePreviousSongInstrumentVideoCommand(
       '22345678-1234-4234-8234-123456789012',
-      'song-instrument-uploads/same-process.mp4',
-      'song-instrument-uploads/same-process.mp4'
+      'song-instrument-videos/band-id/song-id/same-process.mp4',
+      'song-instrument-videos/band-id/song-id/same-process.mp4'
     );
 
     // Act
@@ -52,8 +52,8 @@ describe('DeletePreviousSongInstrumentVideo', () => {
     // Arrange
     const command = new DeletePreviousSongInstrumentVideoCommand(
       '22345678-1234-4234-8234-123456789012',
-      'song-instrument-uploads/old-process.mp4',
-      'song-instrument-uploads/new-process.mp4'
+      'song-instrument-videos/band-id/song-id/old-process.mp4',
+      'song-instrument-videos/band-id/song-id/new-process.mp4'
     );
     storageRepository.deleteFile.mockRejectedValueOnce({ code: 404 });
 
@@ -61,7 +61,7 @@ describe('DeletePreviousSongInstrumentVideo', () => {
     await expect(useCase.run(command)).resolves.toBeUndefined();
 
     // Assert
-    expect(storageRepository.deleteFile).toHaveBeenCalledWith('song-instrument-uploads/old-process.mp4');
+    expect(storageRepository.deleteFile).toHaveBeenCalledWith('song-instrument-videos/band-id/song-id/old-process.mp4');
     expect(logger.warn).toHaveBeenCalledOnce();
   });
 
@@ -69,16 +69,18 @@ describe('DeletePreviousSongInstrumentVideo', () => {
     // Arrange
     const command = new DeletePreviousSongInstrumentVideoCommand(
       '22345678-1234-4234-8234-123456789012',
-      'song-instrument-uploads/old-process.mp4',
-      'song-instrument-uploads/new-process.mp4'
+      'song-instrument-videos/band-id/song-id/old-process.mp4',
+      'song-instrument-videos/band-id/song-id/new-process.mp4'
     );
-    storageRepository.deleteFile.mockRejectedValueOnce(new Error('No such object: old-process.mp4'));
+    storageRepository.deleteFile.mockRejectedValueOnce(
+      new Error('No such object: song-instrument-videos/band-id/song-id/old-process.mp4')
+    );
 
     // Act
     await expect(useCase.run(command)).resolves.toBeUndefined();
 
     // Assert
-    expect(storageRepository.deleteFile).toHaveBeenCalledWith('song-instrument-uploads/old-process.mp4');
+    expect(storageRepository.deleteFile).toHaveBeenCalledWith('song-instrument-videos/band-id/song-id/old-process.mp4');
     expect(logger.warn).toHaveBeenCalledOnce();
   });
 
@@ -86,8 +88,8 @@ describe('DeletePreviousSongInstrumentVideo', () => {
     // Arrange
     const command = new DeletePreviousSongInstrumentVideoCommand(
       '22345678-1234-4234-8234-123456789012',
-      'song-instrument-uploads/old-process.mp4',
-      'song-instrument-uploads/new-process.mp4'
+      'song-instrument-videos/band-id/song-id/old-process.mp4',
+      'song-instrument-videos/band-id/song-id/new-process.mp4'
     );
     const unexpectedError = new Error('boom');
     storageRepository.deleteFile.mockRejectedValueOnce(unexpectedError);

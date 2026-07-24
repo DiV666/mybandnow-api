@@ -31,6 +31,7 @@ export function registerOrchestratorDependencies(container: ContainerBuilder) {
     .addArgument(new Reference('Orchestrator.SongInstrumentProcess.StorageRepository'))
     .addArgument(new Reference('Shared.FileSystemRepository'))
     .addArgument(new Reference('Orchestrator.SongInstrumentProcess.SongInstrumentProcessPersistenceRepository'))
+    .addArgument(new Reference('Moat.Song.SongRepository'))
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(new Reference('Shared.EventBus'));
 

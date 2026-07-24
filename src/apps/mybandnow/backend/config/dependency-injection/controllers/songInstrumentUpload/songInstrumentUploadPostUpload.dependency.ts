@@ -11,6 +11,5 @@ export const register = (container: ContainerBuilder) => {
     .addArgument(new Reference('Shared.CommandBus'))
     .addArgument(new Reference('Shared.QueryBus'))
     .addArgument(new Reference('Shared.Express.ApiExceptionsHttpStatusCodeMapping'))
-    .addArgument(new Reference('Shared.Express.MultipartFileParser'))
-    .addArgument(new Reference('Orchestrator.SongInstrumentProcess.StorageRepository'));
+    .addArgument(new Reference('Shared.Express.MultipartFileParser'));
 };

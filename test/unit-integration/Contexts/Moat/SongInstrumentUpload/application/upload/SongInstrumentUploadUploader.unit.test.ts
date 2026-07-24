@@ -10,10 +10,14 @@ import { SongInstrumentNotExistException } from '../../../../../../../src/Contex
 import { ForbiddenException } from '../../../../../../../src/Contexts/Shared/domain/exceptions/ForbiddenException.js';
 import { FakeClock } from '../../../../../../utils/mocks/FakeClock.js';
 import { SongInstrumentUploadStatusValues } from '../../../../../../../src/Contexts/Moat/SongInstrumentUpload/domain/value-object/SongInstrumentUploadStatus.js';
+import { SongInstrumentUploadStorageRepository } from '../../../../../../../src/Contexts/Moat/SongInstrumentUpload/domain/repository/SongInstrumentUploadStorageRepository.js';
+import type Logger from '@Contexts/Shared/domain/Logger.js';
 
 describe('SongInstrumentUploadUploader', () => {
   let repository: SongInstrumentUploadPersistenceRepository;
   let songInstrumentRepository: SongInstrumentPersistenceRepository;
+  let storageRepository: SongInstrumentUploadStorageRepository;
+  let logger: Logger;
   let eventBus: EventBus;
   let clock: FakeClock;
   let uploader: SongInstrumentUploadUploader;
@@ -32,11 +36,30 @@ describe('SongInstrumentUploadUploader', () => {
       matching: vi.fn(),
       matchingCount: vi.fn()
     } as SongInstrumentPersistenceRepository;
+    storageRepository = {
+      uploadFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn().mockResolvedValue(undefined)
+    } as SongInstrumentUploadStorageRepository;
+    logger = {
+      error: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      debug: vi.fn(),
+      fatal: vi.fn(),
+      trace: vi.fn()
+    } as unknown as Logger;
     eventBus = {
       publish: vi.fn()
     } as unknown as EventBus;
     clock = new FakeClock(new Date('2026-07-12T12:00:00.000Z'));
-    uploader = new SongInstrumentUploadUploader(repository, songInstrumentRepository, eventBus, clock);
+    uploader = new SongInstrumentUploadUploader(
+      repository,
+      songInstrumentRepository,
+      storageRepository,
+      logger,
+      eventBus,
+      clock
+    );
   });
 
   it('creates an internal songInstrumentUpload from the song instrument context when one does not exist yet', async () => {
@@ -53,11 +76,16 @@ describe('SongInstrumentUploadUploader', () => {
       songId: songInstrument.songId.value,
       songInstrumentId: songInstrument.id.value,
       musicianId: songInstrument.musicianId.value,
-      fileReference: 'path/to/file.mp3'
+      tempFilePath: '/srv/uploads/file.mp4'
     });
 
     expect(songInstrumentRepository.search).toHaveBeenCalledWith(songInstrument.id);
     expect(repository.searchBySongInstrumentId).not.toHaveBeenCalled();
+    expect(storageRepository.uploadFile).toHaveBeenCalledWith(
+      '/srv/uploads/file.mp4',
+      expect.stringMatching(isSongInstrumentUploadPath())
+    );
+
     expect(repository.saveWithSongInstrument).toHaveBeenCalledWith(
       expect.objectContaining({
         status: expect.objectContaining({ value: SongInstrumentUploadStatusValues.PROCESSING }),
@@ -75,7 +103,7 @@ describe('SongInstrumentUploadUploader', () => {
         aggregateId: expect.any(String),
         attributes: expect.objectContaining({
           attemptId: expect.any(String),
-          fileReference: 'path/to/file.mp3'
+          fileReference: expect.stringMatching(isSongInstrumentUploadPath())
         })
       })
     ]);
@@ -98,10 +126,15 @@ describe('SongInstrumentUploadUploader', () => {
       songId: songInstrument.songId.value,
       songInstrumentId: songInstrument.id.value,
       musicianId: songInstrument.musicianId.value,
-      fileReference: 'path/to/retry-file.mp4'
+      tempFilePath: '/srv/uploads/retry-file.mp4'
     });
 
     expect(repository.searchBySongInstrumentId).not.toHaveBeenCalled();
+    expect(storageRepository.uploadFile).toHaveBeenCalledWith(
+      '/srv/uploads/retry-file.mp4',
+      expect.stringMatching(isSongInstrumentUploadPath())
+    );
+
     expect(repository.saveWithSongInstrument).toHaveBeenCalledWith(
       expect.objectContaining({
         id: expect.not.objectContaining({ value: previousSongInstrumentUpload.id.value }),
@@ -117,10 +150,77 @@ describe('SongInstrumentUploadUploader', () => {
         aggregateId: expect.any(String),
         attributes: expect.objectContaining({
           attemptId: expect.any(String),
-          fileReference: 'path/to/retry-file.mp4'
+          fileReference: expect.stringMatching(isSongInstrumentUploadPath())
         })
       })
     ]);
+  });
+
+  it('rolls back the durable upload when persistence fails after GCS handoff', async () => {
+    const songInstrument = createSongInstrument({
+      id: '2a356dd8-fd63-46b8-aa3d-bf2cdf7fd2a3',
+      songId: '2915fcdf-8ae3-44f7-af0f-75a2ea6d6d18',
+      musicianId: '9416de0f-6513-4adf-ab75-ff075950179b'
+    });
+    vi.mocked(songInstrumentRepository.search).mockResolvedValue(songInstrument);
+    vi.mocked(repository.saveWithSongInstrument).mockRejectedValue(new Error('save failed'));
+
+    await expect(
+      uploader.run({
+        songId: songInstrument.songId.value,
+        songInstrumentId: songInstrument.id.value,
+        musicianId: songInstrument.musicianId.value,
+        tempFilePath: '/srv/uploads/file.mp4'
+      })
+    ).rejects.toThrow('save failed');
+
+    expect(storageRepository.deleteFile).toHaveBeenCalledWith(expect.stringMatching(isSongInstrumentUploadPath()));
+  });
+
+  it('keeps the durable upload when publish fails after persistence succeeded', async () => {
+    const songInstrument = createSongInstrument({
+      id: '2a356dd8-fd63-46b8-aa3d-bf2cdf7fd2a3',
+      songId: '2915fcdf-8ae3-44f7-af0f-75a2ea6d6d18',
+      musicianId: '9416de0f-6513-4adf-ab75-ff075950179b'
+    });
+    vi.mocked(songInstrumentRepository.search).mockResolvedValue(songInstrument);
+    vi.mocked((eventBus as EventBus).publish).mockRejectedValue(new Error('publish failed'));
+
+    await expect(
+      uploader.run({
+        songId: songInstrument.songId.value,
+        songInstrumentId: songInstrument.id.value,
+        musicianId: songInstrument.musicianId.value,
+        tempFilePath: '/srv/uploads/file.mp4'
+      })
+    ).rejects.toThrow('publish failed');
+
+    expect(storageRepository.deleteFile).not.toHaveBeenCalled();
+  });
+
+  it('logs the rollback failure when durable cleanup cannot be completed', async () => {
+    const songInstrument = createSongInstrument({
+      id: '2a356dd8-fd63-46b8-aa3d-bf2cdf7fd2a3',
+      songId: '2915fcdf-8ae3-44f7-af0f-75a2ea6d6d18',
+      musicianId: '9416de0f-6513-4adf-ab75-ff075950179b'
+    });
+    vi.mocked(songInstrumentRepository.search).mockResolvedValue(songInstrument);
+    vi.mocked(repository.saveWithSongInstrument).mockRejectedValue(new Error('save failed'));
+    vi.mocked(storageRepository.deleteFile).mockRejectedValue(new Error('cleanup failed'));
+
+    await expect(
+      uploader.run({
+        songId: songInstrument.songId.value,
+        songInstrumentId: songInstrument.id.value,
+        musicianId: songInstrument.musicianId.value,
+        tempFilePath: '/srv/uploads/file.mp4'
+      })
+    ).rejects.toThrow('save failed');
+
+    expect(logger.error).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'cleanup failed' }),
+      expect.stringContaining('Failed to roll back durable upload')
+    );
   });
 
   it('throws not found when the song instrument does not exist', async () => {
@@ -131,7 +231,7 @@ describe('SongInstrumentUploadUploader', () => {
         songId: '2915fcdf-8ae3-44f7-af0f-75a2ea6d6d18',
         songInstrumentId: '2a356dd8-fd63-46b8-aa3d-bf2cdf7fd2a3',
         musicianId: '9416de0f-6513-4adf-ab75-ff075950179b',
-        fileReference: 'path/to/file.mp3'
+        tempFilePath: '/srv/uploads/file.mp4'
       })
     ).rejects.toThrow(SongInstrumentNotExistException);
   });
@@ -149,7 +249,7 @@ describe('SongInstrumentUploadUploader', () => {
         songId: songInstrument.songId.value,
         songInstrumentId: songInstrument.id.value,
         musicianId: '3ae51c35-8b20-4e86-bff1-a2f7af8ed649',
-        fileReference: 'path/to/file.mp3'
+        tempFilePath: '/srv/uploads/file.mp4'
       })
     ).rejects.toThrow(ForbiddenException);
   });
@@ -167,11 +267,15 @@ describe('SongInstrumentUploadUploader', () => {
         songId: '54dbbe97-77ec-4787-99a1-c085e952cd70',
         songInstrumentId: songInstrument.id.value,
         musicianId: songInstrument.musicianId.value,
-        fileReference: 'path/to/file.mp3'
+        tempFilePath: '/srv/uploads/file.mp4'
       })
     ).rejects.toThrow(SongInstrumentNotExistException);
   });
 });
+
+function isSongInstrumentUploadPath(): RegExp {
+  return /^song-instrument-uploads\/[^/]+\/[^/]+\/[^/]+\.mp4$/;
+}
 
 function createSongInstrument(params: {
   id: string;

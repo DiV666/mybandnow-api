@@ -5,7 +5,7 @@ export class SongInstrumentUploadUploadCommand extends Command {
     public readonly songId: string,
     public readonly songInstrumentId: string,
     public readonly musicianId: string,
-    public readonly fileReference: string
+    public readonly tempFilePath: string
   ) {
     super();
   }

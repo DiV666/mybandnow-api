@@ -81,7 +81,7 @@ describe('SongInstrumentFindById', () => {
     const songInstrument = SongInstrumentMother.create();
     const video = SongInstrumentVideoMother.create({
       songInstrumentId: new SongInstrumentVideoSongInstrumentId(songInstrument.id.value),
-      url: { value: 'song-instrument-uploads/alternate-video.mp4' } as never
+      url: { value: 'song-instrument-videos/band-id/song-id/alternate-video.mp4' } as never
     });
     const signedPlaybackUrl = 'https://storage.googleapis.com/bucket/alternate-video.mp4?signature=456';
     const query = new SongInstrumentFindByIdQuery(
@@ -100,7 +100,7 @@ describe('SongInstrumentFindById', () => {
 
     // Assert
     expect(storageRepository.getSignedUrl).toHaveBeenCalledExactlyOnceWith(
-      'song-instrument-uploads/alternate-video.mp4'
+      'song-instrument-videos/band-id/song-id/alternate-video.mp4'
     );
     expect(response).toEqual(
       new SongInstrumentFindByIdResponse(songInstrument.toPrimitives(), {
@@ -127,7 +127,7 @@ describe('SongInstrumentFindById', () => {
     const songInstrument = SongInstrumentMother.create();
     const video = SongInstrumentVideoMother.create({
       songInstrumentId: new SongInstrumentVideoSongInstrumentId(songInstrument.id.value),
-      url: { value: 'song-instrument-uploads/internal-video.mp4' } as never
+      url: { value: 'song-instrument-videos/band-id/song-id/internal-video.mp4' } as never
     });
     const signedPlaybackUrl = 'https://storage.googleapis.com/bucket/internal-video.mp4?signature=123';
     const query = new SongInstrumentFindByIdQuery(
@@ -146,7 +146,7 @@ describe('SongInstrumentFindById', () => {
 
     // Assert
     expect(storageRepository.getSignedUrl).toHaveBeenCalledExactlyOnceWith(
-      'song-instrument-uploads/internal-video.mp4'
+      'song-instrument-videos/band-id/song-id/internal-video.mp4'
     );
     expect(response).toEqual(
       new SongInstrumentFindByIdResponse(songInstrument.toPrimitives(), {
@@ -270,7 +270,7 @@ describe('SongInstrumentFindById', () => {
     });
     const video = SongInstrumentVideoMother.create({
       songInstrumentId: new SongInstrumentVideoSongInstrumentId(songInstrument.id.value),
-      url: { value: 'song-instrument-uploads/internal-video.mp4' } as never
+      url: { value: 'song-instrument-videos/band-id/song-id/internal-video.mp4' } as never
     });
     const query = new SongInstrumentFindByIdQuery(
       songInstrument.songId.value,
@@ -289,7 +289,7 @@ describe('SongInstrumentFindById', () => {
 
     // Assert
     expect(storageRepository.getSignedUrl).toHaveBeenCalledExactlyOnceWith(
-      'song-instrument-uploads/internal-video.mp4'
+      'song-instrument-videos/band-id/song-id/internal-video.mp4'
     );
     expect(songInstrumentUploadRepository.search).toHaveBeenCalledOnce();
     expect(response).toEqual(
@@ -297,7 +297,7 @@ describe('SongInstrumentFindById', () => {
         songInstrument.toPrimitives(),
         {
           ...video.toPrimitives(),
-          url: 'song-instrument-uploads/internal-video.mp4'
+          url: 'song-instrument-videos/band-id/song-id/internal-video.mp4'
         },
         {
           status: SongInstrumentUploadStatusValues.PROCESSING

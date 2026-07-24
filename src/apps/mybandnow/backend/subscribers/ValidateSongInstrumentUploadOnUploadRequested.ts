@@ -23,28 +23,58 @@ export class ValidateSongInstrumentUploadOnUploadRequested implements DomainEven
 
   async on(domainEvent: DomainEvent): Promise<void> {
     const { aggregateId } = domainEvent;
-    const fileReference = this.resolveFileReference(domainEvent);
+    const payload = this.resolvePayload(domainEvent);
     const commandBus = this.commandBusResolver();
 
     this.logger.info(
       `[ValidateSongInstrumentUploadOnUploadRequested] Received song instrument upload request for ${aggregateId}`
     );
-    await commandBus.dispatch(new SongInstrumentProcessValidateCommand(aggregateId, fileReference));
+    await commandBus.dispatch(
+      new SongInstrumentProcessValidateCommand(
+        aggregateId,
+        payload.fileReference,
+        payload.songId,
+        payload.songInstrumentId
+      )
+    );
   }
 
-  private resolveFileReference(domainEvent: DomainEvent): string {
-    const eventPayload = domainEvent as DomainEvent & { fileReference?: unknown };
+  private resolvePayload(domainEvent: DomainEvent): {
+    fileReference: string;
+    songId: string;
+    songInstrumentId: string;
+  } {
+    const eventPayload = domainEvent as DomainEvent & {
+      fileReference?: unknown;
+      songId?: unknown;
+      songInstrumentId?: unknown;
+    };
     const fileReference =
       (typeof eventPayload.fileReference === 'string' ? eventPayload.fileReference : undefined) ??
       (typeof domainEvent.attributes.fileReference === 'string' ? domainEvent.attributes.fileReference : undefined);
+    const songId =
+      (typeof eventPayload.songId === 'string' ? eventPayload.songId : undefined) ??
+      (typeof domainEvent.attributes.songId === 'string' ? domainEvent.attributes.songId : undefined);
+    const songInstrumentId =
+      (typeof eventPayload.songInstrumentId === 'string' ? eventPayload.songInstrumentId : undefined) ??
+      (typeof domainEvent.attributes.songInstrumentId === 'string'
+        ? domainEvent.attributes.songInstrumentId
+        : undefined);
 
-    if (typeof fileReference !== 'string' || fileReference.length === 0) {
+    if (
+      typeof fileReference !== 'string' ||
+      fileReference.length === 0 ||
+      typeof songId !== 'string' ||
+      songId.length === 0 ||
+      typeof songInstrumentId !== 'string' ||
+      songInstrumentId.length === 0
+    ) {
       throw new InvalidArgumentException({
-        message: 'SongInstrumentUpload upload event is missing a valid fileReference'
+        message: 'SongInstrumentUpload upload event is missing a valid fileReference, songId, or songInstrumentId'
       });
     }
 
-    return fileReference;
+    return { fileReference, songId, songInstrumentId };
   }
 
   handlerException(ex: Exception): void {
