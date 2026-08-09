@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { User } from '@Contexts/Mybandnow/User/domain/User.js';
+import { User } from '@Contexts/Identity/User/domain/User.js';
 import { UserMother } from './UserMother.js';
 
 describe('User should', () => {

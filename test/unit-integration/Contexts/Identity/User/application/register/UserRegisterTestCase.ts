@@ -2,12 +2,12 @@ import { expect } from 'vitest';
 import { mock, MockProxy } from 'vitest-mock-extended';
 import { Command } from '@Contexts/Shared/domain/Command.js';
 import { CommandHandler } from '@Contexts/Shared/domain/CommandHandler.js';
-import { User } from '@Contexts/Mybandnow/User/domain/User.js';
+import { User } from '@Contexts/Identity/User/domain/User.js';
 import { TestCase } from '@Test/utils/TestCase.js';
 import { Mock } from '@Test/utils/Mock.js';
-import { UserPersistenceRepository } from '@Contexts/Mybandnow/User/domain/repository/UserPersistenceRepository.js';
+import { UserPersistenceRepository } from '@Contexts/Identity/User/domain/repository/UserPersistenceRepository.js';
 import { Nullable } from '@Contexts/Shared/domain/Nullable.js';
-import { PasswordEncryptor } from '@Contexts/Mybandnow/User/domain/service/PasswordEncryptor.js';
+import { PasswordEncryptor } from '@Contexts/Identity/User/domain/service/PasswordEncryptor.js';
 import { CriteriaScopeSecurity } from '@Contexts/Shared/application/security/CriteriaScopeSecurity.js';
 import { Criteria } from '@Contexts/Shared/domain/criteria/Criteria.js';
 

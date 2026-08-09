@@ -1,5 +1,5 @@
 import { expect } from 'vitest';
-import { User } from '@Contexts/Mybandnow/User/domain/User.js';
+import { User } from '@Contexts/Identity/User/domain/User.js';
 import { Nullable } from '@Contexts/Shared/domain/Nullable.js';
 import { TestCase } from '@Test/utils/TestCase.js';
 

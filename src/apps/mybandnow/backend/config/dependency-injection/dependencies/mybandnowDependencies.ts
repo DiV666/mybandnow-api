@@ -1,6 +1,6 @@
 import { register as registerUserLogin } from '../use-cases/user/userLogin.dependency.js';
-import { LocalJwtBearerToken } from '@Contexts/Mybandnow/Shared/infrastructure/Authentication/LocalJwtBearerToken.js';
-import { UserPrismaRepository } from '@Contexts/Mybandnow/User/infrastructure/persistence/UserPrismaRepository.js';
+import { LocalJwtBearerToken } from '@Contexts/Identity/Shared/infrastructure/Authentication/LocalJwtBearerToken.js';
+import { UserPrismaRepository } from '@Contexts/Identity/User/infrastructure/persistence/UserPrismaRepository.js';
 import { PrismaMusicianRepository } from '@Contexts/Moat/Musician/infrastructure/persistence/PrismaMusicianRepository.js';
 import { MusicianSearchByEmail } from '@Contexts/Moat/Musician/application/searchByEmail/MusicianSearchByEmail.js';
 import { MusicianSearchByEmailQueryHandler } from '@Contexts/Moat/Musician/application/searchByEmail/MusicianSearchByEmailQueryHandler.js';
@@ -51,28 +51,30 @@ import { VideoclipPrismaRepository } from '@Contexts/Moat/Videoclip/infrastructu
 import { InstrumentsPrismaRepository } from '@Contexts/Moat/Instruments/infrastructure/persistence/InstrumentsPrismaRepository.js';
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 
-import { InternalAuthentication } from '@Contexts/Mybandnow/Shared/infrastructure/identityServer/internal/InternalAuthentication.js';
-import { LocalJwtGenerator } from '@Contexts/Mybandnow/User/infrastructure/service/LocalJwtGenerator.js';
-import { BcryptPasswordEncryptor } from '@Contexts/Mybandnow/User/infrastructure/auth/BcryptPasswordEncryptor.js';
+import { InternalAuthentication } from '@Contexts/Identity/Shared/infrastructure/identityServer/internal/InternalAuthentication.js';
+import { LocalJwtGenerator } from '@Contexts/Identity/User/infrastructure/service/LocalJwtGenerator.js';
+import { BcryptPasswordEncryptor } from '@Contexts/Identity/User/infrastructure/auth/BcryptPasswordEncryptor.js';
 import { env } from '@Contexts/Shared/infrastructure/config/env.js';
 import { HttpClient } from '@Contexts/Shared/infrastructure/Http/HttpClient.js';
 
 export function registerMybandnowDependencies(container: ContainerBuilder) {
   // Authentication
   container
-    .register('Mybandnow.Shared.LocalJwtBearerToken', LocalJwtBearerToken)
-    .addArgument(new Reference('Mybandnow.User.UserRepository'));
+    .register('Identity.Shared.LocalJwtBearerToken', LocalJwtBearerToken)
+    .addArgument(new Reference('Identity.User.UserRepository'));
 
   container
-    .register('Mybandnow.Shared.InternalAuthentication', InternalAuthentication)
+    .register('Identity.Shared.InternalAuthentication', InternalAuthentication)
     .addArgument(Buffer.from(env.KLODING_INTERNAL_PUBLIC_KEY_BASE64, 'base64').toString('utf8'));
 
-  container.register('Mybandnow.User.JwtGenerator', LocalJwtGenerator);
-  container.register('Mybandnow.User.PasswordEncryptor', BcryptPasswordEncryptor);
+  container.register('Identity.User.JwtGenerator', LocalJwtGenerator);
+  container.register('Identity.User.PasswordEncryptor', BcryptPasswordEncryptor);
 
   // Repositories
-  container.register('Mybandnow.User.UserRepository', UserPrismaRepository).addArgument(new Reference('Shared.Outbox'));
-  container.register('Moat.Musician.MusicianRepository', PrismaMusicianRepository).addArgument(new Reference('Shared.Outbox'));
+  container.register('Identity.User.UserRepository', UserPrismaRepository).addArgument(new Reference('Shared.Outbox'));
+  container
+    .register('Moat.Musician.MusicianRepository', PrismaMusicianRepository)
+    .addArgument(new Reference('Shared.Outbox'));
   container.register('Moat.Band.BandRepository', BandPrismaRepository).addArgument(new Reference('Shared.Outbox'));
   container.register('Moat.Song.SongRepository', SongPrismaRepository).addArgument(new Reference('Shared.Outbox'));
   container
@@ -94,7 +96,9 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
     .register('Moat.SongInstrumentUpload.SongInstrumentUploadRepository', SongInstrumentUploadPrismaRepository)
     .addArgument(new Reference('Shared.Outbox'));
 
-  container.register('Moat.Videoclip.VideoclipRepository', VideoclipPrismaRepository).addArgument(new Reference('Shared.Outbox'));
+  container
+    .register('Moat.Videoclip.VideoclipRepository', VideoclipPrismaRepository)
+    .addArgument(new Reference('Shared.Outbox'));
   container
     .register('Moat.Instruments.InstrumentsRepository', InstrumentsPrismaRepository)
     .addArgument(new Reference('Shared.Outbox'));

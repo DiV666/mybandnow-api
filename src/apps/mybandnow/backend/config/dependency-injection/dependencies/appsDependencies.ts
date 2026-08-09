@@ -29,7 +29,7 @@ import ContinuationLocalStorageExpress from '../../../middlewares/ContinuationLo
 import CorrelationIdHeader from '../../../middlewares/CorrelationIdHeader.js';
 import { RequireMusicianProfileMiddleware } from '../../../middlewares/RequireMusicianProfileMiddleware.js';
 import TraceReqAndRes from '../../../middlewares/TraceReqAndRes.js';
-import { RabbitMQConfigFactory } from '@Contexts/Mybandnow/Shared/infrastructure/EventBus/RabbitMQ/RabbitMQConfigFactory.js';
+import { RabbitMQConfigFactory } from '@Contexts/Identity/Shared/infrastructure/EventBus/RabbitMQ/RabbitMQConfigFactory.js';
 import { ValidateSongInstrumentUploadOnUploadRequested } from '../../../subscribers/ValidateSongInstrumentUploadOnUploadRequested.js';
 import { CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted } from '../../../subscribers/CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted.js';
 import { FailSongInstrumentUploadOnSongInstrumentProcessFailed } from '../../../subscribers/FailSongInstrumentUploadOnSongInstrumentProcessFailed.js';

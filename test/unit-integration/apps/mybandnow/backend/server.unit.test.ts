@@ -172,7 +172,7 @@ describe('Server — auth security handlers', () => {
     // Arrange
     const verifyJWT = vi.fn().mockResolvedValue({ sub: 'user-123' });
     const containerGet = vi.fn((id: string) => {
-      if (id === 'Mybandnow.Shared.LocalJwtBearerToken') {
+      if (id === 'Identity.Shared.LocalJwtBearerToken') {
         return { verifyJWT };
       }
 
@@ -222,7 +222,7 @@ describe('Server — auth security handlers', () => {
     // Arrange
     const verifyJWT = vi.fn().mockResolvedValue({ sub: 'user-123' });
     const containerGet = vi.fn((id: string) => {
-      if (id === 'Mybandnow.Shared.LocalJwtBearerToken') {
+      if (id === 'Identity.Shared.LocalJwtBearerToken') {
         return { verifyJWT };
       }
 
@@ -314,7 +314,7 @@ describe('Server — auth security handlers', () => {
     // Arrange
     const verifyJWT = vi.fn().mockResolvedValue({ companyId: 'company-123' });
     const containerGet = vi.fn((id: string) => {
-      if (id === 'Mybandnow.Shared.InternalAuthentication') {
+      if (id === 'Identity.Shared.InternalAuthentication') {
         return { verifyJWT };
       }
 

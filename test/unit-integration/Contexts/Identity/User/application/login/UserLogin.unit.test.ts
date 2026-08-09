@@ -1,10 +1,10 @@
 import { describe, it, beforeEach } from 'vitest';
-import { UserLogin } from '@Contexts/Mybandnow/User/application/login/UserLogin.js';
+import { UserLogin } from '@Contexts/Identity/User/application/login/UserLogin.js';
 import { UserMother } from '../../domain/UserMother.js';
 import { UserLoginTestCase } from './UserLoginTestCase.js';
-import { InvalidCredentialsException } from '@Contexts/Mybandnow/User/domain/exception/InvalidCredentialsException.js';
-import { LoginUserQuery } from '@Contexts/Mybandnow/User/application/login/LoginUserQuery.js';
-import { LoginUserResponse } from '@Contexts/Mybandnow/User/application/login/LoginUserResponse.js';
+import { InvalidCredentialsException } from '@Contexts/Identity/User/domain/exception/InvalidCredentialsException.js';
+import { LoginUserQuery } from '@Contexts/Identity/User/application/login/LoginUserQuery.js';
+import { LoginUserResponse } from '@Contexts/Identity/User/application/login/LoginUserResponse.js';
 
 describe('UserLogin should', () => {
   let testCase: UserLoginTestCase;

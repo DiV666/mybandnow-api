@@ -5,7 +5,7 @@ import { ForbiddenException } from '@Contexts/Shared/domain/exceptions/Forbidden
 import { SecurityHandlerException } from '@Contexts/Shared/infrastructure/exceptions/SecurityHandlerException.js';
 import { env } from '@Contexts/Shared/infrastructure/config/env.js';
 import { AuthenticatedUserContext } from '@Contexts/Shared/application/security/AuthenticatedUserContext.js';
-import { UserPersistenceRepository } from '@Contexts/Mybandnow/User/domain/repository/UserPersistenceRepository.js';
+import { UserPersistenceRepository } from '@Contexts/Identity/User/domain/repository/UserPersistenceRepository.js';
 
 interface LocalJwtClaims extends jsonwebtoken.JwtPayload {
   sub?: string;

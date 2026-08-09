@@ -1,10 +1,10 @@
 import { describe, it, beforeEach } from 'vitest';
-import { UserRegister } from '@Contexts/Mybandnow/User/application/register/UserRegister.js';
+import { UserRegister } from '@Contexts/Identity/User/application/register/UserRegister.js';
 import { UserMother } from '../../domain/UserMother.js';
 import { RegisterUserCommandMother } from './RegisterUserCommandMother.js';
-import { RegisterUserCommandHandler } from '@Contexts/Mybandnow/User/application/register/RegisterUserCommandHandler.js';
+import { RegisterUserCommandHandler } from '@Contexts/Identity/User/application/register/RegisterUserCommandHandler.js';
 import { UserRegisterTestCase } from './UserRegisterTestCase.js';
-import { UserAlreadyExistsException } from '@Contexts/Mybandnow/User/domain/exception/UserAlreadyExistsException.js';
+import { UserAlreadyExistsException } from '@Contexts/Identity/User/domain/exception/UserAlreadyExistsException.js';
 
 describe('UserRegister should', () => {
   let testCase: UserRegisterTestCase;

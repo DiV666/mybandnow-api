@@ -11,13 +11,13 @@ import { UuidMother } from '../../unit-integration/Contexts/Shared/domain/value-
 setDefaultTimeout(20000);
 
 import { v5 as uuidv5 } from 'uuid';
-import { PasswordEncryptor } from '@Contexts/Mybandnow/User/domain/service/PasswordEncryptor.js';
-import { UserPersistenceRepository } from '@Contexts/Mybandnow/User/domain/repository/UserPersistenceRepository.js';
+import { PasswordEncryptor } from '@Contexts/Identity/User/domain/service/PasswordEncryptor.js';
+import { UserPersistenceRepository } from '@Contexts/Identity/User/domain/repository/UserPersistenceRepository.js';
 import { MusicianRepository } from '@Contexts/Moat/Musician/domain/repository/MusicianRepository.js';
-import { User } from '@Contexts/Mybandnow/User/domain/User.js';
-import { UserId } from '@Contexts/Mybandnow/User/domain/value-object/UserId.js';
-import { UserEmail } from '@Contexts/Mybandnow/User/domain/value-object/UserEmail.js';
-import { UserPassword } from '@Contexts/Mybandnow/User/domain/value-object/UserPassword.js';
+import { User } from '@Contexts/Identity/User/domain/User.js';
+import { UserId } from '@Contexts/Identity/User/domain/value-object/UserId.js';
+import { UserEmail } from '@Contexts/Identity/User/domain/value-object/UserEmail.js';
+import { UserPassword } from '@Contexts/Identity/User/domain/value-object/UserPassword.js';
 import { Musician } from '@Contexts/Moat/Musician/domain/Musician.js';
 import { MusicianId } from '@Contexts/Moat/Musician/domain/value-object/MusicianId.js';
 import { MusicianUserId } from '@Contexts/Moat/Musician/domain/value-object/MusicianUserId.js';
@@ -312,8 +312,8 @@ async function saveAuthenticatedUser(username: string, password: string): Promis
 }
 
 async function savePersistedUser(username: string, userIdValue: string, password: string): Promise<void> {
-  const encryptor = container.get<PasswordEncryptor>('Mybandnow.User.PasswordEncryptor');
-  const userRepository = container.get<UserPersistenceRepository>('Mybandnow.User.UserRepository');
+  const encryptor = container.get<PasswordEncryptor>('Identity.User.PasswordEncryptor');
+  const userRepository = container.get<UserPersistenceRepository>('Identity.User.UserRepository');
 
   const hashedPassword = await encryptor.hash(password);
   const user = User.create(

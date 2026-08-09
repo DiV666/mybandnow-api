@@ -1,8 +1,8 @@
-import { User } from '@Contexts/Mybandnow/User/domain/User.js';
+import { User } from '@Contexts/Identity/User/domain/User.js';
 import {
   UserRegisterDomainEvent,
   UserRegisterDomainEventAttributes
-} from '@Contexts/Mybandnow/User/domain/UserRegisterDomainEvent.js';
+} from '@Contexts/Identity/User/domain/UserRegisterDomainEvent.js';
 
 export class UserRegisterDomainEventMother {
   static create(

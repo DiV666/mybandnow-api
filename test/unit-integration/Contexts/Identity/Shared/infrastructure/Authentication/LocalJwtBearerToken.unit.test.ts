@@ -6,7 +6,7 @@ import { resolve } from 'node:path';
 const localJwtBearerTokenModuleUrl = pathToFileURL(
   resolve(
     import.meta.dirname,
-    '../../../../../../../src/Contexts/Mybandnow/Shared/infrastructure/Authentication/LocalJwtBearerToken.ts'
+    '../../../../../../../src/Contexts/Identity/Shared/infrastructure/Authentication/LocalJwtBearerToken.ts'
   )
 ).href;
 

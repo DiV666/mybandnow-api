@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import mybandnowConfig from '../../../../../../src/Contexts/Mybandnow/Shared/config/config.js';
+import mybandnowConfig from '../../../../../../src/Contexts/Identity/Shared/config/config.js';
 
 describe('mybandnowConfig', () => {
   it('should have service property with mybandnow-api value', () => {

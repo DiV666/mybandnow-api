@@ -1,4 +1,4 @@
-import { UserCreatedAt } from '@Contexts/Mybandnow/User/domain/value-object/UserCreatedAt.js';
+import { UserCreatedAt } from '@Contexts/Identity/User/domain/value-object/UserCreatedAt.js';
 
 export class UserCreatedAtMother {
   static create(value: Date): UserCreatedAt {

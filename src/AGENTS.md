@@ -167,11 +167,11 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 ### Adding a new external provider
 
 ```
-1. Add provider class to src/Contexts/Mybandnow/<Module>/infrastructure/http/
+1. Add provider class to src/Contexts/Identity/<Module>/infrastructure/http/
 2. Register in the DI infrastructure dependencies
 3. Add provider name to the corresponding const object in domain/value-object/
 4. Add paired env vars (ORIGIN + TOKEN) to env.ts with .refine() cross-validation
-5. Write integration test in test/unit-integration/Contexts/Mybandnow/<Module>/infrastructure/
+5. Write integration test in test/unit-integration/Contexts/Identity/<Module>/infrastructure/
 ```
 
 ### New aggregate state
@@ -234,7 +234,7 @@ src/
     │       ├── EventBus/RabbitMQ/           # RabbitMQ event bus implementation
     │       ├── persistence/prisma/          # Prisma extensions and outbox
     │       └── service/                     # External HTTP client factories
-    └── Mybandnow/
+    └── Identity/
         ├── Shared/                          # Shared configurations
         └── <Module>/                        # Module aggregate
             ├── application/                 # Commands, queries, handlers
@@ -263,7 +263,7 @@ src/
 | Response DTO                          | `<UseCase>Response`                      | `SmsSearchResponse`                                                |
 | Controller                            | `<HttpMethod><Aggregate>Controller`      | `SmsPostSendController`, `SmsGetSearchController`                  |
 | Route handler export                  | `<aggregate><HttpMethod><Action>`        | `orderPostCreate`, `orderGetSearch`                                |
-| DI service key (module services)      | `<Context>.<Module>.<ClassName>`         | `Mybandnow.Order.OrderPrismaRepository`                            |
+| DI service key (module services)      | `<Context>.<Module>.<ClassName>`         | `Identity.Order.OrderPrismaRepository`                             |
 | DI service key (app controllers)      | `Apps.<App>.<Layer>.<Group>.<ClassName>` | `Apps.Mybandnow.Backend.controllers.OrderPostCreateController`     |
 | DI service key (shared/cross-cutting) | `Shared.<ClassName>`                     | `Shared.EventBus`, `Shared.OutboxPublisher`, `Shared.BunyanLogger` |
 | Test mother                           | `<Entity>Mother`                         | `OrderMother`, `OrderIdMother`, `OrderStatusMother`                |

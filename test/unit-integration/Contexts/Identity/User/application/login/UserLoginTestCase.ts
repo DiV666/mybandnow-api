@@ -1,18 +1,18 @@
 import { expect } from 'vitest';
 import { mock, MockProxy } from 'vitest-mock-extended';
-import { UserLogin } from '@Contexts/Mybandnow/User/application/login/UserLogin.js';
-import { LoginUserResponse } from '@Contexts/Mybandnow/User/application/login/LoginUserResponse.js';
-import { LoginUserQuery } from '@Contexts/Mybandnow/User/application/login/LoginUserQuery.js';
-import { User } from '@Contexts/Mybandnow/User/domain/User.js';
-import { UserPersistenceRepository } from '@Contexts/Mybandnow/User/domain/repository/UserPersistenceRepository.js';
-import { JwtGenerator } from '@Contexts/Mybandnow/User/domain/service/JwtGenerator.js';
-import { PasswordEncryptor } from '@Contexts/Mybandnow/User/domain/service/PasswordEncryptor.js';
+import { UserLogin } from '@Contexts/Identity/User/application/login/UserLogin.js';
+import { LoginUserResponse } from '@Contexts/Identity/User/application/login/LoginUserResponse.js';
+import { LoginUserQuery } from '@Contexts/Identity/User/application/login/LoginUserQuery.js';
+import { User } from '@Contexts/Identity/User/domain/User.js';
+import { UserPersistenceRepository } from '@Contexts/Identity/User/domain/repository/UserPersistenceRepository.js';
+import { JwtGenerator } from '@Contexts/Identity/User/domain/service/JwtGenerator.js';
+import { PasswordEncryptor } from '@Contexts/Identity/User/domain/service/PasswordEncryptor.js';
 import { Mock } from '@Test/utils/Mock.js';
 import { TestCase } from '@Test/utils/TestCase.js';
 import { Nullable } from '@Contexts/Shared/domain/Nullable.js';
 import { Criteria } from '@Contexts/Shared/domain/criteria/Criteria.js';
-import { UserEmail } from '@Contexts/Mybandnow/User/domain/value-object/UserEmail.js';
-import { UserId } from '@Contexts/Mybandnow/User/domain/value-object/UserId.js';
+import { UserEmail } from '@Contexts/Identity/User/domain/value-object/UserEmail.js';
+import { UserId } from '@Contexts/Identity/User/domain/value-object/UserId.js';
 
 export class UserLoginTestCase extends TestCase {
   private _persistenceRepository: Nullable<MockProxy<UserPersistenceRepository>> = null;

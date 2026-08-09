@@ -119,13 +119,13 @@ export class Server {
       handlers: createDefaultHandlers(this.logger),
       securityHandlers: {
         BearerAuth: createSecurityHandler('BearerAuth', async (token, c) => {
-          const localJwtVerifier: JWTVerifier = container.get('Mybandnow.Shared.LocalJwtBearerToken');
+          const localJwtVerifier: JWTVerifier = container.get('Identity.Shared.LocalJwtBearerToken');
           const requiredScopes =
             (c.operation?.security ?? []).find((requirement) => requirement.BearerAuth)?.BearerAuth ?? [];
           return await localJwtVerifier.verifyJWT(token, requiredScopes);
         }),
         InternalAuth: createSecurityHandler('InternalAuth', async (token) => {
-          const internalAuthentication: JWTVerifier = container.get('Mybandnow.Shared.InternalAuthentication');
+          const internalAuthentication: JWTVerifier = container.get('Identity.Shared.InternalAuthentication');
           return await internalAuthentication.verifyJWT(token, []);
         })
       },

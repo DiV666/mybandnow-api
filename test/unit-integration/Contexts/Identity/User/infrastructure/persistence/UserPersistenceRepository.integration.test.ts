@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, afterAll } from 'vitest';
 import container from '@Test/apps/mybandnow/backend/config/dependency-injection/index.js';
-import { UserPersistenceRepository } from '@Contexts/Mybandnow/User/domain/repository/UserPersistenceRepository.js';
+import { UserPersistenceRepository } from '@Contexts/Identity/User/domain/repository/UserPersistenceRepository.js';
 import { EnvironmentArranger } from '@Test/utils/arranger/EnvironmentArranger.js';
 import { UserMother } from '../../domain/UserMother.js';
 import { UserPersistenceRepositoryTestCase } from './UserPersistenceRepositoryTestCase.js';
@@ -12,7 +12,7 @@ import { FilterOperator } from '@Contexts/Shared/domain/criteria/FilterOperator.
 import { FilterValue } from '@Contexts/Shared/domain/criteria/FilterValue.js';
 import { Order } from '@Contexts/Shared/domain/criteria/Order.js';
 
-const persistenceRepository: UserPersistenceRepository = container.get('Mybandnow.User.UserRepository');
+const persistenceRepository: UserPersistenceRepository = container.get('Identity.User.UserRepository');
 const prismaEnvironmentArranger: Promise<EnvironmentArranger> = container.get('Shared.PrismaEnvironmentArranger');
 const testCase = new UserPersistenceRepositoryTestCase();
 

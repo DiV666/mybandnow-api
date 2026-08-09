@@ -1,4 +1,4 @@
-import { User } from '@Contexts/Mybandnow/User/domain/User.js';
+import { User } from '@Contexts/Identity/User/domain/User.js';
 import { UserIdMother } from './UserIdMother.js';
 import { Repeater } from '@Test/unit-integration/Contexts/Shared/domain/value-object/Repeater.js';
 import { UserCreatedAtMother } from './UserCreatedAtMother.js';

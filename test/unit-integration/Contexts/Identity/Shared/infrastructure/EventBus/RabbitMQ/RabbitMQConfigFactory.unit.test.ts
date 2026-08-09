@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { RabbitMQConfigFactory } from '../../../../../../../../src/Contexts/Mybandnow/Shared/infrastructure/EventBus/RabbitMQ/RabbitMQConfigFactory.js';
+import { RabbitMQConfigFactory } from '../../../../../../../../src/Contexts/Identity/Shared/infrastructure/EventBus/RabbitMQ/RabbitMQConfigFactory.js';
 import { RabbitMQConfig } from '../../../../../../../../src/Contexts/Shared/infrastructure/EventBus/RabbitMQ/RabbitMQConfig.js';
 
 describe('RabbitMQConfigFactory', () => {

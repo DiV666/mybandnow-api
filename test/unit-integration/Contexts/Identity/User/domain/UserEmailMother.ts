@@ -1,4 +1,4 @@
-import { UserEmail } from '@Contexts/Mybandnow/User/domain/value-object/UserEmail.js';
+import { UserEmail } from '@Contexts/Identity/User/domain/value-object/UserEmail.js';
 import { EmailMother } from '@Test/unit-integration/Contexts/Shared/domain/value-object/EmailMother.js';
 export class UserEmailMother {
   static create(value: string): UserEmail {
