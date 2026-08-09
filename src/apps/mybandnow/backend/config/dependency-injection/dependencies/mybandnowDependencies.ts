@@ -72,7 +72,7 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
 
   // Repositories
   container.register('Mybandnow.User.UserRepository', UserPrismaRepository).addArgument(new Reference('Shared.Outbox'));
-  container.register('Moat.Musician.MusicianRepository', PrismaMusicianRepository);
+  container.register('Moat.Musician.MusicianRepository', PrismaMusicianRepository).addArgument(new Reference('Shared.Outbox'));
   container.register('Moat.Band.BandRepository', BandPrismaRepository).addArgument(new Reference('Shared.Outbox'));
   container.register('Moat.Song.SongRepository', SongPrismaRepository).addArgument(new Reference('Shared.Outbox'));
   container
@@ -94,7 +94,7 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
     .register('Moat.SongInstrumentUpload.SongInstrumentUploadRepository', SongInstrumentUploadPrismaRepository)
     .addArgument(new Reference('Shared.Outbox'));
 
-  container.register('Moat.Videoclip.VideoclipRepository', VideoclipPrismaRepository);
+  container.register('Moat.Videoclip.VideoclipRepository', VideoclipPrismaRepository).addArgument(new Reference('Shared.Outbox'));
   container
     .register('Moat.Instruments.InstrumentsRepository', InstrumentsPrismaRepository)
     .addArgument(new Reference('Shared.Outbox'));

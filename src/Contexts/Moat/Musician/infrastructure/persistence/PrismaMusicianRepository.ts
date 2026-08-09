@@ -10,9 +10,12 @@ import { Nullable } from '@Contexts/Shared/domain/Nullable.js';
 import { Primitives } from '@Contexts/Shared/domain/Primitives.js';
 
 import { PrismaClientFactory } from '@Contexts/Shared/infrastructure/persistence/prisma/PrismaClientFactory.js';
+import { Outbox, TransactionSession } from '@Contexts/Shared/domain/Outbox.js';
 
 export class PrismaMusicianRepository implements MusicianRepository {
   private prisma = PrismaClientFactory.createClient();
+
+  constructor(private readonly outbox: Outbox) {}
 
   private isPrismaKnownRequestError(error: unknown): error is {
     code: string;
@@ -89,21 +92,29 @@ export class PrismaMusicianRepository implements MusicianRepository {
 
   async save(musician: Musician): Promise<void> {
     const primitives = musician.toPrimitives();
+    // Peek at domain events without clearing them so the use case can still publish to EventBus
+    const events = musician.pullDomainEvents({ drain: false });
 
     try {
-      await this.prisma.musician.upsert({
-        where: { id: primitives.id },
-        update: {
-          userId: primitives.userId,
-          realName: primitives.name,
-          username: primitives.username
-        },
-        create: {
-          id: primitives.id,
-          userId: primitives.userId,
-          realName: primitives.name,
-          username: primitives.username,
-          instruments: [] // Default value as required by prisma if we don't have it in primitives yet
+      await this.prisma.$transaction(async (tx) => {
+        await tx.musician.upsert({
+          where: { id: primitives.id },
+          update: {
+            userId: primitives.userId,
+            realName: primitives.name,
+            username: primitives.username
+          },
+          create: {
+            id: primitives.id,
+            userId: primitives.userId,
+            realName: primitives.name,
+            username: primitives.username,
+            instruments: [] // Default value as required by prisma if we don't have it in primitives yet
+          }
+        });
+
+        if (events.length > 0) {
+          await this.outbox.save(events, tx as unknown as TransactionSession);
         }
       });
     } catch (error: unknown) {

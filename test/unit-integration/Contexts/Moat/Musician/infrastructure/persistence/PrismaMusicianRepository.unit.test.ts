@@ -56,12 +56,15 @@ async function loadRepository(prismaMusicianClient: { upsert: ReturnType<typeof 
   vi.doMock(prismaClientFactoryModulePath, () => ({
     PrismaClientFactory: {
       createClient: () => ({
-        musician: prismaMusicianClient
+        musician: prismaMusicianClient,
+        $transaction: (fn: (tx: { musician: typeof prismaMusicianClient }) => unknown) =>
+          fn({ musician: prismaMusicianClient })
       })
     }
   }));
 
   const { PrismaMusicianRepository } = await import(repositoryModulePath);
+  const outbox = { save: vi.fn().mockResolvedValue([]) };
 
-  return new PrismaMusicianRepository();
+  return new PrismaMusicianRepository(outbox);
 }

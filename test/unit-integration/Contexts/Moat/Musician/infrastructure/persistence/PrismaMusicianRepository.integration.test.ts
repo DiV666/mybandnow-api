@@ -7,13 +7,14 @@ import { MusicianIdMother } from '../../domain/MusicianIdMother.js';
 import { MusicianUserIdMother } from '../../domain/MusicianUserIdMother.js';
 import { MusicianUsernameMother } from '../../domain/MusicianUsernameMother.js';
 import { PrismaClientFactory } from '@Contexts/Shared/infrastructure/persistence/prisma/PrismaClientFactory.js';
+import { OutboxPrismaRepository } from '@Contexts/Shared/infrastructure/EventBus/Outbox/OutboxPrismaRepository.js';
 
 const prisma = PrismaClientFactory.createClient();
 describe('PrismaMusicianRepository', () => {
   let repository: PrismaMusicianRepository;
 
   beforeEach(async () => {
-    repository = new PrismaMusicianRepository();
+    repository = new PrismaMusicianRepository(new OutboxPrismaRepository());
     await prisma.bandMember.deleteMany();
     await prisma.band.deleteMany();
     await prisma.musician.deleteMany();
