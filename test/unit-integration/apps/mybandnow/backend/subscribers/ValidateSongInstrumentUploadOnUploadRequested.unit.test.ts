@@ -6,16 +6,30 @@ import { SongInstrumentProcessValidateCommand } from '../../../../../../src/Cont
 import type { CommandBus } from '../../../../../../src/Contexts/Shared/domain/CommandBus.js';
 import type Logger from '../../../../../../src/Contexts/Shared/domain/Logger.js';
 import { InvalidArgumentException } from '../../../../../../src/Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
+import type { SongPersistenceRepository } from '../../../../../../src/Contexts/Moat/Song/domain/repository/SongPersistenceRepository.js';
+import { Song } from '../../../../../../src/Contexts/Moat/Song/domain/Song.js';
+
+const BAND_ID = '32345678-1234-4234-8234-123456789012';
 
 describe('ValidateSongInstrumentUploadOnUploadRequested', () => {
   let logger: MockProxy<Logger>;
   let commandBus: MockProxy<CommandBus>;
   let commandBusResolver: () => CommandBus;
+  let songRepository: MockProxy<SongPersistenceRepository>;
 
   beforeEach(() => {
     logger = mock<Logger>();
     commandBus = mock<CommandBus>();
     commandBusResolver = vi.fn().mockReturnValue(commandBus);
+    songRepository = mock<SongPersistenceRepository>();
+    songRepository.search.mockResolvedValue(
+      Song.create({
+        id: '52345678-1234-4234-8234-123456789012',
+        bandId: BAND_ID,
+        title: 'Uploaded song',
+        originalVideoclipUrl: 'https://cdn.example.com/original.mp4'
+      })
+    );
   });
 
   it('dispatches SongInstrumentProcessValidateCommand with aggregateId, fileReference, and upload ownership data from the domain event', async () => {
@@ -23,12 +37,13 @@ describe('ValidateSongInstrumentUploadOnUploadRequested', () => {
     const subscriber = new ValidateSongInstrumentUploadOnUploadRequested(
       'moat.song_instrument_upload.upload_requested',
       logger,
-      commandBusResolver
+      commandBusResolver,
+      songRepository
     );
     const domainEvent = new SongInstrumentUploadRequestedDomainEvent({
       aggregateId: '12345678-1234-4234-8234-123456789012',
-      fileReference: 'song-instrument-uploads/song-id/song-instrument-id/video-id.mp4',
-      songId: 'song-id',
+      fileReference: 'song-instrument-uploads/62345678-1234-4234-8234-123456789012/song-instrument-id/video-id.mp4',
+      songId: '62345678-1234-4234-8234-123456789012',
       songInstrumentId: 'song-instrument-id'
     });
 
@@ -47,7 +62,8 @@ describe('ValidateSongInstrumentUploadOnUploadRequested', () => {
       aggregateId: domainEvent.aggregateId,
       fileReference: domainEvent.fileReference,
       songId: domainEvent.songId,
-      songInstrumentId: domainEvent.songInstrumentId
+      songInstrumentId: domainEvent.songInstrumentId,
+      bandId: BAND_ID
     });
   });
 
@@ -56,13 +72,14 @@ describe('ValidateSongInstrumentUploadOnUploadRequested', () => {
     const subscriber = new ValidateSongInstrumentUploadOnUploadRequested(
       'moat.song_instrument_upload.upload_requested',
       logger,
-      commandBusResolver
+      commandBusResolver,
+      songRepository
     );
     const domainEvent = {
       aggregateId: '12345678-1234-4234-8234-123456789012',
       attributes: {
-        fileReference: 'song-instrument-uploads/song-id/song-instrument-id/video-id.mp4',
-        songId: 'song-id',
+        fileReference: 'song-instrument-uploads/62345678-1234-4234-8234-123456789012/song-instrument-id/video-id.mp4',
+        songId: '62345678-1234-4234-8234-123456789012',
         songInstrumentId: 'song-instrument-id'
       }
     } as unknown as SongInstrumentUploadRequestedDomainEvent;
@@ -76,10 +93,32 @@ describe('ValidateSongInstrumentUploadOnUploadRequested', () => {
     expect(command).toBeInstanceOf(SongInstrumentProcessValidateCommand);
     expect(command).toMatchObject({
       aggregateId: domainEvent.aggregateId,
-      fileReference: 'song-instrument-uploads/song-id/song-instrument-id/video-id.mp4',
-      songId: 'song-id',
+      fileReference: 'song-instrument-uploads/62345678-1234-4234-8234-123456789012/song-instrument-id/video-id.mp4',
+      songId: '62345678-1234-4234-8234-123456789012',
+      songInstrumentId: 'song-instrument-id',
+      bandId: BAND_ID
+    });
+  });
+
+  it('throws when the song referenced by the upload no longer exists', async () => {
+    // Arrange
+    songRepository.search.mockResolvedValue(null);
+    const subscriber = new ValidateSongInstrumentUploadOnUploadRequested(
+      'moat.song_instrument_upload.upload_requested',
+      logger,
+      commandBusResolver,
+      songRepository
+    );
+    const domainEvent = new SongInstrumentUploadRequestedDomainEvent({
+      aggregateId: '12345678-1234-4234-8234-123456789012',
+      fileReference: 'song-instrument-uploads/62345678-1234-4234-8234-123456789012/song-instrument-id/video-id.mp4',
+      songId: '62345678-1234-4234-8234-123456789012',
       songInstrumentId: 'song-instrument-id'
     });
+
+    // Act + Assert
+    await expect(subscriber.on(domainEvent)).rejects.toThrow(InvalidArgumentException);
+    expect(commandBus.dispatch).not.toHaveBeenCalled();
   });
 
   it('delegates handlerException to logger.error', () => {
@@ -87,7 +126,8 @@ describe('ValidateSongInstrumentUploadOnUploadRequested', () => {
     const subscriber = new ValidateSongInstrumentUploadOnUploadRequested(
       'moat.song_instrument_upload.upload_requested',
       logger,
-      commandBusResolver
+      commandBusResolver,
+      songRepository
     );
     const exception = new InvalidArgumentException({ message: 'invalid songInstrumentUpload payload' });
 

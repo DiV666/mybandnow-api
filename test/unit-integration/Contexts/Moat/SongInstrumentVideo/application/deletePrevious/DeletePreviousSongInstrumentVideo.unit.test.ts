@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { mock, MockProxy } from 'vitest-mock-extended';
 import Logger from '../../../../../../../src/Contexts/Shared/domain/Logger.js';
-import { StorageRepository } from '../../../../../../../src/Contexts/Orchestrator/SongInstrumentProcess/domain/StorageRepository.js';
+import { StorageRepository } from '../../../../../../../src/Contexts/Shared/domain/StorageRepository.js';
 import { DeletePreviousSongInstrumentVideo } from '../../../../../../../src/Contexts/Moat/SongInstrumentVideo/application/deletePrevious/DeletePreviousSongInstrumentVideo.js';
 import { DeletePreviousSongInstrumentVideoCommand } from '../../../../../../../src/Contexts/Moat/SongInstrumentVideo/application/deletePrevious/DeletePreviousSongInstrumentVideoCommand.js';
 

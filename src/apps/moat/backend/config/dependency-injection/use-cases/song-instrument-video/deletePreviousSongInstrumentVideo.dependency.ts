@@ -6,7 +6,7 @@ export function register(container: ContainerBuilder) {
   container
     .register('Moat.SongInstrumentVideo.DeletePreviousSongInstrumentVideo', DeletePreviousSongInstrumentVideo)
     .addArgument(new Reference('Shared.BunyanLogger'))
-    .addArgument(new Reference('Orchestrator.SongInstrumentProcess.StorageRepository'));
+    .addArgument(new Reference('Shared.StorageRepository'));
 
   container
     .register(

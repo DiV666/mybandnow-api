@@ -1,5 +1,5 @@
 import Logger from '@Contexts/Shared/domain/Logger.js';
-import { StorageRepository } from '@Contexts/Orchestrator/SongInstrumentProcess/domain/StorageRepository.js';
+import { StorageRepository } from '@Contexts/Shared/domain/StorageRepository.js';
 import { DeletePreviousSongInstrumentVideoCommand } from './DeletePreviousSongInstrumentVideoCommand.js';
 
 type DeletableStorageError = {

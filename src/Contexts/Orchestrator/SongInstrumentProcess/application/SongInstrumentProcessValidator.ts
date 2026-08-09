@@ -1,5 +1,5 @@
 import { VideoValidationService } from '../domain/VideoValidationService.js';
-import { StorageRepository } from '../domain/StorageRepository.js';
+import { StorageRepository } from '@Contexts/Shared/domain/StorageRepository.js';
 import { FileSystemRepository } from '@Contexts/Shared/domain/FileSystemRepository.js';
 import { SongInstrumentProcess } from '../domain/SongInstrumentProcess.js';
 import { SongInstrumentProcessPersistenceRepository } from '../domain/repository/SongInstrumentProcessPersistenceRepository.js';
@@ -13,8 +13,6 @@ import { FfprobeLog } from '../domain/value-object/FfprobeLog.js';
 import { SongInstrumentProcessValidateCommand } from './SongInstrumentProcessValidateCommand.js';
 import { FileReference } from '@Contexts/Shared/domain/value-object/FileReference.js';
 import { SongInstrumentProcessStatusValues } from '../domain/value-object/SongInstrumentProcessStatus.js';
-import { SongPersistenceRepository } from '@Contexts/Moat/Song/domain/repository/SongPersistenceRepository.js';
-import { SongId } from '@Contexts/Moat/Song/domain/value-object/SongId.js';
 
 export class SongInstrumentProcessValidator {
   constructor(
@@ -22,7 +20,6 @@ export class SongInstrumentProcessValidator {
     private storage: StorageRepository,
     private fileSystem: FileSystemRepository,
     private songInstrumentProcessRepository: SongInstrumentProcessPersistenceRepository,
-    private songRepository: SongPersistenceRepository,
     private logger: Logger,
     private eventBus: EventBus
   ) {}
@@ -32,7 +29,7 @@ export class SongInstrumentProcessValidator {
     const sourceFileReference = new FileReference(command.fileReference);
     const songInstrumentProcessIdentifier = songInstrumentProcessId.value;
     const fileReference = sourceFileReference.value;
-    const destinationPath = await this.buildDestinationPath(command, songInstrumentProcessIdentifier);
+    const destinationPath = this.buildDestinationPath(command, songInstrumentProcessIdentifier);
     let downloadedTempFileReference: FileReference | null = null;
     let shouldDeleteDurableSourceFile = false;
     let shouldDeleteDestinationFile = false;
@@ -133,18 +130,9 @@ export class SongInstrumentProcessValidator {
     );
   }
 
-  private async buildDestinationPath(
-    command: SongInstrumentProcessValidateCommand,
-    songInstrumentProcessIdentifier: string
-  ): Promise<GcsPath> {
-    const song = await this.songRepository.search(new SongId(command.songId));
-
-    if (!song) {
-      throw new Error(`Song ${command.songId} not found while processing upload ${songInstrumentProcessIdentifier}`);
-    }
-
+  private buildDestinationPath(command: SongInstrumentProcessValidateCommand, songInstrumentProcessIdentifier: string): GcsPath {
     return new GcsPath(
-      `song-instrument-videos/${song.bandId.value}/${command.songId}/${command.songInstrumentId}_${songInstrumentProcessIdentifier}.mp4`
+      `song-instrument-videos/${command.bandId}/${command.songId}/${command.songInstrumentId}_${songInstrumentProcessIdentifier}.mp4`
     );
   }
 

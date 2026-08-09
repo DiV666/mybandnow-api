@@ -5,6 +5,8 @@ import Logger from '@Contexts/Shared/domain/Logger.js';
 import { Exception } from '@Contexts/Shared/domain/Exception.js';
 import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
 import { SongInstrumentProcessValidateCommand } from '@Contexts/Orchestrator/SongInstrumentProcess/application/SongInstrumentProcessValidateCommand.js';
+import { SongPersistenceRepository } from '@Contexts/Moat/Song/domain/repository/SongPersistenceRepository.js';
+import { SongId } from '@Contexts/Moat/Song/domain/value-object/SongId.js';
 
 export type CommandBusResolver = () => CommandBus;
 
@@ -14,7 +16,8 @@ export class ValidateSongInstrumentUploadOnUploadRequested implements DomainEven
   constructor(
     private readonly routingKey: string,
     private readonly logger: Logger,
-    private readonly commandBusResolver: CommandBusResolver
+    private readonly commandBusResolver: CommandBusResolver,
+    private readonly songRepository: SongPersistenceRepository
   ) {}
 
   subscribedTo(): string[] {
@@ -29,12 +32,22 @@ export class ValidateSongInstrumentUploadOnUploadRequested implements DomainEven
     this.logger.info(
       `[ValidateSongInstrumentUploadOnUploadRequested] Received song instrument upload request for ${aggregateId}`
     );
+
+    const song = await this.songRepository.search(new SongId(payload.songId));
+
+    if (!song) {
+      throw new InvalidArgumentException({
+        message: `Song ${payload.songId} not found while processing upload ${aggregateId}`
+      });
+    }
+
     await commandBus.dispatch(
       new SongInstrumentProcessValidateCommand(
         aggregateId,
         payload.fileReference,
         payload.songId,
-        payload.songInstrumentId
+        payload.songInstrumentId,
+        song.bandId.value
       )
     );
   }

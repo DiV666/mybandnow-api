@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { SongInstrumentProcessValidator } from '@Contexts/Orchestrator/SongInstrumentProcess/application/SongInstrumentProcessValidator.js';
 import { SongInstrumentProcessValidateCommand } from '@Contexts/Orchestrator/SongInstrumentProcess/application/SongInstrumentProcessValidateCommand.js';
 import { VideoValidationService } from '@Contexts/Orchestrator/SongInstrumentProcess/domain/VideoValidationService.js';
-import { StorageRepository } from '@Contexts/Orchestrator/SongInstrumentProcess/domain/StorageRepository.js';
+import { StorageRepository } from '@Contexts/Shared/domain/StorageRepository.js';
 import { FileSystemRepository } from '@Contexts/Shared/domain/FileSystemRepository.js';
 import { SongInstrumentProcessPersistenceRepository } from '@Contexts/Orchestrator/SongInstrumentProcess/domain/repository/SongInstrumentProcessPersistenceRepository.js';
 import { EventBus } from '@Contexts/Shared/domain/EventBus.js';
@@ -16,8 +16,6 @@ import { GcsPath } from '@Contexts/Orchestrator/SongInstrumentProcess/domain/val
 import { FileSize } from '@Contexts/Orchestrator/SongInstrumentProcess/domain/value-object/FileSize.js';
 import { Codec } from '@Contexts/Orchestrator/SongInstrumentProcess/domain/value-object/Codec.js';
 import { FfprobeLog } from '@Contexts/Orchestrator/SongInstrumentProcess/domain/value-object/FfprobeLog.js';
-import { SongPersistenceRepository } from '@Contexts/Moat/Song/domain/repository/SongPersistenceRepository.js';
-import { Song } from '@Contexts/Moat/Song/domain/Song.js';
 
 const SONG_ID = '22345678-1234-4234-8234-123456789012';
 const BAND_ID = '32345678-1234-4234-8234-123456789012';
@@ -29,7 +27,6 @@ describe('SongInstrumentProcessValidator', () => {
   let storageRepository: import('vitest').Mocked<StorageRepository>;
   let fileSystemRepository: import('vitest').Mocked<FileSystemRepository>;
   let songInstrumentProcessRepository: import('vitest').Mocked<SongInstrumentProcessPersistenceRepository>;
-  let songRepository: import('vitest').Mocked<SongPersistenceRepository>;
   let logger: import('vitest').Mocked<Logger>;
   let eventBus: import('vitest').Mocked<EventBus>;
 
@@ -51,15 +48,6 @@ describe('SongInstrumentProcessValidator', () => {
       save: vi.fn(),
       search: vi.fn()
     };
-    songRepository = {
-      search: vi.fn(),
-      searchByBandId: vi.fn(),
-      countByBandId: vi.fn(),
-      matching: vi.fn(),
-      matchingCount: vi.fn(),
-      save: vi.fn(),
-      updateOriginalVideoClipDurationSeconds: vi.fn()
-    };
     logger = {
       info: vi.fn(),
       error: vi.fn(),
@@ -77,7 +65,6 @@ describe('SongInstrumentProcessValidator', () => {
       storageRepository,
       fileSystemRepository,
       songInstrumentProcessRepository,
-      songRepository,
       logger,
       eventBus
     );
@@ -88,7 +75,7 @@ describe('SongInstrumentProcessValidator', () => {
     const fileReference = `song-instrument-uploads/${SONG_ID}/${SONG_INSTRUMENT_ID}/upload.mp4`;
     const tempFilePath = '/workdir/tmp/song-instrument-process-fixed-uuid.mp4';
     const finalVideoPath = `song-instrument-videos/${BAND_ID}/${SONG_ID}/${SONG_INSTRUMENT_ID}_${aggregateId}.mp4`;
-    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID);
+    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID, BAND_ID);
 
     storageRepository.downloadFileToTemp.mockResolvedValue(tempFilePath);
     validationService.validate.mockResolvedValue({
@@ -98,20 +85,11 @@ describe('SongInstrumentProcessValidator', () => {
       height: 1080
     });
     fileSystemRepository.getFileSize.mockResolvedValue(100000);
-    songRepository.search.mockResolvedValue(
-      Song.create({
-        id: SONG_ID,
-        bandId: BAND_ID,
-        title: 'Uploaded song',
-        originalVideoclipUrl: 'https://cdn.example.com/original.mp4'
-      })
-    );
 
     await validator.run(command);
 
     expect(storageRepository.downloadFileToTemp).toHaveBeenCalledWith(fileReference);
     expect(validationService.validate).toHaveBeenCalledWith(tempFilePath);
-    expect(songRepository.search).toHaveBeenCalled();
     expect(fileSystemRepository.getFileSize).toHaveBeenCalledWith(new FileReference(tempFilePath));
     expect(storageRepository.uploadFile).toHaveBeenCalledWith(tempFilePath, finalVideoPath);
     expect(songInstrumentProcessRepository.save).toHaveBeenCalled();
@@ -136,25 +114,16 @@ describe('SongInstrumentProcessValidator', () => {
     const aggregateId = '12345678-1234-4234-8234-123456789012';
     const fileReference = `song-instrument-uploads/${SONG_ID}/${SONG_INSTRUMENT_ID}/upload.mp4`;
     const tempFilePath = '/workdir/tmp/song-instrument-process-fixed-uuid.mp4';
-    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID);
+    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID, BAND_ID);
 
     storageRepository.downloadFileToTemp.mockResolvedValue(tempFilePath);
     validationService.validate.mockRejectedValue(new Error('Invalid video'));
-    songRepository.search.mockResolvedValue(
-      Song.create({
-        id: SONG_ID,
-        bandId: BAND_ID,
-        title: 'Uploaded song',
-        originalVideoclipUrl: 'https://cdn.example.com/original.mp4'
-      })
-    );
 
     await validator.run(command);
 
     expect(storageRepository.downloadFileToTemp).toHaveBeenCalledWith(fileReference);
     expect(validationService.validate).toHaveBeenCalledWith(tempFilePath);
     expect(storageRepository.uploadFile).not.toHaveBeenCalled();
-    expect(songRepository.search).toHaveBeenCalledOnce();
     expect(songInstrumentProcessRepository.save).toHaveBeenCalledOnce();
     expect(songInstrumentProcessRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -183,7 +152,7 @@ describe('SongInstrumentProcessValidator', () => {
   it('should skip a replay when the process is already completed even if the temporary source still exists', async () => {
     const aggregateId = '12345678-1234-4234-8234-123456789012';
     const fileReference = `song-instrument-uploads/${SONG_ID}/${SONG_INSTRUMENT_ID}/upload.mp4`;
-    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID);
+    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID, BAND_ID);
     const completedProcess = SongInstrumentProcess.complete(
       new SongInstrumentProcessId(aggregateId),
       new GcsPath(`song-instrument-videos/${BAND_ID}/${SONG_ID}/${SONG_INSTRUMENT_ID}_${aggregateId}.mp4`),
@@ -193,14 +162,6 @@ describe('SongInstrumentProcessValidator', () => {
     );
 
     songInstrumentProcessRepository.search.mockResolvedValueOnce(completedProcess);
-    songRepository.search.mockResolvedValue(
-      Song.create({
-        id: SONG_ID,
-        bandId: BAND_ID,
-        title: 'Uploaded song',
-        originalVideoclipUrl: 'https://cdn.example.com/original.mp4'
-      })
-    );
 
     await validator.run(command);
 
@@ -222,7 +183,7 @@ describe('SongInstrumentProcessValidator', () => {
   it('should treat a replayed missing temporary source object as a no-op when the process was already completed', async () => {
     const aggregateId = '12345678-1234-4234-8234-123456789012';
     const fileReference = `song-instrument-uploads/${SONG_ID}/${SONG_INSTRUMENT_ID}/upload.mp4`;
-    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID);
+    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID, BAND_ID);
     const completedProcess = SongInstrumentProcess.complete(
       new SongInstrumentProcessId(aggregateId),
       new GcsPath(`song-instrument-videos/${BAND_ID}/${SONG_ID}/${SONG_INSTRUMENT_ID}_${aggregateId}.mp4`),
@@ -235,14 +196,6 @@ describe('SongInstrumentProcessValidator', () => {
       new Error(`No such object: test-bucket/${fileReference}`)
     );
     songInstrumentProcessRepository.search.mockResolvedValueOnce(completedProcess);
-    songRepository.search.mockResolvedValue(
-      Song.create({
-        id: SONG_ID,
-        bandId: BAND_ID,
-        title: 'Uploaded song',
-        originalVideoclipUrl: 'https://cdn.example.com/original.mp4'
-      })
-    );
 
     await validator.run(command);
 
@@ -261,20 +214,12 @@ describe('SongInstrumentProcessValidator', () => {
   it('should mark the process as failed when the temporary source object is missing and the process was not already completed', async () => {
     const aggregateId = '12345678-1234-4234-8234-123456789012';
     const fileReference = `song-instrument-uploads/${SONG_ID}/${SONG_INSTRUMENT_ID}/upload.mp4`;
-    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID);
+    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID, BAND_ID);
 
     storageRepository.downloadFileToTemp.mockRejectedValueOnce(
       new Error(`No such object: test-bucket/${fileReference}`)
     );
     songInstrumentProcessRepository.search.mockResolvedValueOnce(null);
-    songRepository.search.mockResolvedValue(
-      Song.create({
-        id: SONG_ID,
-        bandId: BAND_ID,
-        title: 'Uploaded song',
-        originalVideoclipUrl: 'https://cdn.example.com/original.mp4'
-      })
-    );
 
     await validator.run(command);
 
@@ -303,7 +248,7 @@ describe('SongInstrumentProcessValidator', () => {
     const aggregateId = '12345678-1234-4234-8234-123456789012';
     const fileReference = `song-instrument-uploads/${SONG_ID}/${SONG_INSTRUMENT_ID}/upload.mp4`;
     const tempFilePath = '/workdir/tmp/song-instrument-process-fixed-uuid.mp4';
-    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID);
+    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID, BAND_ID);
 
     storageRepository.downloadFileToTemp.mockResolvedValue(tempFilePath);
     validationService.validate.mockResolvedValue({
@@ -312,14 +257,6 @@ describe('SongInstrumentProcessValidator', () => {
       width: 1920,
       height: 1080
     });
-    songRepository.search.mockResolvedValue(
-      Song.create({
-        id: SONG_ID,
-        bandId: BAND_ID,
-        title: 'Uploaded song',
-        originalVideoclipUrl: 'https://cdn.example.com/original.mp4'
-      })
-    );
 
     await validator.run(command);
 
@@ -340,7 +277,7 @@ describe('SongInstrumentProcessValidator', () => {
     const fileReference = `song-instrument-uploads/${SONG_ID}/${SONG_INSTRUMENT_ID}/upload.mp4`;
     const tempFilePath = '/workdir/tmp/song-instrument-process-fixed-uuid.mp4';
     const destinationPath = `song-instrument-videos/${BAND_ID}/${SONG_ID}/${SONG_INSTRUMENT_ID}_${aggregateId}.mp4`;
-    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID);
+    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID, BAND_ID);
 
     storageRepository.downloadFileToTemp.mockResolvedValue(tempFilePath);
     validationService.validate.mockResolvedValue({
@@ -350,14 +287,6 @@ describe('SongInstrumentProcessValidator', () => {
       height: 1080
     });
     fileSystemRepository.getFileSize.mockResolvedValue(100000);
-    songRepository.search.mockResolvedValue(
-      Song.create({
-        id: SONG_ID,
-        bandId: BAND_ID,
-        title: 'Uploaded song',
-        originalVideoclipUrl: 'https://cdn.example.com/original.mp4'
-      })
-    );
     songInstrumentProcessRepository.save.mockRejectedValueOnce(new Error('db failure while saving completed state'));
     storageRepository.deleteFile
       .mockRejectedValueOnce(new Error('destination cleanup failed'))
@@ -379,18 +308,10 @@ describe('SongInstrumentProcessValidator', () => {
     const aggregateId = '12345678-1234-4234-8234-123456789012';
     const fileReference = `song-instrument-uploads/${SONG_ID}/${SONG_INSTRUMENT_ID}/upload.mp4`;
     const tempFilePath = '/workdir/tmp/song-instrument-process-fixed-uuid.mp4';
-    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID);
+    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID, BAND_ID);
 
     storageRepository.downloadFileToTemp.mockResolvedValue(tempFilePath);
     validationService.validate.mockRejectedValue(new Error('Invalid video'));
-    songRepository.search.mockResolvedValue(
-      Song.create({
-        id: SONG_ID,
-        bandId: BAND_ID,
-        title: 'Uploaded song',
-        originalVideoclipUrl: 'https://cdn.example.com/original.mp4'
-      })
-    );
     songInstrumentProcessRepository.save.mockRejectedValueOnce(new Error('db failure while saving failed state'));
 
     const execution = validator.run(command);

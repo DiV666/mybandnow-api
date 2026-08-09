@@ -5,7 +5,8 @@ export class SongInstrumentProcessValidateCommand extends Command {
     readonly aggregateId: string,
     readonly fileReference: string,
     readonly songId: string,
-    readonly songInstrumentId: string
+    readonly songInstrumentId: string,
+    readonly bandId: string
   ) {
     super();
   }

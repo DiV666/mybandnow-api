@@ -98,6 +98,7 @@ export function registerAppsDependencies(container: ContainerBuilder) {
     .addArgument('moat.song_instrument_upload.upload_requested')
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(() => container.get<CommandBus>('Shared.CommandBus'))
+    .addArgument(new Reference('Moat.Song.SongRepository'))
     .addTag('domainEventSubscriber');
 
   container

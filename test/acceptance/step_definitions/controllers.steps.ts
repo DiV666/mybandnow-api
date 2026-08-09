@@ -810,7 +810,7 @@ type ClearableSongInstrumentStorage = {
 };
 
 function clearSongInstrumentStorage(): void {
-  const storage = container.get<ClearableSongInstrumentStorage>('Orchestrator.SongInstrumentProcess.StorageRepository');
+  const storage = container.get<ClearableSongInstrumentStorage>('Shared.StorageRepository');
   storage.clear?.();
 }
 

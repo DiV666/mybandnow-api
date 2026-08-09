@@ -7,7 +7,7 @@ export function register(container: ContainerBuilder) {
     .register('Moat.SongInstrumentUpload.SongInstrumentUploadUploader', SongInstrumentUploadUploader)
     .addArgument(new Reference('Moat.SongInstrumentUpload.SongInstrumentUploadRepository'))
     .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'))
-    .addArgument(new Reference('Orchestrator.SongInstrumentProcess.StorageRepository'))
+    .addArgument(new Reference('Shared.StorageRepository'))
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(new Reference('Shared.EventBus'))
     .addArgument(new Reference('Shared.Clock'));

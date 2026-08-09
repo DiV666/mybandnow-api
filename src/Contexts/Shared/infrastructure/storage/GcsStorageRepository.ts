@@ -2,8 +2,8 @@ import { randomUUID } from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
 import { Storage } from '@google-cloud/storage';
-import Logger from '../../../Shared/domain/Logger.js';
-import { StorageRepository } from '../domain/StorageRepository.js';
+import Logger from '@Contexts/Shared/domain/Logger.js';
+import { StorageRepository } from '@Contexts/Shared/domain/StorageRepository.js';
 
 const PLAYBACK_SIGNED_URL_TTL_IN_MS = 15 * 60 * 1000;
 

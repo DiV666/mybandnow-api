@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Storage } from '@google-cloud/storage';
-import type Logger from '../../../../../../src/Contexts/Shared/domain/Logger.js';
-import { GcsStorageRepository } from '../../../../../../src/Contexts/Orchestrator/SongInstrumentProcess/infrastructure/GcsStorageRepository.js';
+import type Logger from '@Contexts/Shared/domain/Logger.js';
+import { GcsStorageRepository } from '@Contexts/Shared/infrastructure/storage/GcsStorageRepository.js';
 
 const storageMocks = vi.hoisted(() => {
   const upload = vi.fn();

@@ -19,6 +19,7 @@ import { DomainEventSubscribers } from '@Contexts/Shared/infrastructure/EventBus
 import { AppBootstrapService } from '@Contexts/Shared/application/services/AppBootstrapService.js';
 import { CriteriaScopeSecurity } from '@Contexts/Shared/application/security/CriteriaScopeSecurity.js';
 import { LocalFileSystemRepository } from '@Contexts/Shared/infrastructure/LocalFileSystemRepository.js';
+import { GcsStorageRepository } from '@Contexts/Shared/infrastructure/storage/GcsStorageRepository.js';
 import healthStatus from '@Contexts/Shared/infrastructure/health.js';
 import { env } from '@Contexts/Shared/infrastructure/config/env.js';
 import { SystemClock } from '@Contexts/Shared/infrastructure/Clock/SystemClock.js';
@@ -27,6 +28,13 @@ export function registerSharedDependencies(container: ContainerBuilder) {
   container.register('Shared.Clock', SystemClock);
 
   container.register('Shared.FileSystemRepository', LocalFileSystemRepository);
+
+  container
+    .register('Shared.StorageRepository', GcsStorageRepository)
+    .addArgument(new Reference('Shared.BunyanLogger'))
+    .addArgument(env.GCS_BUCKET_TMP_NAME)
+    .addArgument(env.GCS_BUCKET_APIKEY)
+    .addArgument(env.GCS_BUCKET_SECRET_BASE64);
 
   container.register('Shared.CriteriaScopeSecurity', CriteriaScopeSecurity);
 

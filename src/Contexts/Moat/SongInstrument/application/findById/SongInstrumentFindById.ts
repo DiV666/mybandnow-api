@@ -12,7 +12,7 @@ import { SongInstrumentFindByIdResponse } from './SongInstrumentFindByIdResponse
 import { SongInstrumentUploadPersistenceRepository } from '@Contexts/Moat/SongInstrumentUpload/domain/repository/SongInstrumentUploadPersistenceRepository.js';
 import { SongInstrumentUploadId } from '@Contexts/Moat/SongInstrumentUpload/domain/value-object/SongInstrumentUploadId.js';
 import { toPublicSongInstrumentUploadResponse } from '../PublicSongInstrumentUploadResponse.js';
-import type { StorageRepository } from '@Contexts/Orchestrator/SongInstrumentProcess/domain/StorageRepository.js';
+import type { StorageRepository } from '@Contexts/Shared/domain/StorageRepository.js';
 
 export class SongInstrumentFindById {
   constructor(

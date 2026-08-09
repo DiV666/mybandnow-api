@@ -1,10 +1,8 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 import { SongInstrumentProcessPrismaRepository } from '@Contexts/Orchestrator/SongInstrumentProcess/infrastructure/persistence/SongInstrumentProcessPrismaRepository.js';
 import { FfmpegVideoValidationService } from '@Contexts/Orchestrator/SongInstrumentProcess/infrastructure/FfmpegVideoValidationService.js';
-import { GcsStorageRepository } from '@Contexts/Orchestrator/SongInstrumentProcess/infrastructure/GcsStorageRepository.js';
 import { SongInstrumentProcessValidator } from '@Contexts/Orchestrator/SongInstrumentProcess/application/SongInstrumentProcessValidator.js';
 import { SongInstrumentProcessValidateCommandHandler } from '@Contexts/Orchestrator/SongInstrumentProcess/application/SongInstrumentProcessValidateCommandHandler.js';
-import { env } from '@Contexts/Shared/infrastructure/config/env.js';
 
 export function registerOrchestratorDependencies(container: ContainerBuilder) {
   // Repositories & Services
@@ -17,21 +15,13 @@ export function registerOrchestratorDependencies(container: ContainerBuilder) {
 
   container.register('Orchestrator.SongInstrumentProcess.VideoValidationService', FfmpegVideoValidationService);
 
-  container
-    .register('Orchestrator.SongInstrumentProcess.StorageRepository', GcsStorageRepository)
-    .addArgument(new Reference('Shared.BunyanLogger'))
-    .addArgument(env.GCS_BUCKET_TMP_NAME)
-    .addArgument(env.GCS_BUCKET_APIKEY)
-    .addArgument(env.GCS_BUCKET_SECRET_BASE64);
-
   // Use Cases
   container
     .register('Orchestrator.SongInstrumentProcess.SongInstrumentProcessValidator', SongInstrumentProcessValidator)
     .addArgument(new Reference('Orchestrator.SongInstrumentProcess.VideoValidationService'))
-    .addArgument(new Reference('Orchestrator.SongInstrumentProcess.StorageRepository'))
+    .addArgument(new Reference('Shared.StorageRepository'))
     .addArgument(new Reference('Shared.FileSystemRepository'))
     .addArgument(new Reference('Orchestrator.SongInstrumentProcess.SongInstrumentProcessPersistenceRepository'))
-    .addArgument(new Reference('Moat.Song.SongRepository'))
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(new Reference('Shared.EventBus'));
 
