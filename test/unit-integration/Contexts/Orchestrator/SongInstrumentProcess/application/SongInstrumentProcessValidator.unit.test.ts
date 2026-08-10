@@ -75,7 +75,13 @@ describe('SongInstrumentProcessValidator', () => {
     const fileReference = `song-instrument-uploads/${SONG_ID}/${SONG_INSTRUMENT_ID}/upload.mp4`;
     const tempFilePath = '/workdir/tmp/song-instrument-process-fixed-uuid.mp4';
     const finalVideoPath = `song-instrument-videos/${BAND_ID}/${SONG_ID}/${SONG_INSTRUMENT_ID}_${aggregateId}.mp4`;
-    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID, BAND_ID);
+    const command = new SongInstrumentProcessValidateCommand(
+      aggregateId,
+      fileReference,
+      SONG_ID,
+      SONG_INSTRUMENT_ID,
+      BAND_ID
+    );
 
     storageRepository.downloadFileToTemp.mockResolvedValue(tempFilePath);
     validationService.validate.mockResolvedValue({
@@ -114,7 +120,13 @@ describe('SongInstrumentProcessValidator', () => {
     const aggregateId = '12345678-1234-4234-8234-123456789012';
     const fileReference = `song-instrument-uploads/${SONG_ID}/${SONG_INSTRUMENT_ID}/upload.mp4`;
     const tempFilePath = '/workdir/tmp/song-instrument-process-fixed-uuid.mp4';
-    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID, BAND_ID);
+    const command = new SongInstrumentProcessValidateCommand(
+      aggregateId,
+      fileReference,
+      SONG_ID,
+      SONG_INSTRUMENT_ID,
+      BAND_ID
+    );
 
     storageRepository.downloadFileToTemp.mockResolvedValue(tempFilePath);
     validationService.validate.mockRejectedValue(new Error('Invalid video'));
@@ -152,7 +164,13 @@ describe('SongInstrumentProcessValidator', () => {
   it('should skip a replay when the process is already completed even if the temporary source still exists', async () => {
     const aggregateId = '12345678-1234-4234-8234-123456789012';
     const fileReference = `song-instrument-uploads/${SONG_ID}/${SONG_INSTRUMENT_ID}/upload.mp4`;
-    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID, BAND_ID);
+    const command = new SongInstrumentProcessValidateCommand(
+      aggregateId,
+      fileReference,
+      SONG_ID,
+      SONG_INSTRUMENT_ID,
+      BAND_ID
+    );
     const completedProcess = SongInstrumentProcess.complete(
       new SongInstrumentProcessId(aggregateId),
       new GcsPath(`song-instrument-videos/${BAND_ID}/${SONG_ID}/${SONG_INSTRUMENT_ID}_${aggregateId}.mp4`),
@@ -183,7 +201,13 @@ describe('SongInstrumentProcessValidator', () => {
   it('should treat a replayed missing temporary source object as a no-op when the process was already completed', async () => {
     const aggregateId = '12345678-1234-4234-8234-123456789012';
     const fileReference = `song-instrument-uploads/${SONG_ID}/${SONG_INSTRUMENT_ID}/upload.mp4`;
-    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID, BAND_ID);
+    const command = new SongInstrumentProcessValidateCommand(
+      aggregateId,
+      fileReference,
+      SONG_ID,
+      SONG_INSTRUMENT_ID,
+      BAND_ID
+    );
     const completedProcess = SongInstrumentProcess.complete(
       new SongInstrumentProcessId(aggregateId),
       new GcsPath(`song-instrument-videos/${BAND_ID}/${SONG_ID}/${SONG_INSTRUMENT_ID}_${aggregateId}.mp4`),
@@ -214,7 +238,13 @@ describe('SongInstrumentProcessValidator', () => {
   it('should mark the process as failed when the temporary source object is missing and the process was not already completed', async () => {
     const aggregateId = '12345678-1234-4234-8234-123456789012';
     const fileReference = `song-instrument-uploads/${SONG_ID}/${SONG_INSTRUMENT_ID}/upload.mp4`;
-    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID, BAND_ID);
+    const command = new SongInstrumentProcessValidateCommand(
+      aggregateId,
+      fileReference,
+      SONG_ID,
+      SONG_INSTRUMENT_ID,
+      BAND_ID
+    );
 
     storageRepository.downloadFileToTemp.mockRejectedValueOnce(
       new Error(`No such object: test-bucket/${fileReference}`)
@@ -248,7 +278,13 @@ describe('SongInstrumentProcessValidator', () => {
     const aggregateId = '12345678-1234-4234-8234-123456789012';
     const fileReference = `song-instrument-uploads/${SONG_ID}/${SONG_INSTRUMENT_ID}/upload.mp4`;
     const tempFilePath = '/workdir/tmp/song-instrument-process-fixed-uuid.mp4';
-    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID, BAND_ID);
+    const command = new SongInstrumentProcessValidateCommand(
+      aggregateId,
+      fileReference,
+      SONG_ID,
+      SONG_INSTRUMENT_ID,
+      BAND_ID
+    );
 
     storageRepository.downloadFileToTemp.mockResolvedValue(tempFilePath);
     validationService.validate.mockResolvedValue({
@@ -277,7 +313,13 @@ describe('SongInstrumentProcessValidator', () => {
     const fileReference = `song-instrument-uploads/${SONG_ID}/${SONG_INSTRUMENT_ID}/upload.mp4`;
     const tempFilePath = '/workdir/tmp/song-instrument-process-fixed-uuid.mp4';
     const destinationPath = `song-instrument-videos/${BAND_ID}/${SONG_ID}/${SONG_INSTRUMENT_ID}_${aggregateId}.mp4`;
-    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID, BAND_ID);
+    const command = new SongInstrumentProcessValidateCommand(
+      aggregateId,
+      fileReference,
+      SONG_ID,
+      SONG_INSTRUMENT_ID,
+      BAND_ID
+    );
 
     storageRepository.downloadFileToTemp.mockResolvedValue(tempFilePath);
     validationService.validate.mockResolvedValue({
@@ -308,7 +350,13 @@ describe('SongInstrumentProcessValidator', () => {
     const aggregateId = '12345678-1234-4234-8234-123456789012';
     const fileReference = `song-instrument-uploads/${SONG_ID}/${SONG_INSTRUMENT_ID}/upload.mp4`;
     const tempFilePath = '/workdir/tmp/song-instrument-process-fixed-uuid.mp4';
-    const command = new SongInstrumentProcessValidateCommand(aggregateId, fileReference, SONG_ID, SONG_INSTRUMENT_ID, BAND_ID);
+    const command = new SongInstrumentProcessValidateCommand(
+      aggregateId,
+      fileReference,
+      SONG_ID,
+      SONG_INSTRUMENT_ID,
+      BAND_ID
+    );
 
     storageRepository.downloadFileToTemp.mockResolvedValue(tempFilePath);
     validationService.validate.mockRejectedValue(new Error('Invalid video'));

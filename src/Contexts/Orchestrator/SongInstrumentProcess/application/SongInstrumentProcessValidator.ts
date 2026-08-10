@@ -130,7 +130,10 @@ export class SongInstrumentProcessValidator {
     );
   }
 
-  private buildDestinationPath(command: SongInstrumentProcessValidateCommand, songInstrumentProcessIdentifier: string): GcsPath {
+  private buildDestinationPath(
+    command: SongInstrumentProcessValidateCommand,
+    songInstrumentProcessIdentifier: string
+  ): GcsPath {
     return new GcsPath(
       `song-instrument-videos/${command.bandId}/${command.songId}/${command.songInstrumentId}_${songInstrumentProcessIdentifier}.mp4`
     );
