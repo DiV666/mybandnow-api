@@ -77,5 +77,64 @@ export default [
       '@typescript-eslint/ban-ts-comment': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn'
     }
+  },
+
+  // Bounded context boundaries: a context must not import another context's
+  // code directly — only Shared is common ground. Cross-context coordination
+  // belongs in src/apps/**/subscribers (domain events) or DI composition.
+  //
+  // Scoped at today's top-level granularity (Moat/Identity/Orchestrator).
+  // When Moat is flattened into its real per-aggregate contexts, this needs
+  // one block per resulting context instead of one block for "Moat".
+  {
+    files: ['src/Contexts/Moat/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@Contexts/Identity/**', '@Contexts/Orchestrator/**'],
+              message:
+                'Bounded contexts must not import each other directly. Coordinate via domain events (src/apps/**/subscribers) or move the shared port to @Contexts/Shared.'
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    files: ['src/Contexts/Identity/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@Contexts/Moat/**', '@Contexts/Orchestrator/**'],
+              message:
+                'Bounded contexts must not import each other directly. Coordinate via domain events (src/apps/**/subscribers) or move the shared port to @Contexts/Shared.'
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    files: ['src/Contexts/Orchestrator/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@Contexts/Moat/**', '@Contexts/Identity/**'],
+              message:
+                'Bounded contexts must not import each other directly. Coordinate via domain events (src/apps/**/subscribers) or move the shared port to @Contexts/Shared.'
+            }
+          ]
+        }
+      ]
+    }
   }
 ];
