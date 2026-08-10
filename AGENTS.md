@@ -63,7 +63,7 @@ For scaffoldable structural changes, agents MUST prefer `rb` commands and the ma
 | `kloding-generate-parameter`  | Generate a domain VO or controller parameter                            | [SKILL.md](.agents/skills/kloding-generate-parameter/SKILL.md)  |
 | `kloding-generate-subscriber` | Generate a domain event subscriber                                      | [SKILL.md](.agents/skills/kloding-generate-subscriber/SKILL.md) |
 | `kloding-generate-service`    | Generate a shared HTTP infrastructure service layer                     | [SKILL.md](.agents/skills/kloding-generate-service/SKILL.md)    |
-| `test-integration`            | Integration tests against MongoDB and RabbitMQ (Infrastructure layer)   | [SKILL.md](.agents/skills/test-integration/SKILL.md)            |
+| `test-integration`            | Integration tests against PostgreSQL/Prisma and RabbitMQ (Infrastructure layer) | [SKILL.md](.agents/skills/test-integration/SKILL.md)     |
 | `test-acceptance`             | Acceptance/E2E testing with Cucumber.js and Supertest (Apps layer)      | [SKILL.md](.agents/skills/test-acceptance/SKILL.md)             |
 | `changelog`                   | Changelog entries (keepachangelog.com)                                  | [SKILL.md](.agents/skills/changelog/SKILL.md)                   |
 | `ci`                          | CI pipeline guidance (Jenkins)                                          | [SKILL.md](.agents/skills/ci/SKILL.md)                          |
@@ -164,7 +164,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Writing TypeScript types/interfaces                            | `typescript`                  |
 | Writing acceptance tests with Cucumber.js                      | `test-acceptance`             |
 | Writing documentation                                          | `docs`                        |
-| Writing integration tests against real MongoDB or RabbitMQ     | `test-integration`            |
+| Writing integration tests against real PostgreSQL or RabbitMQ  | `test-integration`            |
 | Writing unit tests                                             | `test-unit`                   |
 
 ---
@@ -177,9 +177,9 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | --------------- | --------------------------- |
 | Runtime         | Node.js 22 / TypeScript 5.4 |
 | Framework       | Express 5 + openapi-backend |
-| Database        | MongoDB 6                   |
+| Database        | PostgreSQL via Prisma       |
 | Messaging       | RabbitMQ (amqplib)          |
-| Auth            | Keycloak JWT (BearerAuth)   |
+| Auth            | Local JWT (BearerAuth)      |
 | DI container    | node-dependency-injection   |
 | Test runner     | Vitest 3 / Cucumber 12      |
 | Build           | ESBuild                     |
@@ -192,33 +192,46 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 apps/          → Entry points; imports application layer only
 application/   → Use cases (commands, queries, handlers); imports domain only
 domain/        → Aggregates, value objects, domain events, repository interfaces; NO external imports
-infrastructure → Concrete implementations (MongoDB, RabbitMQ, HTTP providers); imports domain only
+infrastructure → Concrete implementations (Prisma, RabbitMQ, GCS, HTTP providers); imports domain only
 ```
 
 ### Module structure
 
-Every module follows:
+Every top-level folder under `Contexts/` is an independent bounded context — no context imports another
+directly (enforced by `eslint.config.js`). A context with a single aggregate has no extra nesting:
 
 ```
-Contexts/Communicator/<ModuleName>/
+Contexts/<Context>/
 ├── application/      # Commands, queries, handlers
 ├── domain/           # Aggregates, value objects, domain events, repository interfaces
-└── infrastructure/   # MongoDB repos, HTTP providers, etc.
+└── infrastructure/   # Prisma repos, HTTP providers, etc.
 ```
+
+A context whose aggregates are coupled to each other (they don't make sense independently) keeps one
+module folder per aggregate instead, named after the aggregate, e.g. `Contexts/SongInstrument/Upload/`:
+
+```
+Contexts/<Context>/<Module>/
+├── application/
+├── domain/
+└── infrastructure/
+```
+
+See `src/AGENTS.md` → PROJECT STRUCTURE for the current, concrete list of contexts.
 
 ---
 
 ## Development
 
 ```bash
-# Start dependencies (MongoDB, RabbitMQ, Keycloak)
+# Start dependencies (PostgreSQL, RabbitMQ)
 docker compose up -d
 
 # Install dependencies
 npm install
 
-# Run in development mode
-npm run dev
+# Run in development mode (or `make watch`)
+npm run development:watch
 
 # Build
 npm run build
@@ -312,7 +325,7 @@ If the pre-commit hook fails:
 - **No secrets in code**: credentials always come from environment variables validated by Zod at startup.
 - **No sensitive data in logs**: never log personal data or sensitive content in plain form. Mask or omit any PII before logging.
 - **Domain value objects enforce invariants**: use them; never bypass with raw primitives.
-- **Regex from user input must be escaped**: use `MongoCriteriaConverter.escapeRegex()` before building a `RegExp`.
+- **No raw/string-concatenated queries**: criteria filters go through `PrismaCriteriaConverter`, which uses Prisma's parameterized `contains`/`equals` — never build SQL by string concatenation.
 - **Exception details stay internal**: log internally; never send `details` or stack traces in HTTP responses.
 
 ---

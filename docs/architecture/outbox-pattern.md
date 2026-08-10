@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-El patrón Outbox garantiza entrega **at-least-once** de eventos de dominio a RabbitMQ al persistirlos en MongoDB antes de intentar publicarlos.
+El patrón Outbox garantiza entrega **at-least-once** de eventos de dominio a RabbitMQ al persistirlos en PostgreSQL (vía Prisma) antes de intentar publicarlos.
 
 ## Flujo
 
@@ -27,7 +27,10 @@ Puerto de dominio ubicado en `src/Contexts/Shared/domain/Outbox.ts`.
 
 ```typescript
 export interface Outbox {
-  save(events: DomainEvent[], session?: TransactionSession): Promise<void>;
+  initialize(): Promise<void>;
+  // Devuelve los ids de los registros creados, para poder marcarlos
+  // como publicados tras un envío inmediato exitoso.
+  save(events: DomainEvent[], session?: TransactionSession): Promise<string[]>;
   pending(limit: number): Promise<OutboxEvent[]>;
   markAsPublished(ids: string[]): Promise<void>;
   incrementAttempts(id: string, errorMessage: string): Promise<void>;
@@ -35,12 +38,15 @@ export interface Outbox {
 }
 ```
 
-### `OutboxMongoRepository`
+`TransactionSession` es un tipo opaco a propósito (`Record<string, never>`) — mantiene el dominio agnóstico de Prisma; el adaptador concreto hace el cast a su tipo real de transacción.
 
-Adaptador MongoDB en `src/Contexts/Shared/infrastructure/EventBus/Outbox/OutboxMongoRepository.ts`.
+### `OutboxPrismaRepository`
+
+Adaptador Prisma en `src/Contexts/Shared/infrastructure/EventBus/Outbox/OutboxPrismaRepository.ts`.
 
 Campos persistidos por evento:
 
+- `id` (id propio del registro outbox, distinto del `eventId`)
 - `eventId`
 - `eventName`
 - `aggregateId`
@@ -81,10 +87,13 @@ Semántica de reintento:
 - Reintento automático cuando RabbitMQ vuelve a estar disponible
 - Tolerancia a caídas del proceso antes del publish exitoso
 
+### Sí garantiza también
+
+- **Atomicidad con el agregado**: cada repositorio (`BandPrismaRepository`, `PrismaMusicianRepository`, `VideoclipPrismaRepository`, `UserPrismaRepository`, etc.) hace un peek de los eventos pendientes (`pullDomainEvents({ drain: false })`) y los guarda en `outbox.save(events, tx)` dentro de la misma `client.$transaction()` que persiste el agregado. Si el proceso cae entre medias, no queda un agregado guardado sin su evento — la transacción entera se revierte.
+
 ### No garantiza
 
 - **Exactly-once delivery**: un consumidor debe ser idempotente
-- **Atomicidad con el agregado** en la configuración actual sin transacciones MongoDB
 - **Orden global estricto** entre consumidores paralelos
 
 ## Registro en DI
@@ -93,7 +102,7 @@ Las dependencias activas viven en `src/apps/mybandnow/backend/config/dependency-
 
 Servicios relevantes:
 
-- `Shared.Outbox` -> `OutboxMongoRepository`
+- `Shared.Outbox` -> `OutboxPrismaRepository`
 - `Shared.RabbitMQEventBus` -> bus interno de RabbitMQ
 - `Shared.EventBus` -> `OutboxEventBus`
 - `Shared.OutboxPublisher` -> poller en segundo plano
@@ -107,7 +116,7 @@ Servicios relevantes:
 await this.eventBus.start();
 this.outboxPublisher.start();
 
-this.outboxPublisher.stop();
+await this.outboxPublisher.stop();
 await this.eventBus.stop();
 ```
 
@@ -115,12 +124,12 @@ El entrypoint actual es `MybandnowBackendApp`.
 
 ## Operación
 
-Consultas útiles en MongoDB:
+Consultas útiles en PostgreSQL (tabla `"Outbox"`, indexada por `[status, createdAt]`):
 
-```javascript
-db.outbox.countDocuments({ status: 'pending' });
-db.outbox.countDocuments({ status: 'failed' });
-db.outbox.find({ status: 'pending' }).sort({ createdAt: 1 }).limit(1);
+```sql
+SELECT count(*) FROM "Outbox" WHERE status = 'pending';
+SELECT count(*) FROM "Outbox" WHERE status = 'failed';
+SELECT * FROM "Outbox" WHERE status = 'pending' ORDER BY "createdAt" ASC LIMIT 1;
 ```
 
 ## Pruebas
@@ -132,6 +141,11 @@ make unit-tests
 make integration-tests
 ```
 
-## Mejora opcional
+## Convención al añadir un nuevo repositorio con outbox
 
-Si el entorno productivo usa MongoDB con replica set, la aplicación puede envolver `repository.save()` y `outbox.save()` en una transacción para asegurar atomicidad real entre agregado y eventos.
+Cada `*PrismaRepository.save()` que persiste un agregado con eventos de dominio debe:
+
+1. Hacer `pullDomainEvents({ drain: false })` **antes** de la transacción (peek, sin vaciar — el caso de uso todavía necesita publicarlos al `EventBus` después).
+2. Envolver la escritura del agregado y `outbox.save(events, tx)` en el mismo `client.$transaction(async (tx) => { ... })`.
+
+Un repositorio que guarde el agregado y publique eventos por separado, sin este patrón, reintroduce la ventana de pérdida de eventos que el Outbox existe para cerrar — es exactamente el bug que se encontró y corrigió en `PrismaMusicianRepository` y `VideoclipPrismaRepository`.

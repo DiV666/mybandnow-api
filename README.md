@@ -8,7 +8,7 @@
 
 It uses Node.js, TypeScript, Hexagonal Architecture, DDD, CQRS, and domain events.
 
-It includes JWT authentication with Keycloak, MongoDB persistence, RabbitMQ messaging with an outbox wrapper, Swagger UI, and automated test suites for unit, integration, and acceptance coverage.
+It includes local JWT authentication, PostgreSQL persistence via Prisma, RabbitMQ messaging with an outbox wrapper, Swagger UI, and automated test suites for unit, integration, and acceptance coverage.
 
 > Full documentation → [docs/index.md](./docs/index.md)
 
@@ -95,7 +95,7 @@ See [docs/configuration.md](./docs/configuration.md) for the supported variables
 |---------|-------------|
 | [Architecture](./docs/architecture.md) | Hexagonal boundaries, folder structure, and core patterns |
 | [Configuration](./docs/configuration.md) | Environment variables and startup validation |
-| [Infrastructure](./docs/infrastructure.md) | MongoDB, RabbitMQ, Keycloak, and runtime services |
+| [Infrastructure](./docs/infrastructure.md) | PostgreSQL/Prisma, RabbitMQ, and runtime services |
 | [Authentication](./docs/auth.md) | JWT validation and internal authentication |
 | [Testing](./docs/testing.md) | Unit, integration, and acceptance test strategy |
 | [Development](./docs/development.md) | Daily workflow and Make targets |

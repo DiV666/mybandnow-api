@@ -10,7 +10,7 @@ Unitarios (Vitest)
 
 ## Tests unitarios
 
-Los tests unitarios se ejecutan con `make unit-tests` (proyecto `unit` de `vitest.config.ts`) y usan la ruta `--no-deps`, por lo que MongoDB, RabbitMQ y Keycloak no se levantan si no hacen falta.
+Los tests unitarios se ejecutan con `make unit-tests` (proyecto `unit` de `vitest.config.ts`) y usan la ruta `--no-deps`, por lo que PostgreSQL y RabbitMQ no se levantan si no hacen falta.
 
 Ubicaciones habituales:
 
@@ -19,7 +19,7 @@ Ubicaciones habituales:
 
 ## Tests de integración
 
-Los tests de integración se ejecutan con `make integration-tests` (proyecto `integration` de `vitest.config.ts`, sin paralelismo de ficheros) y validan adaptadores reales como MongoDB y RabbitMQ.
+Los tests de integración se ejecutan con `make integration-tests` (proyecto `integration` de `vitest.config.ts`, sin paralelismo de ficheros) y validan adaptadores reales como PostgreSQL (vía Prisma) y RabbitMQ.
 
 ## Tests de aceptación
 

@@ -225,7 +225,9 @@ src/
 │               ├── use-cases/<module>/      # Use case DI registrations
 │               └── dependencies/            # appsDependencies.ts, shared/mybandnow registrations
 │
-└── Contexts/
+└── Contexts/                                # Each top-level folder is an independent
+    │                                        # bounded context — no context may import
+    │                                        # another directly (enforced by eslint.config.js)
     ├── Shared/
     │   ├── domain/                          # Base classes: Command, Query, AggregateRoot,
     │   │                                    # DomainEvent, EventBus, Logger, value objects
@@ -233,14 +235,36 @@ src/
     │       ├── config/env.ts                # Zod env schema (fail-fast at startup)
     │       ├── EventBus/RabbitMQ/           # RabbitMQ event bus implementation
     │       ├── persistence/prisma/          # Prisma extensions and outbox
+    │       └── storage/                     # GcsStorageRepository (Shared.StorageRepository)
     │       └── service/                     # External HTTP client factories
-    └── Identity/
-        ├── Shared/                          # Shared configurations
-        └── <Module>/                        # Module aggregate
-            ├── application/                 # Commands, queries, handlers
-            ├── domain/                      # Aggregate, value objects, repository interfaces
-            └── infrastructure/              # Prisma repos, HTTP providers
+    ├── Identity/                            # Authentication / user identity
+    │   ├── Shared/                          # Shared configurations
+    │   └── User/
+    │       ├── application/                 # Commands, queries, handlers
+    │       ├── domain/                      # Aggregate, value objects, repository interfaces
+    │       └── infrastructure/              # Prisma repos, HTTP providers
+    ├── Band/                                # Single-module contexts: Context == Module,
+    ├── Musician/                            # no extra nesting — each has its own
+    ├── Song/                                # application/domain/infrastructure directly
+    ├── Videoclip/
+    ├── Instruments/
+    ├── SongInstrument/                      # Multi-module context: SongInstrument, Upload,
+    │   ├── SongInstrument/                  # and Video share bidirectional domain-level
+    │   ├── Upload/                          # coupling (they're one aggregate cluster), so
+    │   └── Video/                           # they live together as sibling modules
+    │       ├── application/
+    │       ├── domain/
+    │       └── infrastructure/              # Adapters may import another context's public
+    │                                        # command/query contract (e.g. BandMembershipGateway
+    │                                        # dispatching Band's AddBandMemberCommand) — the
+    │                                        # boundary rule exempts infrastructure/ for this.
+    └── Orchestrator/                        # Process/saga context for async pipelines
+        └── SongInstrumentProcess/           # (video validation, GCS upload processing)
 ```
+
+Naming: a context with a single aggregate collapses the module level (`Contexts/Band/domain/Band.ts`).
+A context with several coupled aggregates keeps a module folder per aggregate, named the same as
+the aggregate (`Contexts/SongInstrument/Upload/domain/SongInstrumentUpload.ts`).
 
 ---
 

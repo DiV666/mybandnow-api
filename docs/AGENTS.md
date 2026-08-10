@@ -193,7 +193,7 @@ Añadir encabezados en negrita a los ítems de una lista mejora la escaneabilida
 
 - **Capa de dominio**: aggregates, value objects, domain events, repository interfaces.
 - **Capa de aplicación**: use cases, commands, queries, handlers.
-- **Capa de infraestructura**: repositorios MongoDB, providers HTTP, event bus RabbitMQ.
+- **Capa de infraestructura**: repositorios Prisma, providers HTTP, event bus RabbitMQ.
 
 ---
 
@@ -346,4 +346,4 @@ Siempre que sea posible, dirigir al lector a una guía de resolución o a los pa
 
 **Ejemplo:**
 
-> **⚠️ Advertencia**: Modificar `EntityStatusValues` sin actualizar `fromPrimitives()` y `toPrimitives()` en el agregado correspondiente causará fallos silenciosos en la deserialización de documentos MongoDB existentes. Consulta el ADR de arquitectura hexagonal antes de añadir nuevos estados.
+> **⚠️ Advertencia**: Modificar `EntityStatusValues` sin actualizar `fromPrimitives()` y `toPrimitives()` en el agregado correspondiente causará fallos silenciosos en la deserialización de registros Prisma existentes. Consulta el ADR de arquitectura hexagonal antes de añadir nuevos estados.

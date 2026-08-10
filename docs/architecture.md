@@ -26,15 +26,24 @@ src/
 │   └── moat/backend/
 │       └── config/dependency-injection/use-cases/
 └── Contexts/
-    ├── Mybandnow/
-    ├── Moat/
+    ├── Identity/
+    ├── Band/
+    ├── Musician/
+    ├── Song/
+    ├── Videoclip/
+    ├── Instruments/
+    ├── SongInstrument/
     ├── Orchestrator/
     └── Shared/
 ```
 
+`apps/mybandnow` y `apps/moat` son nombres de aplicación (quién consume cada endpoint), no de bounded context — no confundirlos con los contextos de negocio bajo `Contexts/`.
+
+Cada carpeta de primer nivel bajo `Contexts/` es un bounded context independiente: ningún contexto puede importar el código de otro directamente (lo impone `eslint.config.js`, regla `no-restricted-imports` por contexto). La única tierra común es `Shared`; la coordinación entre contextos pasa por el query/command bus (composición en `apps/`) o por eventos de dominio (`apps/**/subscribers`).
+
 ## Contextos actuales
 
-### `Mybandnow`
+### `Identity`
 
 Responsabilidad:
 
@@ -43,27 +52,22 @@ Responsabilidad:
 - generación y verificación de JWT local
 - autenticación interna por cabecera
 
-Módulos visibles:
+Módulos:
 
 - `User`
 - `Shared`
 
-### `Moat`
+### `Band`, `Musician`, `Song`, `Videoclip`, `Instruments`
 
-Responsabilidad:
+Núcleo de negocio musical: músicos, bandas, canciones y sus recursos asociados. Son contextos de un solo agregado — no tienen carpeta de módulo intermedia (`Contexts/Band/domain/Band.ts`, no `Contexts/Band/Band/domain/Band.ts`).
 
-- núcleo de negocio musical
-- músicos, bandas y canciones
-- participaciones instrumentales y su vídeo final
+### `SongInstrument`
 
-Módulos relevantes:
+Participaciones instrumentales de una canción, su audio subido y su vídeo final. A diferencia de los anteriores, agrupa tres módulos porque están acoplados a nivel de dominio entre sí (un `Upload` no tiene sentido sin el `SongInstrument` al que pertenece):
 
-- `Musician`
-- `Band`
-- `SongInstrument`
-- `SongInstrumentUpload`
-- `SongInstrumentVideo`
-- `Videoclip`
+- `SongInstrument` (el agregado raíz)
+- `Upload`
+- `Video`
 
 ### `Orchestrator`
 
@@ -73,11 +77,9 @@ Responsabilidad:
 - validación técnica de uploads
 - integración con almacenamiento remoto
 
-Módulos relevantes:
+Módulos:
 
 - `SongInstrumentProcess`
-- `VideoclipProcess`
-- `TrackProcess` como residuo de migración todavía presente en el árbol
 
 ### `Shared`
 

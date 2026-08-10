@@ -12,10 +12,11 @@
 
 ### 1. Restos de nomenclatura antigua `Track`
 
-Todavía quedan residuos del modelo anterior en el código:
+`src/Contexts/Orchestrator/TrackProcess/` ya se eliminó — era scaffolding vacío (carpetas `domain/application/infrastructure` sin ningún fichero) que sobrevivió a un cambio de naming sin implementación real detrás.
 
-- `src/Contexts/Orchestrator/TrackProcess/`
-- comentarios y nombres de value objects heredados en el contexto `SongInstrumentProcess`
+Todavía quedan residuos menores del modelo anterior:
+
+- `TrackId` como nombre de value object dentro de `SongInstrumentProcess/domain/value-object/` (en vez de un nombre alineado con `SongInstrument*`)
 - migraciones Prisma que muestran el renombrado progresivo desde `Track*` hacia `SongInstrument*`
 
 Esto no bloquea la funcionalidad actual, pero sí añade ruido conceptual.
@@ -31,7 +32,7 @@ Estado actual:
 
 ### 3. Videoclip sin contrato HTTP expuesto
 
-El modelo `Videoclip` existe en Prisma y en el contexto `Moat`, pero el OpenAPI actual no publica endpoints específicos para ese agregado.
+El modelo `Videoclip` existe en Prisma y en su propio bounded context, pero el OpenAPI actual no publica endpoints específicos para ese agregado.
 
 ## Decisiones ya consolidadas
 

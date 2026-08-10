@@ -89,11 +89,11 @@ Si el usuario autenticado no tiene perfil musical, la API responde `403 Forbidde
 
 ## Ficheros clave
 
-- `src/Contexts/Mybandnow/Shared/infrastructure/Authentication/LocalJwtBearerToken.ts`
-- `src/Contexts/Mybandnow/Shared/infrastructure/identityServer/internal/InternalAuthentication.ts`
+- `src/Contexts/Identity/Shared/infrastructure/Authentication/LocalJwtBearerToken.ts`
+- `src/Contexts/Identity/Shared/infrastructure/identityServer/internal/InternalAuthentication.ts`
 - `src/apps/mybandnow/backend/routes/openapiSecurity.ts`
 - `src/apps/mybandnow/backend/controllers/songInstrument/SongInstrumentGetByIdController.ts`
 - `src/apps/mybandnow/backend/controllers/songInstrument/SongInstrumentPostCreateController.ts`
 - `src/apps/mybandnow/backend/controllers/songInstrumentUpload/SongInstrumentUploadPostUploadController.ts`
-- `src/Contexts/Moat/SongInstrument/application/findById/SongInstrumentFindById.ts`
-- `src/Contexts/Moat/SongInstrument/infrastructure/persistence/SongInstrumentPrismaRepository.ts`
+- `src/Contexts/SongInstrument/SongInstrument/application/findById/SongInstrumentFindById.ts`
+- `src/Contexts/SongInstrument/SongInstrument/infrastructure/persistence/SongInstrumentPrismaRepository.ts`

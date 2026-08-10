@@ -4,6 +4,14 @@
 
 **Accepted** (2026-06-14)
 
+> **Nota de actualización**: la decisión de fondo (patrón Outbox) sigue vigente. El backend de
+> persistencia descrito en este ADR era MongoDB; la plataforma migró después a PostgreSQL/Prisma
+> (ver `CHANGELOG.md`). El adaptador actual es `OutboxPrismaRepository`, y la atomicidad con el
+> agregado que este documento marcaba como mejora futura ("MongoDB Transactions") ya está
+> implementada de forma incondicional vía `client.$transaction()`. Detalles actualizados en
+> [`docs/architecture/outbox-pattern.md`](../architecture/outbox-pattern.md). El resto de este
+> documento se conserva como registro histórico de la decisión original.
+
 ## Context
 
 We use RabbitMQ to publish domain events for asynchronous side effects (e.g., sending emails, analytics, integration events). The previous implementation (`DomainEventFailoverPublisher`) had these issues:

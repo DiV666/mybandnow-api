@@ -1,6 +1,9 @@
-# Ejemplo: registro de usuario con transacciones MongoDB
+# Ejemplo: registro de usuario con outbox transaccional (Prisma)
 
-Este ejemplo muestra cómo garantizar atomicidad entre la persistencia de un agregado y el guardado de eventos en Outbox.
+Este ejemplo muestra cómo se garantiza atomicidad entre la persistencia de un agregado y el guardado
+de sus eventos de dominio en el Outbox, usando el patrón real de este proyecto (Prisma `$transaction`,
+no sesiones de MongoDB). Es el mismo patrón que siguen `BandPrismaRepository`, `PrismaMusicianRepository`
+y `VideoclipPrismaRepository`.
 
 ## Flujo
 
@@ -9,85 +12,90 @@ POST /v1/users/register
   -> UserPostRegisterController
   -> CommandBus.dispatch(RegisterUserCommand)
   -> RegisterUserCommandHandler
-  -> session.withTransaction()
-     -> UserRepository.save(user, session)
-     -> Outbox.save(events, session)
+  -> UserRegister.run()
+     -> UserPrismaRepository.save(user)
+        -> client.$transaction:
+             tx.user.upsert(data)
+             outbox.save(events, tx)     // misma transacción
+     -> eventBus.publish(user.pullDomainEvents())   // publicación inmediata tras confirmar
 ```
 
-## Estructura sugerida
-
-Para un ejemplo nuevo en esta plantilla, usa rutas bajo `Contexts/Mybandnow/...`.
+## Estructura real
 
 ```text
 src/
 ├── Contexts/
-│   ├── Mybandnow/
+│   ├── Identity/
 │   │   └── User/
-│   │       ├── application/RegisterUser/
+│   │       ├── application/register/
 │   │       ├── domain/
 │   │       └── infrastructure/persistence/
 │   └── Shared/
+│       └── infrastructure/EventBus/Outbox/
 └── apps/mybandnow/backend/
 ```
 
 ## Handler de aplicación
 
 ```typescript
-// src/Contexts/Mybandnow/User/application/RegisterUser/RegisterUserCommandHandler.ts
+// src/Contexts/Identity/User/application/register/UserRegister.ts
 
-import { CommandHandler } from '@Contexts/Shared/domain/CommandBus/CommandHandler.js';
-import { Outbox } from '@Contexts/Shared/domain/Outbox.js';
-import Logger from '@Contexts/Shared/domain/Logger.js';
-import { ClientSession, MongoClient } from 'mongodb';
-import { RegisterUserCommand } from './RegisterUserCommand.js';
-import { UserRepository } from '../../domain/UserRepository.js';
-import { User } from '../../domain/User.js';
-
-export class RegisterUserCommandHandler implements CommandHandler<RegisterUserCommand> {
+export class UserRegister {
   constructor(
-    private readonly userRepository: UserRepository,
-    private readonly outbox: Outbox,
-    private readonly mongoClientPromise: Promise<MongoClient>,
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    private readonly persistenceRepository: UserPersistenceRepository,
+    private readonly passwordEncryptor: PasswordEncryptor,
+    private readonly eventBus: EventBus
   ) {}
 
-  async handle(command: RegisterUserCommand): Promise<void> {
-    const user = User.register({
-      id: command.id,
-      email: command.email,
-      name: command.name
-    });
+  async run({ id, email, password }: { id: string; email: string; password: string }): Promise<void> {
+    // criteria: filter by email (see UserRegister.ts for the full Criteria construction)
+    const [existingUser] = await this.persistenceRepository.matching(criteria);
 
-    const events = user.pullDomainEvents();
-    const mongoClient = await this.mongoClientPromise;
-    const session: ClientSession = mongoClient.startSession();
-
-    try {
-      await session.withTransaction(async () => {
-        await this.userRepository.save(user, session);
-        await this.outbox.save(events, session as never);
-      });
-    } catch (error) {
-      this.logger.error({ error, userId: user.id.value }, 'User registration failed');
-      throw error;
-    } finally {
-      await session.endSession();
+    if (existingUser) {
+      throw new UserAlreadyExistsException(email);
     }
+
+    const hashedPassword = await this.passwordEncryptor.hash(password);
+    const user = User.create(new UserId(id), new UserEmail(email), new UserPassword(hashedPassword));
+
+    await this.persistenceRepository.save(user);
+    await this.eventBus.publish(user.pullDomainEvents());
   }
 }
 ```
 
+El caso de uso no conoce Prisma ni el Outbox — solo llama a `save()` y publica lo que quede en el
+agregado tras guardarlo.
+
 ## Repositorio
 
-El puerto de dominio sigue siendo agnóstico de infraestructura. La implementación concreta acepta `session` como argumento opcional.
+El repositorio es quien realmente garantiza la atomicidad: guarda el agregado y sus eventos en el
+Outbox **dentro de la misma transacción de Prisma**, mirando los eventos sin vaciarlos (`drain: false`)
+para que el caso de uso pueda publicarlos después vía `EventBus`.
 
 ```typescript
-// src/Contexts/Mybandnow/User/infrastructure/persistence/UserMongoRepository.ts
+// src/Contexts/Identity/User/infrastructure/persistence/UserPrismaRepository.ts
 
-import { ClientSession } from 'mongodb';
+export class UserPrismaRepository implements UserPersistenceRepository {
+  private client = PrismaClientFactory.createClient();
 
-async save(user: User, session?: ClientSession): Promise<void> {
-  await this.persist(user, session);
+  constructor(private readonly outbox: Outbox) {}
+
+  async save(user: User): Promise<void> {
+    const data = user.toPrimitives();
+
+    // Peek at domain events without clearing them so the use case can still publish to EventBus
+    const events = user.pullDomainEvents({ drain: false });
+
+    await this.client.$transaction(async (tx) => {
+      await tx.user.upsert({ where: { id: data.id }, update: data, create: data });
+
+      if (events.length > 0) {
+        await this.outbox.save(events, tx as unknown as TransactionSession);
+      }
+    });
+  }
 }
 ```
 
@@ -96,29 +104,36 @@ async save(user: User, session?: ClientSession): Promise<void> {
 ```typescript
 // src/apps/mybandnow/backend/controllers/user/UserPostRegisterController.ts
 
-import { RegisterUserCommand } from '@Contexts/Mybandnow/User/application/RegisterUser/RegisterUserCommand.js';
-
-const command = RegisterUserCommand.fromPrimitives({
-  id: req.body.id,
-  email: req.body.email,
-  name: req.body.name
-});
-
+const command = new RegisterUserCommand(id, email, password);
 await this.commandBus.dispatch(command);
 ```
+
+`/v1/users/register` es público por diseño (`security: []` en el OpenAPI) — no hay usuario
+autenticado antes de crear la cuenta.
 
 ## Registro en DI
 
 ```typescript
-// src/apps/mybandnow/backend/config/dependency-injection/use-cases/user/registerUser.ts
+// src/apps/mybandnow/backend/config/dependency-injection/use-cases/user/userRegister.dependency.ts
 
 container
-  .register('Mybandnow.User.RegisterUserCommandHandler', RegisterUserCommandHandler)
-  .addArgument(new Reference('Mybandnow.User.UserRepository'))
-  .addArgument(new Reference('Shared.Outbox'))
-  .addArgument(new Reference('Shared.MongoConnectionManager'))
+  .register('Identity.User.UserRegister', UserRegister)
   .addArgument(new Reference('Shared.BunyanLogger'))
-  .addTag('commandHandler', { command: 'RegisterUserCommand' });
+  .addArgument(new Reference('Identity.User.UserRepository'))
+  .addArgument(new Reference('Identity.User.PasswordEncryptor'))
+  .addArgument(new Reference('Shared.EventBus'));
+
+container
+  .register('Identity.User.RegisterUserCommandHandler', RegisterUserCommandHandler)
+  .addArgument(new Reference('Identity.User.UserRegister'))
+  .addTag('commandHandler');
+```
+
+`Identity.User.UserRepository` se registra aparte, con el Outbox como dependencia, en
+`src/apps/mybandnow/backend/config/dependency-injection/dependencies/mybandnowDependencies.ts`:
+
+```typescript
+container.register('Identity.User.UserRepository', UserPrismaRepository).addArgument(new Reference('Shared.Outbox'));
 ```
 
 ## Qué resuelve
@@ -130,22 +145,26 @@ await userRepository.save(user);
 await outbox.save(events);
 ```
 
-Si `outbox.save()` falla, el agregado puede quedar persistido sin evento.
+Si el proceso cae entre esas dos líneas, el usuario queda persistido pero su evento de dominio se
+pierde silenciosamente — nadie más se entera de que se creó. Fue exactamente el bug que se encontró
+y arregló en `Musician` y `Videoclip` (ver outbox de este mismo repositorio).
 
-Con transacción:
+Con transacción (el patrón real de este proyecto):
 
 ```typescript
-await session.withTransaction(async () => {
-  await userRepository.save(user, session);
-  await outbox.save(events, session as never);
+await client.$transaction(async (tx) => {
+  await tx.user.upsert(data);
+  await outbox.save(events, tx);
 });
 ```
 
-Ambas escrituras se confirman o se revierten juntas.
+Ambas escrituras se confirman o se revierten juntas: no hay estado intermedio donde el agregado
+existe pero su evento no.
 
 ## Resumen
 
-- El dominio emite eventos, pero no conoce MongoDB.
-- La aplicación orquesta la transacción.
-- Infraestructura adapta `session` al repositorio y al Outbox.
-- `apps/` solo despacha comandos; no coordina persistencia.
+- El dominio (`User`) emite eventos, pero no conoce Prisma ni el Outbox.
+- La aplicación (`UserRegister`) orquesta: valida, guarda, publica — no abre transacciones.
+- La infraestructura (`UserPrismaRepository`) es quien abre la transacción de Prisma y persiste
+  agregado + outbox atómicamente.
+- `apps/` solo despacha el comando; no coordina persistencia ni conoce el Outbox.
