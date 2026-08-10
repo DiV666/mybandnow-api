@@ -3,7 +3,7 @@ import { DomainEvent } from '@Contexts/Shared/domain/DomainEvent.js';
 import Logger from '@Contexts/Shared/domain/Logger.js';
 import { Exception } from '@Contexts/Shared/domain/Exception.js';
 import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
-import { SongInstrumentUploadUpdateStatusCommand } from '@Contexts/Moat/SongInstrumentUpload/application/updateStatus/SongInstrumentUploadUpdateStatusCommand.js';
+import { SongInstrumentUploadUpdateStatusCommand } from '@Contexts/SongInstrument/Upload/application/updateStatus/SongInstrumentUploadUpdateStatusCommand.js';
 import { CommandBusResolver } from './ValidateSongInstrumentUploadOnUploadRequested.js';
 
 export class CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted implements DomainEventSubscriber {

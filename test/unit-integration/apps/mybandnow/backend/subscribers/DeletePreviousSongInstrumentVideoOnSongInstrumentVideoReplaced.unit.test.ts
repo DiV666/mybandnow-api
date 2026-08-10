@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mock, MockProxy } from 'vitest-mock-extended';
 import { DeletePreviousSongInstrumentVideoOnSongInstrumentVideoReplaced } from '../../../../../../src/apps/mybandnow/backend/subscribers/DeletePreviousSongInstrumentVideoOnSongInstrumentVideoReplaced.js';
-import { SongInstrumentVideoReplacedDomainEvent } from '../../../../../../src/Contexts/Moat/SongInstrumentVideo/domain/SongInstrumentVideoReplacedDomainEvent.js';
-import { DeletePreviousSongInstrumentVideoCommand } from '../../../../../../src/Contexts/Moat/SongInstrumentVideo/application/deletePrevious/DeletePreviousSongInstrumentVideoCommand.js';
+import { SongInstrumentVideoReplacedDomainEvent } from '../../../../../../src/Contexts/SongInstrument/Video/domain/SongInstrumentVideoReplacedDomainEvent.js';
+import { DeletePreviousSongInstrumentVideoCommand } from '../../../../../../src/Contexts/SongInstrument/Video/application/deletePrevious/DeletePreviousSongInstrumentVideoCommand.js';
 import type { CommandBus } from '../../../../../../src/Contexts/Shared/domain/CommandBus.js';
 import type Logger from '../../../../../../src/Contexts/Shared/domain/Logger.js';
 import { InvalidArgumentException } from '../../../../../../src/Contexts/Shared/domain/exceptions/InvalidArgumentException.js';

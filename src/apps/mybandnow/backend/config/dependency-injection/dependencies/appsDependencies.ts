@@ -36,7 +36,7 @@ import { FailSongInstrumentUploadOnSongInstrumentProcessFailed } from '../../../
 import { CreateSongInstrumentVideoOnSongInstrumentUploadCompleted } from '../../../subscribers/CreateSongInstrumentVideoOnSongInstrumentUploadCompleted.js';
 import { DeletePreviousSongInstrumentVideoOnSongInstrumentVideoReplaced } from '../../../subscribers/DeletePreviousSongInstrumentVideoOnSongInstrumentVideoReplaced.js';
 import { EnrichSongOriginalVideoClipDurationOnSongCreated } from '../../../subscribers/EnrichSongOriginalVideoClipDurationOnSongCreated.js';
-import { SongCreatedDomainEvent } from '@Contexts/Moat/Song/domain/SongCreatedDomainEvent.js';
+import { SongCreatedDomainEvent } from '@Contexts/Song/domain/SongCreatedDomainEvent.js';
 import type { CommandBus } from '@Contexts/Shared/domain/CommandBus.js';
 import { MultipartFileParser } from '@Contexts/Shared/infrastructure/Express/MultipartFileParser.js';
 
@@ -87,7 +87,7 @@ export function registerAppsDependencies(container: ContainerBuilder) {
 
   container
     .register('Apps.Mybandnow.Backend.middlewares.RequireMusicianProfileMiddleware', RequireMusicianProfileMiddleware)
-    .addArgument(new Reference('Moat.Musician.MusicianSearchByUserId'));
+    .addArgument(new Reference('Musician.MusicianSearchByUserId'));
 
   // Subscribers
   container
@@ -98,7 +98,7 @@ export function registerAppsDependencies(container: ContainerBuilder) {
     .addArgument('moat.song_instrument_upload.upload_requested')
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(() => container.get<CommandBus>('Shared.CommandBus'))
-    .addArgument(new Reference('Moat.Song.SongRepository'))
+    .addArgument(new Reference('Song.SongRepository'))
     .addTag('domainEventSubscriber');
 
   container

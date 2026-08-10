@@ -8,9 +8,9 @@ import type { CommandBus } from '../../../../../../../src/Contexts/Shared/domain
 import type { QueryBus } from '../../../../../../../src/Contexts/Shared/domain/QueryBus.js';
 import ApiExceptionsHttpStatusCodeMapping from '../../../../../../../src/Contexts/Shared/infrastructure/Express/ApiExceptionsHttpStatusCodeMapping.js';
 import InstrumentsGetSearchController from '../../../../../../../src/apps/mybandnow/backend/controllers/instruments/InstrumentsGetSearchController.js';
-import { SearchInstrumentsQuery } from '../../../../../../../src/Contexts/Moat/Instruments/application/search/SearchInstrumentsQuery.js';
-import { SearchInstrumentsResponse } from '../../../../../../../src/Contexts/Moat/Instruments/application/search/SearchInstrumentsResponse.js';
-import { InstrumentsMother } from '../../../../../../../test/unit-integration/Contexts/Moat/Instruments/domain/InstrumentsMother.js';
+import { SearchInstrumentsQuery } from '../../../../../../../src/Contexts/Instruments/application/search/SearchInstrumentsQuery.js';
+import { SearchInstrumentsResponse } from '../../../../../../../src/Contexts/Instruments/application/search/SearchInstrumentsResponse.js';
+import { InstrumentsMother } from '../../../../../../../test/unit-integration/Contexts/Instruments/domain/InstrumentsMother.js';
 
 describe('InstrumentsGetSearchController', () => {
   it('returns the requested instrument for an authenticated user', async () => {

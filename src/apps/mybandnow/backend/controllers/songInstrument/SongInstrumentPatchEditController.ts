@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { Context } from 'openapi-backend';
-import { MusicianSearchByUserIdQuery } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
-import { MusicianSearchByUserIdResponse } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { SongInstrumentCheckSongOwnershipQuery } from '@Contexts/Moat/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnershipQuery.js';
-import { SongInstrumentCheckSongOwnershipResponse } from '@Contexts/Moat/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnershipResponse.js';
-import { EditSongInstrumentCommand } from '@Contexts/Moat/SongInstrument/application/edit/EditSongInstrumentCommand.js';
-import { SongInstrumentNotExistException } from '@Contexts/Moat/SongInstrument/domain/exception/SongInstrumentNotExistException.js';
+import { MusicianSearchByUserIdQuery } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserIdResponse } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { SongInstrumentCheckSongOwnershipQuery } from '@Contexts/SongInstrument/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnershipQuery.js';
+import { SongInstrumentCheckSongOwnershipResponse } from '@Contexts/SongInstrument/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnershipResponse.js';
+import { EditSongInstrumentCommand } from '@Contexts/SongInstrument/SongInstrument/application/edit/EditSongInstrumentCommand.js';
+import { SongInstrumentNotExistException } from '@Contexts/SongInstrument/SongInstrument/domain/exception/SongInstrumentNotExistException.js';
 import { ForbiddenException } from '@Contexts/Shared/domain/exceptions/ForbiddenException.js';
 import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
 import ApiController from '@Contexts/Shared/infrastructure/Express/ApiController.js';

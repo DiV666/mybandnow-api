@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { Context } from 'openapi-backend';
-import { MusicianSearchByUserIdQuery } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
-import { MusicianSearchByUserIdResponse } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { SongCheckBandMembershipQuery } from '@Contexts/Moat/Song/application/checkBandMembership/SongCheckBandMembershipQuery.js';
-import { SongCheckBandMembershipResponse } from '@Contexts/Moat/Song/application/checkBandMembership/SongCheckBandMembershipResponse.js';
-import { CreateSongCommand } from '@Contexts/Moat/Song/application/create/CreateSongCommand.js';
-import { SongExistException } from '@Contexts/Moat/Song/domain/exception/SongExistException.js';
+import { MusicianSearchByUserIdQuery } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserIdResponse } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { SongCheckBandMembershipQuery } from '@Contexts/Song/application/checkBandMembership/SongCheckBandMembershipQuery.js';
+import { SongCheckBandMembershipResponse } from '@Contexts/Song/application/checkBandMembership/SongCheckBandMembershipResponse.js';
+import { CreateSongCommand } from '@Contexts/Song/application/create/CreateSongCommand.js';
+import { SongExistException } from '@Contexts/Song/domain/exception/SongExistException.js';
 import { ForbiddenException } from '@Contexts/Shared/domain/exceptions/ForbiddenException.js';
 import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
 import ApiController from '@Contexts/Shared/infrastructure/Express/ApiController.js';

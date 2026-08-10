@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mock, MockProxy } from 'vitest-mock-extended';
 import { CreateSongInstrumentVideoOnSongInstrumentUploadCompleted } from '../../../../../../src/apps/mybandnow/backend/subscribers/CreateSongInstrumentVideoOnSongInstrumentUploadCompleted.js';
-import { SongInstrumentUploadCompletedDomainEvent } from '../../../../../../src/Contexts/Moat/SongInstrumentUpload/domain/SongInstrumentUploadCompletedDomainEvent.js';
-import { CreateSongInstrumentVideoCommand } from '../../../../../../src/Contexts/Moat/SongInstrumentVideo/application/create/CreateSongInstrumentVideoCommand.js';
+import { SongInstrumentUploadCompletedDomainEvent } from '../../../../../../src/Contexts/SongInstrument/Upload/domain/SongInstrumentUploadCompletedDomainEvent.js';
+import { CreateSongInstrumentVideoCommand } from '../../../../../../src/Contexts/SongInstrument/Video/application/create/CreateSongInstrumentVideoCommand.js';
 import type { CommandBus } from '../../../../../../src/Contexts/Shared/domain/CommandBus.js';
 import type Logger from '../../../../../../src/Contexts/Shared/domain/Logger.js';
 import { InvalidArgumentException } from '../../../../../../src/Contexts/Shared/domain/exceptions/InvalidArgumentException.js';

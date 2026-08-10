@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { Context } from 'openapi-backend';
-import { MusicianSearchByUserIdQuery } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
-import { MusicianSearchByUserIdResponse } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { MatchByCriteriaSongQuery } from '@Contexts/Moat/Song/application/matchByCriteria/MatchByCriteriaSongQuery.js';
-import { MatchByCriteriaSongResponse } from '@Contexts/Moat/Song/application/matchByCriteria/MatchByCriteriaSongResponse.js';
+import { MusicianSearchByUserIdQuery } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserIdResponse } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { MatchByCriteriaSongQuery } from '@Contexts/Song/application/matchByCriteria/MatchByCriteriaSongQuery.js';
+import { MatchByCriteriaSongResponse } from '@Contexts/Song/application/matchByCriteria/MatchByCriteriaSongResponse.js';
 import { ForbiddenException } from '@Contexts/Shared/domain/exceptions/ForbiddenException.js';
 import ApiController from '@Contexts/Shared/infrastructure/Express/ApiController.js';
 import { queryParamsToCriteria } from '@Contexts/Shared/infrastructure/Http/utils/criteria.utils.js';

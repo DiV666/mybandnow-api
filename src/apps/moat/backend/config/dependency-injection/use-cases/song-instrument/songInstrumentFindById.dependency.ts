@@ -1,18 +1,18 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
-import { SongInstrumentFindById } from '@Contexts/Moat/SongInstrument/application/findById/SongInstrumentFindById.js';
-import { SongInstrumentFindByIdQueryHandler } from '@Contexts/Moat/SongInstrument/application/findById/SongInstrumentFindByIdQueryHandler.js';
+import { SongInstrumentFindById } from '@Contexts/SongInstrument/SongInstrument/application/findById/SongInstrumentFindById.js';
+import { SongInstrumentFindByIdQueryHandler } from '@Contexts/SongInstrument/SongInstrument/application/findById/SongInstrumentFindByIdQueryHandler.js';
 
 export function register(container: ContainerBuilder) {
   container
-    .register('Moat.SongInstrument.SongInstrumentFindById', SongInstrumentFindById)
-    .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'))
-    .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'))
-    .addArgument(new Reference('Moat.SongInstrumentVideo.SongInstrumentVideoRepository'))
-    .addArgument(new Reference('Moat.SongInstrumentUpload.SongInstrumentUploadRepository'))
+    .register('SongInstrument.SongInstrument.SongInstrumentFindById', SongInstrumentFindById)
+    .addArgument(new Reference('SongInstrument.SongInstrument.SongInstrumentRepository'))
+    .addArgument(new Reference('SongInstrument.SongInstrument.SongInstrumentRepository'))
+    .addArgument(new Reference('SongInstrument.Video.SongInstrumentVideoRepository'))
+    .addArgument(new Reference('SongInstrument.Upload.SongInstrumentUploadRepository'))
     .addArgument(new Reference('Shared.StorageRepository'));
 
   container
-    .register('Moat.SongInstrument.SongInstrumentFindByIdQueryHandler', SongInstrumentFindByIdQueryHandler)
-    .addArgument(new Reference('Moat.SongInstrument.SongInstrumentFindById'))
+    .register('SongInstrument.SongInstrument.SongInstrumentFindByIdQueryHandler', SongInstrumentFindByIdQueryHandler)
+    .addArgument(new Reference('SongInstrument.SongInstrument.SongInstrumentFindById'))
     .addTag('queryHandler');
 }

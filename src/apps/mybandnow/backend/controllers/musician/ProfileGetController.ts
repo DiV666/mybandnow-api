@@ -2,9 +2,9 @@ import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { Context } from 'openapi-backend';
 import ApiController from '../../../../../Contexts/Shared/infrastructure/Express/ApiController.js';
-import { MusicianSearchByUserIdQuery } from '../../../../../Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserIdQuery } from '../../../../../Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
 
-import { MusicianSearchByUserIdResponse } from '../../../../../Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { MusicianSearchByUserIdResponse } from '../../../../../Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
 
 export default class ProfileGetController extends ApiController {
   async run(context: Context, req: Request, res: Response): Promise<void> {

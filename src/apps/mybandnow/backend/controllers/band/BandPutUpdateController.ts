@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { Context } from 'openapi-backend';
-import { UpdateBandCommand } from '@Contexts/Moat/Band/application/update/UpdateBandCommand.js';
+import { UpdateBandCommand } from '@Contexts/Band/application/update/UpdateBandCommand.js';
 import ApiController from '@Contexts/Shared/infrastructure/Express/ApiController.js';
 
 export default class BandPutUpdateController extends ApiController {

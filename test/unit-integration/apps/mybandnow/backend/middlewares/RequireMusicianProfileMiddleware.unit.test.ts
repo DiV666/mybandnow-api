@@ -2,9 +2,9 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { mock, MockProxy } from 'vitest-mock-extended';
 import type { Context } from 'openapi-backend';
 import { ForbiddenException } from '../../../../../../src/Contexts/Shared/domain/exceptions/ForbiddenException.js';
-import { MusicianSearchByUserId } from '../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserId.js';
-import { MusicianSearchByUserIdResponse } from '../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { MusicianSearchByUserIdQuery } from '../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserId } from '../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserId.js';
+import { MusicianSearchByUserIdResponse } from '../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { MusicianSearchByUserIdQuery } from '../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
 import { RequireMusicianProfileMiddleware } from '../../../../../../src/apps/mybandnow/backend/middlewares/RequireMusicianProfileMiddleware.js';
 
 describe('RequireMusicianProfileMiddleware', () => {

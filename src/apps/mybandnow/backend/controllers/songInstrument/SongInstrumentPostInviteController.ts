@@ -1,10 +1,14 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { Context } from 'openapi-backend';
-import { MusicianSearchByUserIdQuery } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
-import { MusicianSearchByUserIdResponse } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { InviteSongInstrumentMusicianCommand } from '@Contexts/Moat/SongInstrument/application/invite/InviteSongInstrumentMusicianCommand.js';
-import { SongInstrumentNotExistException } from '@Contexts/Moat/SongInstrument/domain/exception/SongInstrumentNotExistException.js';
+import { MusicianSearchByUserIdQuery } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserIdResponse } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { MusicianSearchByEmailQuery } from '@Contexts/Musician/application/searchByEmail/MusicianSearchByEmailQuery.js';
+import { MusicianSearchByEmailResponse } from '@Contexts/Musician/application/searchByEmail/MusicianSearchByEmailResponse.js';
+import { SongFindByIdQuery } from '@Contexts/Song/application/findById/SongFindByIdQuery.js';
+import { SongFindByIdResponse } from '@Contexts/Song/application/findById/SongFindByIdResponse.js';
+import { InviteSongInstrumentMusicianCommand } from '@Contexts/SongInstrument/SongInstrument/application/invite/InviteSongInstrumentMusicianCommand.js';
+import { SongInstrumentNotExistException } from '@Contexts/SongInstrument/SongInstrument/domain/exception/SongInstrumentNotExistException.js';
 import { ForbiddenException } from '@Contexts/Shared/domain/exceptions/ForbiddenException.js';
 import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
 import ApiController from '@Contexts/Shared/infrastructure/Express/ApiController.js';
@@ -28,8 +32,31 @@ export default class SongInstrumentPostInviteController extends ApiController {
       throw new ForbiddenException('Profile required');
     }
 
+    const invitedMusicianResponse = await this.queryBus.ask<MusicianSearchByEmailResponse>(
+      new MusicianSearchByEmailQuery(musicianEmail)
+    );
+
+    if (!invitedMusicianResponse.musician) {
+      throw new InvalidArgumentException({
+        code: 'INVALID_ARGUMENT',
+        message: 'The provided musician email is not valid for song instrument assignment.'
+      });
+    }
+
+    const songResponse = await this.queryBus.ask<SongFindByIdResponse>(new SongFindByIdQuery(songId));
+
+    if (!songResponse.song) {
+      throw new SongInstrumentNotExistException(songInstrumentId);
+    }
+
     await this.commandBus.dispatch(
-      new InviteSongInstrumentMusicianCommand(songId, songInstrumentId, musicianResponse.musician.id, musicianEmail)
+      new InviteSongInstrumentMusicianCommand(
+        songId,
+        songInstrumentId,
+        musicianResponse.musician.id,
+        invitedMusicianResponse.musician.id,
+        songResponse.song.bandId
+      )
     );
 
     res.status(httpStatus.OK).end();

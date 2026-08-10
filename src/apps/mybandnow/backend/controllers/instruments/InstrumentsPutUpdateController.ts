@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { Context } from 'openapi-backend';
-import { UpdateInstrumentsCommand } from '@Contexts/Moat/Instruments/application/update/UpdateInstrumentsCommand.js';
+import { UpdateInstrumentsCommand } from '@Contexts/Instruments/application/update/UpdateInstrumentsCommand.js';
 import ApiController from '@Contexts/Shared/infrastructure/Express/ApiController.js';
 
 export default class InstrumentsPutUpdateController extends ApiController {

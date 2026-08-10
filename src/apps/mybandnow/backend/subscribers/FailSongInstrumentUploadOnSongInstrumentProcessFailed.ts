@@ -2,9 +2,9 @@ import { DomainEventSubscriber } from '@Contexts/Shared/infrastructure/EventBus/
 import { DomainEvent } from '@Contexts/Shared/domain/DomainEvent.js';
 import Logger from '@Contexts/Shared/domain/Logger.js';
 import { Exception } from '@Contexts/Shared/domain/Exception.js';
-import { SongInstrumentUploadUpdateStatusCommand } from '@Contexts/Moat/SongInstrumentUpload/application/updateStatus/SongInstrumentUploadUpdateStatusCommand.js';
-import { SongInstrumentUploadStatusValues } from '@Contexts/Moat/SongInstrumentUpload/domain/value-object/SongInstrumentUploadStatus.js';
-import { SongInstrumentUploadNotExistException } from '@Contexts/Moat/SongInstrumentUpload/domain/exception/SongInstrumentUploadNotExistException.js';
+import { SongInstrumentUploadUpdateStatusCommand } from '@Contexts/SongInstrument/Upload/application/updateStatus/SongInstrumentUploadUpdateStatusCommand.js';
+import { SongInstrumentUploadStatusValues } from '@Contexts/SongInstrument/Upload/domain/value-object/SongInstrumentUploadStatus.js';
+import { SongInstrumentUploadNotExistException } from '@Contexts/SongInstrument/Upload/domain/exception/SongInstrumentUploadNotExistException.js';
 import { NonRetryableException } from '@Contexts/Shared/domain/exceptions/NonRetryableException.js';
 import { CommandBusResolver } from './ValidateSongInstrumentUploadOnUploadRequested.js';
 

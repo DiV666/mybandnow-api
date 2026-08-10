@@ -8,9 +8,9 @@ import type { CommandBus } from '../../../../../../../src/Contexts/Shared/domain
 import type { QueryBus } from '../../../../../../../src/Contexts/Shared/domain/QueryBus.js';
 import ApiExceptionsHttpStatusCodeMapping from '../../../../../../../src/Contexts/Shared/infrastructure/Express/ApiExceptionsHttpStatusCodeMapping.js';
 import MusicianGetByIdController from '../../../../../../../src/apps/mybandnow/backend/controllers/musician/MusicianGetByIdController.js';
-import { MusicianFindByIdQuery } from '../../../../../../../src/Contexts/Moat/Musician/application/findById/MusicianFindByIdQuery.js';
-import { MusicianFindByIdResponse } from '../../../../../../../src/Contexts/Moat/Musician/application/findById/MusicianFindByIdResponse.js';
-import { MusicianNotExistException } from '../../../../../../../src/Contexts/Moat/Musician/domain/exception/MusicianNotExistException.js';
+import { MusicianFindByIdQuery } from '../../../../../../../src/Contexts/Musician/application/findById/MusicianFindByIdQuery.js';
+import { MusicianFindByIdResponse } from '../../../../../../../src/Contexts/Musician/application/findById/MusicianFindByIdResponse.js';
+import { MusicianNotExistException } from '../../../../../../../src/Contexts/Musician/domain/exception/MusicianNotExistException.js';
 
 describe('MusicianGetByIdController', () => {
   it('returns the public musician profile for the requested id', async () => {

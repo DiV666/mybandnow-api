@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mock, MockProxy } from 'vitest-mock-extended';
 import { ValidateSongInstrumentUploadOnUploadRequested } from '../../../../../../src/apps/mybandnow/backend/subscribers/ValidateSongInstrumentUploadOnUploadRequested.js';
-import { SongInstrumentUploadRequestedDomainEvent } from '../../../../../../src/Contexts/Moat/SongInstrumentUpload/domain/SongInstrumentUploadRequestedDomainEvent.js';
+import { SongInstrumentUploadRequestedDomainEvent } from '../../../../../../src/Contexts/SongInstrument/Upload/domain/SongInstrumentUploadRequestedDomainEvent.js';
 import { SongInstrumentProcessValidateCommand } from '../../../../../../src/Contexts/Orchestrator/SongInstrumentProcess/application/SongInstrumentProcessValidateCommand.js';
 import type { CommandBus } from '../../../../../../src/Contexts/Shared/domain/CommandBus.js';
 import type Logger from '../../../../../../src/Contexts/Shared/domain/Logger.js';
 import { InvalidArgumentException } from '../../../../../../src/Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
-import type { SongPersistenceRepository } from '../../../../../../src/Contexts/Moat/Song/domain/repository/SongPersistenceRepository.js';
-import { Song } from '../../../../../../src/Contexts/Moat/Song/domain/Song.js';
+import type { SongPersistenceRepository } from '../../../../../../src/Contexts/Song/domain/repository/SongPersistenceRepository.js';
+import { Song } from '../../../../../../src/Contexts/Song/domain/Song.js';
 
 const BAND_ID = '32345678-1234-4234-8234-123456789012';
 

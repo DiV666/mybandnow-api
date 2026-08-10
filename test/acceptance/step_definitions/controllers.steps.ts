@@ -13,16 +13,16 @@ setDefaultTimeout(20000);
 import { v5 as uuidv5 } from 'uuid';
 import { PasswordEncryptor } from '@Contexts/Identity/User/domain/service/PasswordEncryptor.js';
 import { UserPersistenceRepository } from '@Contexts/Identity/User/domain/repository/UserPersistenceRepository.js';
-import { MusicianRepository } from '@Contexts/Moat/Musician/domain/repository/MusicianRepository.js';
+import { MusicianRepository } from '@Contexts/Musician/domain/repository/MusicianRepository.js';
 import { User } from '@Contexts/Identity/User/domain/User.js';
 import { UserId } from '@Contexts/Identity/User/domain/value-object/UserId.js';
 import { UserEmail } from '@Contexts/Identity/User/domain/value-object/UserEmail.js';
 import { UserPassword } from '@Contexts/Identity/User/domain/value-object/UserPassword.js';
-import { Musician } from '@Contexts/Moat/Musician/domain/Musician.js';
-import { MusicianId } from '@Contexts/Moat/Musician/domain/value-object/MusicianId.js';
-import { MusicianUserId } from '@Contexts/Moat/Musician/domain/value-object/MusicianUserId.js';
-import { MusicianName } from '@Contexts/Moat/Musician/domain/value-object/MusicianName.js';
-import { MusicianUsername } from '@Contexts/Moat/Musician/domain/value-object/MusicianUsername.js';
+import { Musician } from '@Contexts/Musician/domain/Musician.js';
+import { MusicianId } from '@Contexts/Musician/domain/value-object/MusicianId.js';
+import { MusicianUserId } from '@Contexts/Musician/domain/value-object/MusicianUserId.js';
+import { MusicianName } from '@Contexts/Musician/domain/value-object/MusicianName.js';
+import { MusicianUsername } from '@Contexts/Musician/domain/value-object/MusicianUsername.js';
 import { PrismaClientFactory } from '@Contexts/Shared/infrastructure/persistence/prisma/PrismaClientFactory.js';
 
 const DEFAULT_CATALOG_INSTRUMENT_ID = '0e7a0d5f-3d2a-4bc1-8d4d-100000000001';
@@ -332,7 +332,7 @@ interface SaveMusicianProfileParams {
 }
 
 async function saveMusicianProfile({ musicianId, username, userIdValue }: SaveMusicianProfileParams): Promise<void> {
-  const musicianRepository = container.get<MusicianRepository>('Moat.Musician.MusicianRepository');
+  const musicianRepository = container.get<MusicianRepository>('Musician.MusicianRepository');
   const musician = new Musician(
     new MusicianId(musicianId ?? MusicianId.random()),
     new MusicianUsername(username),

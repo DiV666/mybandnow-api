@@ -1,11 +1,11 @@
 import { register as registerUserLogin } from '../use-cases/user/userLogin.dependency.js';
 import { LocalJwtBearerToken } from '@Contexts/Identity/Shared/infrastructure/Authentication/LocalJwtBearerToken.js';
 import { UserPrismaRepository } from '@Contexts/Identity/User/infrastructure/persistence/UserPrismaRepository.js';
-import { PrismaMusicianRepository } from '@Contexts/Moat/Musician/infrastructure/persistence/PrismaMusicianRepository.js';
-import { MusicianSearchByEmail } from '@Contexts/Moat/Musician/application/searchByEmail/MusicianSearchByEmail.js';
-import { MusicianSearchByEmailQueryHandler } from '@Contexts/Moat/Musician/application/searchByEmail/MusicianSearchByEmailQueryHandler.js';
-import { MusicianSearchByUserIdQueryHandler } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQueryHandler.js';
-import { MusicianSearchByUserId } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserId.js';
+import { PrismaMusicianRepository } from '@Contexts/Musician/infrastructure/persistence/PrismaMusicianRepository.js';
+import { MusicianSearchByEmail } from '@Contexts/Musician/application/searchByEmail/MusicianSearchByEmail.js';
+import { MusicianSearchByEmailQueryHandler } from '@Contexts/Musician/application/searchByEmail/MusicianSearchByEmailQueryHandler.js';
+import { MusicianSearchByUserIdQueryHandler } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQueryHandler.js';
+import { MusicianSearchByUserId } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserId.js';
 import { register as registerUserRegister } from '../use-cases/user/userRegister.dependency.js';
 import { register as registerMusicianCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/musician/musicianCreator.dependency.js';
 import { register as registerMusicianFindById } from '@Apps/moat/backend/config/dependency-injection/use-cases/musician/musicianFindById.dependency.js';
@@ -16,6 +16,7 @@ import { register as registerBandUpdater } from '@Apps/moat/backend/config/depen
 import { register as registerBandRemover } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandRemover.dependency.js';
 import { register as registerBandFinder } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandFinder.dependency.js';
 import { register as registerBandMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandMatcher.dependency.js';
+import { register as registerSongInstrumentBandMembershipGateway } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentBandMembershipGateway.dependency.js';
 import { register as registerSongInstrumentAssigner } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentAssigner.dependency.js';
 import { register as registerSongInstrumentEditor } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentEditor.dependency.js';
 import { register as registerSongInstrumentInviter } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentInviter.dependency.js';
@@ -30,25 +31,26 @@ import { register as registerSongInstrumentUploadStatusUpdater } from '@Apps/moa
 import { register as registerInstrumentsFinder } from '@Apps/moat/backend/config/dependency-injection/use-cases/instruments/instrumentsFinder.dependency.js';
 import { register as registerInstrumentsMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/instruments/instrumentsMatcher.dependency.js';
 import { register as registerInstrumentsUpdater } from '@Apps/moat/backend/config/dependency-injection/use-cases/instruments/instrumentsUpdater.dependency.js';
-import { BandPrismaRepository } from '@Contexts/Moat/Band/infrastructure/persistence/BandPrismaRepository.js';
-import { SongPrismaRepository } from '@Contexts/Moat/Song/infrastructure/persistence/SongPrismaRepository.js';
-import { SongCheckBandMembership } from '@Contexts/Moat/Song/application/checkBandMembership/SongCheckBandMembership.js';
-import { SongCheckBandMembershipQueryHandler } from '@Contexts/Moat/Song/application/checkBandMembership/SongCheckBandMembershipQueryHandler.js';
-import { SongCreator } from '@Contexts/Moat/Song/application/create/SongCreator.js';
-import { CreateSongCommandHandler } from '@Contexts/Moat/Song/application/create/CreateSongCommandHandler.js';
-import { EnrichSongOriginalVideoClipDurationCommandHandler } from '@Contexts/Moat/Song/application/enrichOriginalVideoClipDuration/EnrichSongOriginalVideoClipDurationCommandHandler.js';
-import { SongOriginalVideoClipDurationEnricher } from '@Contexts/Moat/Song/application/enrichOriginalVideoClipDuration/SongOriginalVideoClipDurationEnricher.js';
-import { SongListByBand } from '@Contexts/Moat/Song/application/listByBand/SongListByBand.js';
-import { SongListByBandQueryHandler } from '@Contexts/Moat/Song/application/listByBand/SongListByBandQueryHandler.js';
-import { YouTubeOriginalVideoClipDurationProvider } from '@Contexts/Moat/Song/infrastructure/YouTubeOriginalVideoClipDurationProvider.js';
+import { BandPrismaRepository } from '@Contexts/Band/infrastructure/persistence/BandPrismaRepository.js';
+import { SongPrismaRepository } from '@Contexts/Song/infrastructure/persistence/SongPrismaRepository.js';
+import { SongCheckBandMembership } from '@Contexts/Song/application/checkBandMembership/SongCheckBandMembership.js';
+import { SongCheckBandMembershipQueryHandler } from '@Contexts/Song/application/checkBandMembership/SongCheckBandMembershipQueryHandler.js';
+import { SongCreator } from '@Contexts/Song/application/create/SongCreator.js';
+import { CreateSongCommandHandler } from '@Contexts/Song/application/create/CreateSongCommandHandler.js';
+import { EnrichSongOriginalVideoClipDurationCommandHandler } from '@Contexts/Song/application/enrichOriginalVideoClipDuration/EnrichSongOriginalVideoClipDurationCommandHandler.js';
+import { SongOriginalVideoClipDurationEnricher } from '@Contexts/Song/application/enrichOriginalVideoClipDuration/SongOriginalVideoClipDurationEnricher.js';
+import { SongListByBand } from '@Contexts/Song/application/listByBand/SongListByBand.js';
+import { SongListByBandQueryHandler } from '@Contexts/Song/application/listByBand/SongListByBandQueryHandler.js';
+import { YouTubeOriginalVideoClipDurationProvider } from '@Contexts/Song/infrastructure/YouTubeOriginalVideoClipDurationProvider.js';
 import { register as registerSongMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/song/songMatcher.dependency.js';
-import { SongInstrumentPrismaRepository } from '@Contexts/Moat/SongInstrument/infrastructure/persistence/SongInstrumentPrismaRepository.js';
-import { SongInstrumentVideoPrismaRepository } from '@Contexts/Moat/SongInstrumentVideo/infrastructure/persistence/SongInstrumentVideoPrismaRepository.js';
-import { SongInstrumentCheckSongOwnership } from '@Contexts/Moat/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnership.js';
-import { SongInstrumentCheckSongOwnershipQueryHandler } from '@Contexts/Moat/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnershipQueryHandler.js';
-import { SongInstrumentUploadPrismaRepository } from '@Contexts/Moat/SongInstrumentUpload/infrastructure/persistence/SongInstrumentUploadPrismaRepository.js';
-import { VideoclipPrismaRepository } from '@Contexts/Moat/Videoclip/infrastructure/persistence/VideoclipPrismaRepository.js';
-import { InstrumentsPrismaRepository } from '@Contexts/Moat/Instruments/infrastructure/persistence/InstrumentsPrismaRepository.js';
+import { register as registerSongFindById } from '@Apps/moat/backend/config/dependency-injection/use-cases/song/songFindById.dependency.js';
+import { SongInstrumentPrismaRepository } from '@Contexts/SongInstrument/SongInstrument/infrastructure/persistence/SongInstrumentPrismaRepository.js';
+import { SongInstrumentVideoPrismaRepository } from '@Contexts/SongInstrument/Video/infrastructure/persistence/SongInstrumentVideoPrismaRepository.js';
+import { SongInstrumentCheckSongOwnership } from '@Contexts/SongInstrument/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnership.js';
+import { SongInstrumentCheckSongOwnershipQueryHandler } from '@Contexts/SongInstrument/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnershipQueryHandler.js';
+import { SongInstrumentUploadPrismaRepository } from '@Contexts/SongInstrument/Upload/infrastructure/persistence/SongInstrumentUploadPrismaRepository.js';
+import { VideoclipPrismaRepository } from '@Contexts/Videoclip/infrastructure/persistence/VideoclipPrismaRepository.js';
+import { InstrumentsPrismaRepository } from '@Contexts/Instruments/infrastructure/persistence/InstrumentsPrismaRepository.js';
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 
 import { InternalAuthentication } from '@Contexts/Identity/Shared/infrastructure/identityServer/internal/InternalAuthentication.js';
@@ -73,34 +75,34 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   // Repositories
   container.register('Identity.User.UserRepository', UserPrismaRepository).addArgument(new Reference('Shared.Outbox'));
   container
-    .register('Moat.Musician.MusicianRepository', PrismaMusicianRepository)
+    .register('Musician.MusicianRepository', PrismaMusicianRepository)
     .addArgument(new Reference('Shared.Outbox'));
-  container.register('Moat.Band.BandRepository', BandPrismaRepository).addArgument(new Reference('Shared.Outbox'));
-  container.register('Moat.Song.SongRepository', SongPrismaRepository).addArgument(new Reference('Shared.Outbox'));
+  container.register('Band.BandRepository', BandPrismaRepository).addArgument(new Reference('Shared.Outbox'));
+  container.register('Song.SongRepository', SongPrismaRepository).addArgument(new Reference('Shared.Outbox'));
   container
-    .register('Moat.Song.OriginalVideoClipDurationHttpClient', HttpClient)
+    .register('Song.OriginalVideoClipDurationHttpClient', HttpClient)
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(null)
     .addArgument({ integration: 'youtube' });
   container
-    .register('Moat.Song.OriginalVideoClipDurationProvider', YouTubeOriginalVideoClipDurationProvider)
+    .register('Song.OriginalVideoClipDurationProvider', YouTubeOriginalVideoClipDurationProvider)
     .addArgument(new Reference('Shared.BunyanLogger'))
-    .addArgument(new Reference('Moat.Song.OriginalVideoClipDurationHttpClient'));
+    .addArgument(new Reference('Song.OriginalVideoClipDurationHttpClient'));
   container
-    .register('Moat.SongInstrument.SongInstrumentRepository', SongInstrumentPrismaRepository)
+    .register('SongInstrument.SongInstrument.SongInstrumentRepository', SongInstrumentPrismaRepository)
     .addArgument(new Reference('Shared.Outbox'));
   container
-    .register('Moat.SongInstrumentVideo.SongInstrumentVideoRepository', SongInstrumentVideoPrismaRepository)
+    .register('SongInstrument.Video.SongInstrumentVideoRepository', SongInstrumentVideoPrismaRepository)
     .addArgument(new Reference('Shared.Outbox'));
   container
-    .register('Moat.SongInstrumentUpload.SongInstrumentUploadRepository', SongInstrumentUploadPrismaRepository)
+    .register('SongInstrument.Upload.SongInstrumentUploadRepository', SongInstrumentUploadPrismaRepository)
     .addArgument(new Reference('Shared.Outbox'));
 
   container
-    .register('Moat.Videoclip.VideoclipRepository', VideoclipPrismaRepository)
+    .register('Videoclip.VideoclipRepository', VideoclipPrismaRepository)
     .addArgument(new Reference('Shared.Outbox'));
   container
-    .register('Moat.Instruments.InstrumentsRepository', InstrumentsPrismaRepository)
+    .register('Instruments.InstrumentsRepository', InstrumentsPrismaRepository)
     .addArgument(new Reference('Shared.Outbox'));
 
   // Use Cases
@@ -116,30 +118,31 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   registerBandFinder(container);
   registerBandMatcher(container);
   container
-    .register('Moat.Song.SongCreator', SongCreator)
+    .register('Song.SongCreator', SongCreator)
     .addArgument(new Reference('Shared.BunyanLogger'))
-    .addArgument(new Reference('Moat.Song.SongRepository'))
+    .addArgument(new Reference('Song.SongRepository'))
     .addArgument(new Reference('Shared.EventBus'));
 
   container
-    .register('Moat.Song.CreateSongCommandHandler', CreateSongCommandHandler)
-    .addArgument(new Reference('Moat.Song.SongCreator'))
+    .register('Song.CreateSongCommandHandler', CreateSongCommandHandler)
+    .addArgument(new Reference('Song.SongCreator'))
     .addTag('commandHandler');
 
   container
-    .register('Moat.Song.SongOriginalVideoClipDurationEnricher', SongOriginalVideoClipDurationEnricher)
+    .register('Song.SongOriginalVideoClipDurationEnricher', SongOriginalVideoClipDurationEnricher)
     .addArgument(new Reference('Shared.BunyanLogger'))
-    .addArgument(new Reference('Moat.Song.OriginalVideoClipDurationProvider'))
-    .addArgument(new Reference('Moat.Song.SongRepository'));
+    .addArgument(new Reference('Song.OriginalVideoClipDurationProvider'))
+    .addArgument(new Reference('Song.SongRepository'));
 
   container
     .register(
-      'Moat.Song.EnrichSongOriginalVideoClipDurationCommandHandler',
+      'Song.EnrichSongOriginalVideoClipDurationCommandHandler',
       EnrichSongOriginalVideoClipDurationCommandHandler
     )
-    .addArgument(new Reference('Moat.Song.SongOriginalVideoClipDurationEnricher'))
+    .addArgument(new Reference('Song.SongOriginalVideoClipDurationEnricher'))
     .addTag('commandHandler');
 
+  registerSongInstrumentBandMembershipGateway(container);
   registerSongInstrumentAssigner(container);
   registerSongInstrumentEditor(container);
   registerSongInstrumentInviter(container);
@@ -156,53 +159,54 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   registerInstrumentsUpdater(container);
 
   container
-    .register('Moat.Musician.MusicianSearchByUserId', MusicianSearchByUserId)
-    .addArgument(new Reference('Moat.Musician.MusicianRepository'));
+    .register('Musician.MusicianSearchByUserId', MusicianSearchByUserId)
+    .addArgument(new Reference('Musician.MusicianRepository'));
 
   container
-    .register('Moat.Musician.MusicianSearchByEmail', MusicianSearchByEmail)
-    .addArgument(new Reference('Moat.Musician.MusicianRepository'));
+    .register('Musician.MusicianSearchByEmail', MusicianSearchByEmail)
+    .addArgument(new Reference('Musician.MusicianRepository'));
 
   container
-    .register('Moat.Musician.MusicianSearchByUserIdQueryHandler', MusicianSearchByUserIdQueryHandler)
-    .addArgument(new Reference('Moat.Musician.MusicianSearchByUserId'))
+    .register('Musician.MusicianSearchByUserIdQueryHandler', MusicianSearchByUserIdQueryHandler)
+    .addArgument(new Reference('Musician.MusicianSearchByUserId'))
     .addTag('queryHandler');
 
   container
-    .register('Moat.Musician.MusicianSearchByEmailQueryHandler', MusicianSearchByEmailQueryHandler)
-    .addArgument(new Reference('Moat.Musician.MusicianSearchByEmail'))
+    .register('Musician.MusicianSearchByEmailQueryHandler', MusicianSearchByEmailQueryHandler)
+    .addArgument(new Reference('Musician.MusicianSearchByEmail'))
     .addTag('queryHandler');
 
   container
-    .register('Moat.Song.SongCheckBandMembership', SongCheckBandMembership)
-    .addArgument(new Reference('Moat.Song.SongRepository'));
+    .register('Song.SongCheckBandMembership', SongCheckBandMembership)
+    .addArgument(new Reference('Song.SongRepository'));
 
   container
-    .register('Moat.Song.SongCheckBandMembershipQueryHandler', SongCheckBandMembershipQueryHandler)
-    .addArgument(new Reference('Moat.Song.SongCheckBandMembership'))
+    .register('Song.SongCheckBandMembershipQueryHandler', SongCheckBandMembershipQueryHandler)
+    .addArgument(new Reference('Song.SongCheckBandMembership'))
     .addTag('queryHandler');
 
   container
-    .register('Moat.Song.SongListByBand', SongListByBand)
-    .addArgument(new Reference('Moat.Song.SongRepository'))
-    .addArgument(new Reference('Moat.Song.SongRepository'));
+    .register('Song.SongListByBand', SongListByBand)
+    .addArgument(new Reference('Song.SongRepository'))
+    .addArgument(new Reference('Song.SongRepository'));
 
   container
-    .register('Moat.Song.SongListByBandQueryHandler', SongListByBandQueryHandler)
-    .addArgument(new Reference('Moat.Song.SongListByBand'))
+    .register('Song.SongListByBandQueryHandler', SongListByBandQueryHandler)
+    .addArgument(new Reference('Song.SongListByBand'))
     .addTag('queryHandler');
 
   registerSongMatcher(container);
+  registerSongFindById(container);
 
   container
-    .register('Moat.SongInstrument.SongInstrumentCheckSongOwnership', SongInstrumentCheckSongOwnership)
-    .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'));
+    .register('SongInstrument.SongInstrument.SongInstrumentCheckSongOwnership', SongInstrumentCheckSongOwnership)
+    .addArgument(new Reference('SongInstrument.SongInstrument.SongInstrumentRepository'));
 
   container
     .register(
-      'Moat.SongInstrument.SongInstrumentCheckSongOwnershipQueryHandler',
+      'SongInstrument.SongInstrument.SongInstrumentCheckSongOwnershipQueryHandler',
       SongInstrumentCheckSongOwnershipQueryHandler
     )
-    .addArgument(new Reference('Moat.SongInstrument.SongInstrumentCheckSongOwnership'))
+    .addArgument(new Reference('SongInstrument.SongInstrument.SongInstrumentCheckSongOwnership'))
     .addTag('queryHandler');
 }

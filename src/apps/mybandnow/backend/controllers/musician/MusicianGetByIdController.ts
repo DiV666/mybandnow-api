@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { Context } from 'openapi-backend';
-import { MusicianFindByIdQuery } from '@Contexts/Moat/Musician/application/findById/MusicianFindByIdQuery.js';
-import { MusicianFindByIdResponse } from '@Contexts/Moat/Musician/application/findById/MusicianFindByIdResponse.js';
-import { MusicianNotExistException } from '@Contexts/Moat/Musician/domain/exception/MusicianNotExistException.js';
+import { MusicianFindByIdQuery } from '@Contexts/Musician/application/findById/MusicianFindByIdQuery.js';
+import { MusicianFindByIdResponse } from '@Contexts/Musician/application/findById/MusicianFindByIdResponse.js';
+import { MusicianNotExistException } from '@Contexts/Musician/domain/exception/MusicianNotExistException.js';
 import ApiController from '@Contexts/Shared/infrastructure/Express/ApiController.js';
 
 export default class MusicianGetByIdController extends ApiController {

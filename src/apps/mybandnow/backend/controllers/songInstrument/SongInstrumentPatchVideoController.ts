@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { Context } from 'openapi-backend';
-import { MusicianSearchByUserIdQuery } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
-import { MusicianSearchByUserIdResponse } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { SongInstrumentNotExistException } from '@Contexts/Moat/SongInstrument/domain/exception/SongInstrumentNotExistException.js';
-import { SongInstrumentVideoUpdateStartTimeCommand } from '@Contexts/Moat/SongInstrumentVideo/application/updateStartTime/SongInstrumentVideoUpdateStartTimeCommand.js';
-import { SongInstrumentVideoNotExistException } from '@Contexts/Moat/SongInstrumentVideo/domain/exception/SongInstrumentVideoNotExistException.js';
+import { MusicianSearchByUserIdQuery } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserIdResponse } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { SongInstrumentNotExistException } from '@Contexts/SongInstrument/SongInstrument/domain/exception/SongInstrumentNotExistException.js';
+import { SongInstrumentVideoUpdateStartTimeCommand } from '@Contexts/SongInstrument/Video/application/updateStartTime/SongInstrumentVideoUpdateStartTimeCommand.js';
+import { SongInstrumentVideoNotExistException } from '@Contexts/SongInstrument/Video/domain/exception/SongInstrumentVideoNotExistException.js';
 import { ForbiddenException } from '@Contexts/Shared/domain/exceptions/ForbiddenException.js';
 import ApiController from '@Contexts/Shared/infrastructure/Express/ApiController.js';
 

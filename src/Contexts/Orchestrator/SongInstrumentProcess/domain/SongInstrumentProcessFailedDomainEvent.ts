@@ -1,4 +1,4 @@
-import { DomainEvent } from '../../../Shared/domain/DomainEvent.js';
+import { DomainEvent } from '@Contexts/Shared/domain/DomainEvent.js';
 
 export class SongInstrumentProcessFailedDomainEvent extends DomainEvent {
   static readonly EVENT_NAME = 'orchestrator.song_instrument_process.failed';

@@ -1,16 +1,16 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
-import { SongInstrumentEditor } from '@Contexts/Moat/SongInstrument/application/edit/SongInstrumentEditor.js';
-import { EditSongInstrumentCommandHandler } from '@Contexts/Moat/SongInstrument/application/edit/EditSongInstrumentCommandHandler.js';
+import { SongInstrumentEditor } from '@Contexts/SongInstrument/SongInstrument/application/edit/SongInstrumentEditor.js';
+import { EditSongInstrumentCommandHandler } from '@Contexts/SongInstrument/SongInstrument/application/edit/EditSongInstrumentCommandHandler.js';
 
 export function register(container: ContainerBuilder) {
   container
-    .register('Moat.SongInstrument.SongInstrumentEditor', SongInstrumentEditor)
+    .register('SongInstrument.SongInstrument.SongInstrumentEditor', SongInstrumentEditor)
     .addArgument(new Reference('Shared.BunyanLogger'))
-    .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'))
-    .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'));
+    .addArgument(new Reference('SongInstrument.SongInstrument.SongInstrumentRepository'))
+    .addArgument(new Reference('SongInstrument.SongInstrument.SongInstrumentRepository'));
 
   container
-    .register('Moat.SongInstrument.EditSongInstrumentCommandHandler', EditSongInstrumentCommandHandler)
-    .addArgument(new Reference('Moat.SongInstrument.SongInstrumentEditor'))
+    .register('SongInstrument.SongInstrument.EditSongInstrumentCommandHandler', EditSongInstrumentCommandHandler)
+    .addArgument(new Reference('SongInstrument.SongInstrument.SongInstrumentEditor'))
     .addTag('commandHandler');
 }

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { Context } from 'openapi-backend';
-import { CreateMusicianCommand } from '../../../../../Contexts/Moat/Musician/application/create/CreateMusicianCommand.js';
+import { CreateMusicianCommand } from '../../../../../Contexts/Musician/application/create/CreateMusicianCommand.js';
 import ApiController from '../../../../../Contexts/Shared/infrastructure/Express/ApiController.js';
 
 export default class ProfilePostController extends ApiController {

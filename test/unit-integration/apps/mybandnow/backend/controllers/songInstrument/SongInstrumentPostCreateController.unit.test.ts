@@ -8,12 +8,16 @@ import type { CommandBus } from '../../../../../../../src/Contexts/Shared/domain
 import type { QueryBus } from '../../../../../../../src/Contexts/Shared/domain/QueryBus.js';
 import ApiExceptionsHttpStatusCodeMapping from '../../../../../../../src/Contexts/Shared/infrastructure/Express/ApiExceptionsHttpStatusCodeMapping.js';
 import SongInstrumentPostCreateController from '../../../../../../../src/apps/mybandnow/backend/controllers/songInstrument/SongInstrumentPostCreateController.js';
-import { CreateSongInstrumentCommand } from '../../../../../../../src/Contexts/Moat/SongInstrument/application/create/CreateSongInstrumentCommand.js';
-import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
-import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { SongInstrumentCheckSongOwnershipQuery } from '../../../../../../../src/Contexts/Moat/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnershipQuery.js';
-import { SongInstrumentCheckSongOwnershipResponse } from '../../../../../../../src/Contexts/Moat/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnershipResponse.js';
+import { CreateSongInstrumentCommand } from '../../../../../../../src/Contexts/SongInstrument/SongInstrument/application/create/CreateSongInstrumentCommand.js';
+import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { SongInstrumentCheckSongOwnershipQuery } from '../../../../../../../src/Contexts/SongInstrument/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnershipQuery.js';
+import { SongInstrumentCheckSongOwnershipResponse } from '../../../../../../../src/Contexts/SongInstrument/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnershipResponse.js';
+import { MusicianFindByIdQuery } from '../../../../../../../src/Contexts/Musician/application/findById/MusicianFindByIdQuery.js';
+import { MusicianFindByIdResponse } from '../../../../../../../src/Contexts/Musician/application/findById/MusicianFindByIdResponse.js';
+import { MusicianNotExistException } from '../../../../../../../src/Contexts/Musician/domain/exception/MusicianNotExistException.js';
 import { ForbiddenException } from '../../../../../../../src/Contexts/Shared/domain/exceptions/ForbiddenException.js';
+import { InvalidArgumentException } from '../../../../../../../src/Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
 
 describe('SongInstrumentPostCreateController', () => {
   it('authorizes with the authenticated owner and dispatches the create command when musicianId matches the owner profile', async () => {
@@ -55,7 +59,10 @@ describe('SongInstrumentPostCreateController', () => {
           username: 'song-owner'
         })
       )
-      .mockResolvedValueOnce(new SongInstrumentCheckSongOwnershipResponse(true));
+      .mockResolvedValueOnce(new SongInstrumentCheckSongOwnershipResponse(true))
+      .mockResolvedValueOnce(
+        new MusicianFindByIdResponse({ id: 'owner-musician-id', name: 'Owner', username: 'song-owner' })
+      );
 
     // Act
     await controller.run(context, req, res);
@@ -66,6 +73,7 @@ describe('SongInstrumentPostCreateController', () => {
       2,
       new SongInstrumentCheckSongOwnershipQuery('path-song-id', 'owner-musician-id')
     );
+    expect(queryBus.ask).toHaveBeenNthCalledWith(3, new MusicianFindByIdQuery('owner-musician-id'));
     expect(commandBus.dispatch).toHaveBeenCalledExactlyOnceWith(
       new CreateSongInstrumentCommand(
         'instrument-id',
@@ -118,7 +126,10 @@ describe('SongInstrumentPostCreateController', () => {
           username: 'song-owner'
         })
       )
-      .mockResolvedValueOnce(new SongInstrumentCheckSongOwnershipResponse(true));
+      .mockResolvedValueOnce(new SongInstrumentCheckSongOwnershipResponse(true))
+      .mockResolvedValueOnce(
+        new MusicianFindByIdResponse({ id: 'another-musician-id', name: 'Another', username: 'another-musician' })
+      );
 
     // Act
     await controller.run(context, req, res);
@@ -129,6 +140,7 @@ describe('SongInstrumentPostCreateController', () => {
       2,
       new SongInstrumentCheckSongOwnershipQuery('path-song-id', 'owner-musician-id')
     );
+    expect(queryBus.ask).toHaveBeenNthCalledWith(3, new MusicianFindByIdQuery('another-musician-id'));
     expect(commandBus.dispatch).toHaveBeenCalledExactlyOnceWith(
       new CreateSongInstrumentCommand(
         'instrument-id',
@@ -184,6 +196,53 @@ describe('SongInstrumentPostCreateController', () => {
 
     // Act / Assert
     await expect(controller.run(context, req, res)).rejects.toThrow(ForbiddenException);
+    expect(commandBus.dispatch).not.toHaveBeenCalled();
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('throws an invalid argument exception when the assigned musician does not exist', async () => {
+    // Arrange
+    const logger = mock<Logger>();
+    const commandBus = mock<CommandBus>();
+    const queryBus = mock<QueryBus>();
+    const exceptionHandler = new ApiExceptionsHttpStatusCodeMapping();
+    const controller = new SongInstrumentPostCreateController(logger, commandBus, queryBus, exceptionHandler);
+
+    const context = {
+      security: {
+        BearerAuth: {
+          id: 'authenticated-user-id'
+        }
+      },
+      request: {
+        params: {
+          songId: 'path-song-id'
+        }
+      }
+    } as unknown as Context;
+    const req = mock<Request>({
+      body: {
+        id: 'instrument-id',
+        name: 'Lead Guitar',
+        instrumentId: '0e7a0d5f-3d2a-4bc1-8d4d-100000000004',
+        musicianId: 'missing-musician-id'
+      }
+    });
+    const res = mock<Response>();
+    queryBus.ask
+      .mockResolvedValueOnce(
+        new MusicianSearchByUserIdResponse({
+          id: 'owner-musician-id',
+          name: 'Owner',
+          userId: 'authenticated-user-id',
+          username: 'song-owner'
+        })
+      )
+      .mockResolvedValueOnce(new SongInstrumentCheckSongOwnershipResponse(true))
+      .mockRejectedValueOnce(new MusicianNotExistException('missing-musician-id'));
+
+    // Act / Assert
+    await expect(controller.run(context, req, res)).rejects.toThrow(InvalidArgumentException);
     expect(commandBus.dispatch).not.toHaveBeenCalled();
     expect(res.status).not.toHaveBeenCalled();
   });

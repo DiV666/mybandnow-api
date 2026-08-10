@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { Context } from 'openapi-backend';
-import { MusicianSearchByUserIdQuery } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
-import { MusicianSearchByUserIdResponse } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { MusicianSearchByEmailQuery } from '@Contexts/Moat/Musician/application/searchByEmail/MusicianSearchByEmailQuery.js';
-import { MusicianSearchByEmailResponse } from '@Contexts/Moat/Musician/application/searchByEmail/MusicianSearchByEmailResponse.js';
-import { AddBandMemberCommand } from '@Contexts/Moat/Band/application/addMember/AddBandMemberCommand.js';
-import { BandNotExistException } from '@Contexts/Moat/Band/domain/exception/BandNotExistException.js';
+import { MusicianSearchByUserIdQuery } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserIdResponse } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { MusicianSearchByEmailQuery } from '@Contexts/Musician/application/searchByEmail/MusicianSearchByEmailQuery.js';
+import { MusicianSearchByEmailResponse } from '@Contexts/Musician/application/searchByEmail/MusicianSearchByEmailResponse.js';
+import { AddBandMemberCommand } from '@Contexts/Band/application/addMember/AddBandMemberCommand.js';
+import { BandNotExistException } from '@Contexts/Band/domain/exception/BandNotExistException.js';
 import { ForbiddenException } from '@Contexts/Shared/domain/exceptions/ForbiddenException.js';
 import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
 import ApiController from '@Contexts/Shared/infrastructure/Express/ApiController.js';

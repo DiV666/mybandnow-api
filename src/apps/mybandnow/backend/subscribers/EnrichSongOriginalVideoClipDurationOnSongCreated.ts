@@ -4,7 +4,7 @@ import type { CommandBus } from '@Contexts/Shared/domain/CommandBus.js';
 import Logger from '@Contexts/Shared/domain/Logger.js';
 import { Exception } from '@Contexts/Shared/domain/Exception.js';
 import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
-import { EnrichSongOriginalVideoClipDurationCommand } from '@Contexts/Moat/Song/application/enrichOriginalVideoClipDuration/EnrichSongOriginalVideoClipDurationCommand.js';
+import { EnrichSongOriginalVideoClipDurationCommand } from '@Contexts/Song/application/enrichOriginalVideoClipDuration/EnrichSongOriginalVideoClipDurationCommand.js';
 
 export type CommandBusResolver = () => CommandBus;
 

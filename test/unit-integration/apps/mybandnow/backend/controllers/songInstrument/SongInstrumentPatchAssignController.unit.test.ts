@@ -8,14 +8,18 @@ import type { CommandBus } from '../../../../../../../src/Contexts/Shared/domain
 import type { QueryBus } from '../../../../../../../src/Contexts/Shared/domain/QueryBus.js';
 import ApiExceptionsHttpStatusCodeMapping from '../../../../../../../src/Contexts/Shared/infrastructure/Express/ApiExceptionsHttpStatusCodeMapping.js';
 import SongInstrumentPatchAssignController from '../../../../../../../src/apps/mybandnow/backend/controllers/songInstrument/SongInstrumentPatchAssignController.js';
-import { MusicianFindByIdQuery } from '../../../../../../../src/Contexts/Moat/Musician/application/findById/MusicianFindByIdQuery.js';
-import { MusicianFindByIdResponse } from '../../../../../../../src/Contexts/Moat/Musician/application/findById/MusicianFindByIdResponse.js';
-import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
-import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { MusicianNotExistException } from '../../../../../../../src/Contexts/Moat/Musician/domain/exception/MusicianNotExistException.js';
-import { AssignSongInstrumentMusicianCommand } from '../../../../../../../src/Contexts/Moat/SongInstrument/application/assign/AssignSongInstrumentMusicianCommand.js';
+import { MusicianFindByIdQuery } from '../../../../../../../src/Contexts/Musician/application/findById/MusicianFindByIdQuery.js';
+import { MusicianFindByIdResponse } from '../../../../../../../src/Contexts/Musician/application/findById/MusicianFindByIdResponse.js';
+import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { MusicianNotExistException } from '../../../../../../../src/Contexts/Musician/domain/exception/MusicianNotExistException.js';
+import { SongFindByIdQuery } from '../../../../../../../src/Contexts/Song/application/findById/SongFindByIdQuery.js';
+import { SongFindByIdResponse } from '../../../../../../../src/Contexts/Song/application/findById/SongFindByIdResponse.js';
+import { AssignSongInstrumentMusicianCommand } from '../../../../../../../src/Contexts/SongInstrument/SongInstrument/application/assign/AssignSongInstrumentMusicianCommand.js';
 import { ForbiddenException } from '../../../../../../../src/Contexts/Shared/domain/exceptions/ForbiddenException.js';
 import { InvalidArgumentException } from '../../../../../../../src/Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
+
+const BAND_ID = '44444444-4444-4444-8444-444444444444';
 
 describe('SongInstrumentPatchAssignController', () => {
   it('dispatches the assignment command using the provided musician id', async () => {
@@ -60,18 +64,21 @@ describe('SongInstrumentPatchAssignController', () => {
           username: 'assigned-musician',
           name: 'Assigned Musician'
         })
-      );
+      )
+      .mockResolvedValueOnce(new SongFindByIdResponse({ id: 'song-id', bandId: BAND_ID, title: 'Song title' }));
 
     await controller.run(context, req, res);
 
     expect(queryBus.ask).toHaveBeenNthCalledWith(1, new MusicianSearchByUserIdQuery('authenticated-user-id'));
     expect(queryBus.ask).toHaveBeenNthCalledWith(2, new MusicianFindByIdQuery('assigned-musician-id'));
+    expect(queryBus.ask).toHaveBeenNthCalledWith(3, new SongFindByIdQuery('song-id'));
     expect(commandBus.dispatch).toHaveBeenCalledExactlyOnceWith(
       new AssignSongInstrumentMusicianCommand(
         'song-id',
         'song-instrument-id',
         'owner-musician-id',
-        'assigned-musician-id'
+        'assigned-musician-id',
+        BAND_ID
       )
     );
     expect(res.status).toHaveBeenCalledWith(httpStatus.OK);

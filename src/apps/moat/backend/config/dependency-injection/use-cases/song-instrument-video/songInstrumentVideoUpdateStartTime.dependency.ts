@@ -1,20 +1,20 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
-import { SongInstrumentVideoUpdateStartTime } from '@Contexts/Moat/SongInstrumentVideo/application/updateStartTime/SongInstrumentVideoUpdateStartTime.js';
-import { SongInstrumentVideoUpdateStartTimeCommandHandler } from '@Contexts/Moat/SongInstrumentVideo/application/updateStartTime/SongInstrumentVideoUpdateStartTimeCommandHandler.js';
+import { SongInstrumentVideoUpdateStartTime } from '@Contexts/SongInstrument/Video/application/updateStartTime/SongInstrumentVideoUpdateStartTime.js';
+import { SongInstrumentVideoUpdateStartTimeCommandHandler } from '@Contexts/SongInstrument/Video/application/updateStartTime/SongInstrumentVideoUpdateStartTimeCommandHandler.js';
 
 export function register(container: ContainerBuilder) {
   container
-    .register('Moat.SongInstrumentVideo.SongInstrumentVideoUpdateStartTime', SongInstrumentVideoUpdateStartTime)
-    .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'))
-    .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'))
-    .addArgument(new Reference('Moat.SongInstrumentVideo.SongInstrumentVideoRepository'))
+    .register('SongInstrument.Video.SongInstrumentVideoUpdateStartTime', SongInstrumentVideoUpdateStartTime)
+    .addArgument(new Reference('SongInstrument.SongInstrument.SongInstrumentRepository'))
+    .addArgument(new Reference('SongInstrument.SongInstrument.SongInstrumentRepository'))
+    .addArgument(new Reference('SongInstrument.Video.SongInstrumentVideoRepository'))
     .addArgument(new Reference('Shared.EventBus'));
 
   container
     .register(
-      'Moat.SongInstrumentVideo.SongInstrumentVideoUpdateStartTimeCommandHandler',
+      'SongInstrument.Video.SongInstrumentVideoUpdateStartTimeCommandHandler',
       SongInstrumentVideoUpdateStartTimeCommandHandler
     )
-    .addArgument(new Reference('Moat.SongInstrumentVideo.SongInstrumentVideoUpdateStartTime'))
+    .addArgument(new Reference('SongInstrument.Video.SongInstrumentVideoUpdateStartTime'))
     .addTag('commandHandler');
 }

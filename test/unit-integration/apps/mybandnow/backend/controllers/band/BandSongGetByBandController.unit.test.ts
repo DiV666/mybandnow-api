@@ -8,12 +8,12 @@ import type { CommandBus } from '../../../../../../../src/Contexts/Shared/domain
 import type { QueryBus } from '../../../../../../../src/Contexts/Shared/domain/QueryBus.js';
 import ApiExceptionsHttpStatusCodeMapping from '../../../../../../../src/Contexts/Shared/infrastructure/Express/ApiExceptionsHttpStatusCodeMapping.js';
 import BandSongGetByBandController from '../../../../../../../src/apps/mybandnow/backend/controllers/band/BandSongGetByBandController.js';
-import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
-import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { SongListByBandQuery } from '../../../../../../../src/Contexts/Moat/Song/application/listByBand/SongListByBandQuery.js';
-import { SongListByBandResponse } from '../../../../../../../src/Contexts/Moat/Song/application/listByBand/SongListByBandResponse.js';
-import { SongMother } from '../../../../../../../test/unit-integration/Contexts/Moat/Song/domain/SongMother.js';
-import { SongBandId } from '../../../../../../../src/Contexts/Moat/Song/domain/value-object/SongBandId.js';
+import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { SongListByBandQuery } from '../../../../../../../src/Contexts/Song/application/listByBand/SongListByBandQuery.js';
+import { SongListByBandResponse } from '../../../../../../../src/Contexts/Song/application/listByBand/SongListByBandResponse.js';
+import { SongMother } from '../../../../../../../test/unit-integration/Contexts/Song/domain/SongMother.js';
+import { SongBandId } from '../../../../../../../src/Contexts/Song/domain/value-object/SongBandId.js';
 import { ForbiddenException } from '../../../../../../../src/Contexts/Shared/domain/exceptions/ForbiddenException.js';
 
 describe('BandSongGetByBandController', () => {

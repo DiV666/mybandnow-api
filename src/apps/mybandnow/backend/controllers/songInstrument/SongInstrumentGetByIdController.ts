@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { Context } from 'openapi-backend';
-import { MusicianSearchByUserIdQuery } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
-import { MusicianSearchByUserIdResponse } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { SongInstrumentFindByIdQuery } from '@Contexts/Moat/SongInstrument/application/findById/SongInstrumentFindByIdQuery.js';
-import { SongInstrumentFindByIdResponse } from '@Contexts/Moat/SongInstrument/application/findById/SongInstrumentFindByIdResponse.js';
-import { SongInstrumentNotExistException } from '@Contexts/Moat/SongInstrument/domain/exception/SongInstrumentNotExistException.js';
+import { MusicianSearchByUserIdQuery } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserIdResponse } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { SongInstrumentFindByIdQuery } from '@Contexts/SongInstrument/SongInstrument/application/findById/SongInstrumentFindByIdQuery.js';
+import { SongInstrumentFindByIdResponse } from '@Contexts/SongInstrument/SongInstrument/application/findById/SongInstrumentFindByIdResponse.js';
+import { SongInstrumentNotExistException } from '@Contexts/SongInstrument/SongInstrument/domain/exception/SongInstrumentNotExistException.js';
 import { ForbiddenException } from '@Contexts/Shared/domain/exceptions/ForbiddenException.js';
 import ApiController from '@Contexts/Shared/infrastructure/Express/ApiController.js';
 

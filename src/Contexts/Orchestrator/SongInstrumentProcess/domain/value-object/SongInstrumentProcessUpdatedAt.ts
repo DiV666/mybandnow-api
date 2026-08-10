@@ -1,3 +1,3 @@
-import { DateValueObject } from '../../../../Shared/domain/value-object/DateValueObject.js';
+import { DateValueObject } from '@Contexts/Shared/domain/value-object/DateValueObject.js';
 
 export class SongInstrumentProcessUpdatedAt extends DateValueObject {}

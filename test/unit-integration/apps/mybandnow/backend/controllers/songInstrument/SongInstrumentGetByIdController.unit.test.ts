@@ -8,13 +8,13 @@ import type { CommandBus } from '../../../../../../../src/Contexts/Shared/domain
 import type { QueryBus } from '../../../../../../../src/Contexts/Shared/domain/QueryBus.js';
 import ApiExceptionsHttpStatusCodeMapping from '../../../../../../../src/Contexts/Shared/infrastructure/Express/ApiExceptionsHttpStatusCodeMapping.js';
 import SongInstrumentGetByIdController from '../../../../../../../src/apps/mybandnow/backend/controllers/songInstrument/SongInstrumentGetByIdController.js';
-import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
-import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { SongInstrumentFindByIdQuery } from '../../../../../../../src/Contexts/Moat/SongInstrument/application/findById/SongInstrumentFindByIdQuery.js';
-import { SongInstrumentFindByIdResponse } from '../../../../../../../src/Contexts/Moat/SongInstrument/application/findById/SongInstrumentFindByIdResponse.js';
-import { SongInstrumentMother } from '../../../../../../../test/unit-integration/Contexts/Moat/SongInstrument/domain/SongInstrumentMother.js';
-import { SongInstrumentVideoMother } from '../../../../../../../test/unit-integration/Contexts/Moat/SongInstrumentVideo/domain/SongInstrumentVideoMother.js';
-import { SongInstrumentVideoSongInstrumentId } from '../../../../../../../src/Contexts/Moat/SongInstrumentVideo/domain/value-object/SongInstrumentVideoSongInstrumentId.js';
+import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { SongInstrumentFindByIdQuery } from '../../../../../../../src/Contexts/SongInstrument/SongInstrument/application/findById/SongInstrumentFindByIdQuery.js';
+import { SongInstrumentFindByIdResponse } from '../../../../../../../src/Contexts/SongInstrument/SongInstrument/application/findById/SongInstrumentFindByIdResponse.js';
+import { SongInstrumentMother } from '../../../../../../../test/unit-integration/Contexts/SongInstrument/SongInstrument/domain/SongInstrumentMother.js';
+import { SongInstrumentVideoMother } from '../../../../../../../test/unit-integration/Contexts/SongInstrument/Video/domain/SongInstrumentVideoMother.js';
+import { SongInstrumentVideoSongInstrumentId } from '../../../../../../../src/Contexts/SongInstrument/Video/domain/value-object/SongInstrumentVideoSongInstrumentId.js';
 import { ForbiddenException } from '../../../../../../../src/Contexts/Shared/domain/exceptions/ForbiddenException.js';
 
 describe('SongInstrumentGetByIdController', () => {

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mock, MockProxy } from 'vitest-mock-extended';
 import { EnrichSongOriginalVideoClipDurationOnSongCreated } from '../../../../../../src/apps/mybandnow/backend/subscribers/EnrichSongOriginalVideoClipDurationOnSongCreated.js';
-import { SongCreatedDomainEvent } from '../../../../../../src/Contexts/Moat/Song/domain/SongCreatedDomainEvent.js';
-import { EnrichSongOriginalVideoClipDurationCommand } from '../../../../../../src/Contexts/Moat/Song/application/enrichOriginalVideoClipDuration/EnrichSongOriginalVideoClipDurationCommand.js';
+import { SongCreatedDomainEvent } from '../../../../../../src/Contexts/Song/domain/SongCreatedDomainEvent.js';
+import { EnrichSongOriginalVideoClipDurationCommand } from '../../../../../../src/Contexts/Song/application/enrichOriginalVideoClipDuration/EnrichSongOriginalVideoClipDurationCommand.js';
 import type { CommandBus } from '../../../../../../src/Contexts/Shared/domain/CommandBus.js';
 import type Logger from '../../../../../../src/Contexts/Shared/domain/Logger.js';
 import { InvalidArgumentException } from '../../../../../../src/Contexts/Shared/domain/exceptions/InvalidArgumentException.js';

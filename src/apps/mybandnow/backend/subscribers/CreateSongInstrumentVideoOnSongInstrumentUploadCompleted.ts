@@ -3,7 +3,7 @@ import { DomainEvent } from '@Contexts/Shared/domain/DomainEvent.js';
 import Logger from '@Contexts/Shared/domain/Logger.js';
 import { Exception } from '@Contexts/Shared/domain/Exception.js';
 import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
-import { CreateSongInstrumentVideoCommand } from '@Contexts/Moat/SongInstrumentVideo/application/create/CreateSongInstrumentVideoCommand.js';
+import { CreateSongInstrumentVideoCommand } from '@Contexts/SongInstrument/Video/application/create/CreateSongInstrumentVideoCommand.js';
 import { CommandBusResolver } from './ValidateSongInstrumentUploadOnUploadRequested.js';
 
 type SongInstrumentVideoPayload = {

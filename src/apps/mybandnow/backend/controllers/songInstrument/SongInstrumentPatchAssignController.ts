@@ -1,13 +1,15 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { Context } from 'openapi-backend';
-import { MusicianFindByIdQuery } from '@Contexts/Moat/Musician/application/findById/MusicianFindByIdQuery.js';
-import { MusicianFindByIdResponse } from '@Contexts/Moat/Musician/application/findById/MusicianFindByIdResponse.js';
-import { MusicianSearchByUserIdQuery } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
-import { MusicianSearchByUserIdResponse } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { MusicianNotExistException } from '@Contexts/Moat/Musician/domain/exception/MusicianNotExistException.js';
-import { AssignSongInstrumentMusicianCommand } from '@Contexts/Moat/SongInstrument/application/assign/AssignSongInstrumentMusicianCommand.js';
-import { SongInstrumentNotExistException } from '@Contexts/Moat/SongInstrument/domain/exception/SongInstrumentNotExistException.js';
+import { MusicianFindByIdQuery } from '@Contexts/Musician/application/findById/MusicianFindByIdQuery.js';
+import { MusicianFindByIdResponse } from '@Contexts/Musician/application/findById/MusicianFindByIdResponse.js';
+import { MusicianSearchByUserIdQuery } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserIdResponse } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { MusicianNotExistException } from '@Contexts/Musician/domain/exception/MusicianNotExistException.js';
+import { SongFindByIdQuery } from '@Contexts/Song/application/findById/SongFindByIdQuery.js';
+import { SongFindByIdResponse } from '@Contexts/Song/application/findById/SongFindByIdResponse.js';
+import { AssignSongInstrumentMusicianCommand } from '@Contexts/SongInstrument/SongInstrument/application/assign/AssignSongInstrumentMusicianCommand.js';
+import { SongInstrumentNotExistException } from '@Contexts/SongInstrument/SongInstrument/domain/exception/SongInstrumentNotExistException.js';
 import { ForbiddenException } from '@Contexts/Shared/domain/exceptions/ForbiddenException.js';
 import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
 import ApiController from '@Contexts/Shared/infrastructure/Express/ApiController.js';
@@ -44,8 +46,20 @@ export default class SongInstrumentPatchAssignController extends ApiController {
       throw error;
     }
 
+    const songResponse = await this.queryBus.ask<SongFindByIdResponse>(new SongFindByIdQuery(songId));
+
+    if (!songResponse.song) {
+      throw new SongInstrumentNotExistException(songInstrumentId);
+    }
+
     await this.commandBus.dispatch(
-      new AssignSongInstrumentMusicianCommand(songId, songInstrumentId, musicianResponse.musician.id, musicianId)
+      new AssignSongInstrumentMusicianCommand(
+        songId,
+        songInstrumentId,
+        musicianResponse.musician.id,
+        musicianId,
+        songResponse.song.bandId
+      )
     );
 
     res.status(httpStatus.OK).end();

@@ -6,6 +6,6 @@ export const register = (container: ContainerBuilder) => {
     .register('Apps.Mybandnow.Backend.controllers.BandPostCreateController', BandPostCreateController)
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(new Reference('Shared.CommandBus'))
-    .addArgument(null)
+    .addArgument(new Reference('Shared.QueryBus'))
     .addArgument(new Reference('Shared.Express.ApiExceptionsHttpStatusCodeMapping'));
 };

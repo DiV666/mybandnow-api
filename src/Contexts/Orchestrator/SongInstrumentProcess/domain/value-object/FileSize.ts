@@ -1,6 +1,6 @@
-import { NumberValueObject } from '../../../../Shared/domain/value-object/NumberValueObject.js';
+import { NumberValueObject } from '@Contexts/Shared/domain/value-object/NumberValueObject.js';
 
-import { InvalidArgumentException } from '../../../../Shared/domain/exceptions/InvalidArgumentException.js';
+import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
 
 export class FileSize extends NumberValueObject {
   private static readonly MAX_SIZE_BYTES = 80 * 1024 * 1024; // 80MB

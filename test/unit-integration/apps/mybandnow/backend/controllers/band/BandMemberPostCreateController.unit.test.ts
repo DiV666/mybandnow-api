@@ -8,11 +8,11 @@ import type { CommandBus } from '../../../../../../../src/Contexts/Shared/domain
 import type { QueryBus } from '../../../../../../../src/Contexts/Shared/domain/QueryBus.js';
 import ApiExceptionsHttpStatusCodeMapping from '../../../../../../../src/Contexts/Shared/infrastructure/Express/ApiExceptionsHttpStatusCodeMapping.js';
 import BandMemberPostCreateController from '../../../../../../../src/apps/mybandnow/backend/controllers/band/BandMemberPostCreateController.js';
-import { AddBandMemberCommand } from '../../../../../../../src/Contexts/Moat/Band/application/addMember/AddBandMemberCommand.js';
-import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
-import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { MusicianSearchByEmailQuery } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByEmail/MusicianSearchByEmailQuery.js';
-import { MusicianSearchByEmailResponse } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByEmail/MusicianSearchByEmailResponse.js';
+import { AddBandMemberCommand } from '../../../../../../../src/Contexts/Band/application/addMember/AddBandMemberCommand.js';
+import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { MusicianSearchByEmailQuery } from '../../../../../../../src/Contexts/Musician/application/searchByEmail/MusicianSearchByEmailQuery.js';
+import { MusicianSearchByEmailResponse } from '../../../../../../../src/Contexts/Musician/application/searchByEmail/MusicianSearchByEmailResponse.js';
 import { InvalidArgumentException } from '../../../../../../../src/Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
 
 describe('BandMemberPostCreateController', () => {

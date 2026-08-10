@@ -8,11 +8,11 @@ import type { CommandBus } from '../../../../../../../src/Contexts/Shared/domain
 import type { QueryBus } from '../../../../../../../src/Contexts/Shared/domain/QueryBus.js';
 import ApiExceptionsHttpStatusCodeMapping from '../../../../../../../src/Contexts/Shared/infrastructure/Express/ApiExceptionsHttpStatusCodeMapping.js';
 import SongInstrumentPatchEditController from '../../../../../../../src/apps/mybandnow/backend/controllers/songInstrument/SongInstrumentPatchEditController.js';
-import { EditSongInstrumentCommand } from '../../../../../../../src/Contexts/Moat/SongInstrument/application/edit/EditSongInstrumentCommand.js';
-import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
-import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { SongInstrumentCheckSongOwnershipQuery } from '../../../../../../../src/Contexts/Moat/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnershipQuery.js';
-import { SongInstrumentCheckSongOwnershipResponse } from '../../../../../../../src/Contexts/Moat/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnershipResponse.js';
+import { EditSongInstrumentCommand } from '../../../../../../../src/Contexts/SongInstrument/SongInstrument/application/edit/EditSongInstrumentCommand.js';
+import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { SongInstrumentCheckSongOwnershipQuery } from '../../../../../../../src/Contexts/SongInstrument/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnershipQuery.js';
+import { SongInstrumentCheckSongOwnershipResponse } from '../../../../../../../src/Contexts/SongInstrument/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnershipResponse.js';
 import { ForbiddenException } from '../../../../../../../src/Contexts/Shared/domain/exceptions/ForbiddenException.js';
 
 describe('SongInstrumentPatchEditController', () => {

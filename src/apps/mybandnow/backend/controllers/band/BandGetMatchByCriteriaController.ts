@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Context } from 'openapi-backend';
-import { MatchByCriteriaBandQuery } from '@Contexts/Moat/Band/application/matchByCriteria/MatchByCriteriaBandQuery.js';
-import { MatchByCriteriaBandResponse } from '@Contexts/Moat/Band/application/matchByCriteria/MatchByCriteriaBandResponse.js';
+import { MatchByCriteriaBandQuery } from '@Contexts/Band/application/matchByCriteria/MatchByCriteriaBandQuery.js';
+import { MatchByCriteriaBandResponse } from '@Contexts/Band/application/matchByCriteria/MatchByCriteriaBandResponse.js';
 import ApiController from '@Contexts/Shared/infrastructure/Express/ApiController.js';
 import { queryParamsToCriteria } from '@Contexts/Shared/infrastructure/Http/utils/criteria.utils.js';
 

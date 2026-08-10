@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mock, MockProxy } from 'vitest-mock-extended';
 import { FailSongInstrumentUploadOnSongInstrumentProcessFailed } from '../../../../../../src/apps/mybandnow/backend/subscribers/FailSongInstrumentUploadOnSongInstrumentProcessFailed.js';
 import { SongInstrumentProcessFailedDomainEvent } from '../../../../../../src/Contexts/Orchestrator/SongInstrumentProcess/domain/SongInstrumentProcessFailedDomainEvent.js';
-import { SongInstrumentUploadUpdateStatusCommand } from '../../../../../../src/Contexts/Moat/SongInstrumentUpload/application/updateStatus/SongInstrumentUploadUpdateStatusCommand.js';
-import { SongInstrumentUploadStatusValues } from '../../../../../../src/Contexts/Moat/SongInstrumentUpload/domain/value-object/SongInstrumentUploadStatus.js';
+import { SongInstrumentUploadUpdateStatusCommand } from '../../../../../../src/Contexts/SongInstrument/Upload/application/updateStatus/SongInstrumentUploadUpdateStatusCommand.js';
+import { SongInstrumentUploadStatusValues } from '../../../../../../src/Contexts/SongInstrument/Upload/domain/value-object/SongInstrumentUploadStatus.js';
 import type { CommandBus } from '../../../../../../src/Contexts/Shared/domain/CommandBus.js';
 import type Logger from '../../../../../../src/Contexts/Shared/domain/Logger.js';
 import { InvalidArgumentException } from '../../../../../../src/Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
-import { SongInstrumentUploadNotExistException } from '../../../../../../src/Contexts/Moat/SongInstrumentUpload/domain/exception/SongInstrumentUploadNotExistException.js';
+import { SongInstrumentUploadNotExistException } from '../../../../../../src/Contexts/SongInstrument/Upload/domain/exception/SongInstrumentUploadNotExistException.js';
 import { NonRetryableException } from '../../../../../../src/Contexts/Shared/domain/exceptions/NonRetryableException.js';
 
 describe('FailSongInstrumentUploadOnSongInstrumentProcessFailed', () => {

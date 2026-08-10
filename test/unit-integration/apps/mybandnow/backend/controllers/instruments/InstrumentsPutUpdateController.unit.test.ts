@@ -8,7 +8,7 @@ import type { CommandBus } from '../../../../../../../src/Contexts/Shared/domain
 import type { QueryBus } from '../../../../../../../src/Contexts/Shared/domain/QueryBus.js';
 import ApiExceptionsHttpStatusCodeMapping from '../../../../../../../src/Contexts/Shared/infrastructure/Express/ApiExceptionsHttpStatusCodeMapping.js';
 import InstrumentsPutUpdateController from '../../../../../../../src/apps/mybandnow/backend/controllers/instruments/InstrumentsPutUpdateController.js';
-import { UpdateInstrumentsCommand } from '../../../../../../../src/Contexts/Moat/Instruments/application/update/UpdateInstrumentsCommand.js';
+import { UpdateInstrumentsCommand } from '../../../../../../../src/Contexts/Instruments/application/update/UpdateInstrumentsCommand.js';
 
 describe('InstrumentsPutUpdateController', () => {
   it('dispatches the update command for an authenticated user', async () => {

@@ -7,9 +7,9 @@ import type { CommandBus } from '../../../../../../../src/Contexts/Shared/domain
 import type { QueryBus } from '../../../../../../../src/Contexts/Shared/domain/QueryBus.js';
 import ApiExceptionsHttpStatusCodeMapping from '../../../../../../../src/Contexts/Shared/infrastructure/Express/ApiExceptionsHttpStatusCodeMapping.js';
 import InstrumentsGetMatchByCriteriaController from '../../../../../../../src/apps/mybandnow/backend/controllers/instruments/InstrumentsGetMatchByCriteriaController.js';
-import { MatchByCriteriaInstrumentsQuery } from '../../../../../../../src/Contexts/Moat/Instruments/application/matchByCriteria/MatchByCriteriaInstrumentsQuery.js';
-import { MatchByCriteriaInstrumentsResponse } from '../../../../../../../src/Contexts/Moat/Instruments/application/matchByCriteria/MatchByCriteriaInstrumentsResponse.js';
-import { InstrumentsMother } from '../../../../../../../test/unit-integration/Contexts/Moat/Instruments/domain/InstrumentsMother.js';
+import { MatchByCriteriaInstrumentsQuery } from '../../../../../../../src/Contexts/Instruments/application/matchByCriteria/MatchByCriteriaInstrumentsQuery.js';
+import { MatchByCriteriaInstrumentsResponse } from '../../../../../../../src/Contexts/Instruments/application/matchByCriteria/MatchByCriteriaInstrumentsResponse.js';
+import { InstrumentsMother } from '../../../../../../../test/unit-integration/Contexts/Instruments/domain/InstrumentsMother.js';
 import { queryParamsToCriteria } from '../../../../../../../src/Contexts/Shared/infrastructure/Http/utils/criteria.utils.js';
 
 describe('InstrumentsGetMatchByCriteriaController', () => {

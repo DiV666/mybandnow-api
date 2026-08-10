@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { Context } from 'openapi-backend';
-import { MusicianSearchByUserIdQuery } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
-import { MusicianSearchByUserIdResponse } from '@Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { SongListByBandQuery } from '@Contexts/Moat/Song/application/listByBand/SongListByBandQuery.js';
-import { SongListByBandResponse } from '@Contexts/Moat/Song/application/listByBand/SongListByBandResponse.js';
+import { MusicianSearchByUserIdQuery } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserIdResponse } from '@Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { SongListByBandQuery } from '@Contexts/Song/application/listByBand/SongListByBandQuery.js';
+import { SongListByBandResponse } from '@Contexts/Song/application/listByBand/SongListByBandResponse.js';
 import { ForbiddenException } from '@Contexts/Shared/domain/exceptions/ForbiddenException.js';
 import ApiController from '@Contexts/Shared/infrastructure/Express/ApiController.js';
 

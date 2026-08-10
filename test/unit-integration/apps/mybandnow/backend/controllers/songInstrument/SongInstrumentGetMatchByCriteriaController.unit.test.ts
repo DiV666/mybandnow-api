@@ -8,11 +8,11 @@ import type { CommandBus } from '../../../../../../../src/Contexts/Shared/domain
 import type { QueryBus } from '../../../../../../../src/Contexts/Shared/domain/QueryBus.js';
 import ApiExceptionsHttpStatusCodeMapping from '../../../../../../../src/Contexts/Shared/infrastructure/Express/ApiExceptionsHttpStatusCodeMapping.js';
 import SongInstrumentGetMatchByCriteriaController from '../../../../../../../src/apps/mybandnow/backend/controllers/songInstrument/SongInstrumentGetMatchByCriteriaController.js';
-import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
-import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { MatchByCriteriaSongInstrumentQuery } from '../../../../../../../src/Contexts/Moat/SongInstrument/application/matchByCriteria/MatchByCriteriaSongInstrumentQuery.js';
-import { MatchByCriteriaSongInstrumentResponse } from '../../../../../../../src/Contexts/Moat/SongInstrument/application/matchByCriteria/MatchByCriteriaSongInstrumentResponse.js';
-import { SongInstrumentMother } from '../../../../../../../test/unit-integration/Contexts/Moat/SongInstrument/domain/SongInstrumentMother.js';
+import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { MatchByCriteriaSongInstrumentQuery } from '../../../../../../../src/Contexts/SongInstrument/SongInstrument/application/matchByCriteria/MatchByCriteriaSongInstrumentQuery.js';
+import { MatchByCriteriaSongInstrumentResponse } from '../../../../../../../src/Contexts/SongInstrument/SongInstrument/application/matchByCriteria/MatchByCriteriaSongInstrumentResponse.js';
+import { SongInstrumentMother } from '../../../../../../../test/unit-integration/Contexts/SongInstrument/SongInstrument/domain/SongInstrumentMother.js';
 import { ForbiddenException } from '../../../../../../../src/Contexts/Shared/domain/exceptions/ForbiddenException.js';
 import { queryParamsToCriteria } from '../../../../../../../src/Contexts/Shared/infrastructure/Http/utils/criteria.utils.js';
 

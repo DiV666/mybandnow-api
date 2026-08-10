@@ -1,21 +1,20 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
-import { SongInstrumentAssigner } from '@Contexts/Moat/SongInstrument/application/assign/SongInstrumentAssigner.js';
-import { AssignSongInstrumentMusicianCommandHandler } from '@Contexts/Moat/SongInstrument/application/assign/AssignSongInstrumentMusicianCommandHandler.js';
+import { SongInstrumentAssigner } from '@Contexts/SongInstrument/SongInstrument/application/assign/SongInstrumentAssigner.js';
+import { AssignSongInstrumentMusicianCommandHandler } from '@Contexts/SongInstrument/SongInstrument/application/assign/AssignSongInstrumentMusicianCommandHandler.js';
 
 export function register(container: ContainerBuilder) {
   container
-    .register('Moat.SongInstrument.SongInstrumentAssigner', SongInstrumentAssigner)
+    .register('SongInstrument.SongInstrument.SongInstrumentAssigner', SongInstrumentAssigner)
     .addArgument(new Reference('Shared.BunyanLogger'))
-    .addArgument(() => container.get('Shared.CommandBus'))
-    .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'))
-    .addArgument(new Reference('Moat.SongInstrument.SongInstrumentRepository'))
-    .addArgument(new Reference('Moat.Song.SongRepository'));
+    .addArgument(new Reference('SongInstrument.SongInstrument.BandMembershipGateway'))
+    .addArgument(new Reference('SongInstrument.SongInstrument.SongInstrumentRepository'))
+    .addArgument(new Reference('SongInstrument.SongInstrument.SongInstrumentRepository'));
 
   container
     .register(
-      'Moat.SongInstrument.AssignSongInstrumentMusicianCommandHandler',
+      'SongInstrument.SongInstrument.AssignSongInstrumentMusicianCommandHandler',
       AssignSongInstrumentMusicianCommandHandler
     )
-    .addArgument(new Reference('Moat.SongInstrument.SongInstrumentAssigner'))
+    .addArgument(new Reference('SongInstrument.SongInstrument.SongInstrumentAssigner'))
     .addTag('commandHandler');
 }

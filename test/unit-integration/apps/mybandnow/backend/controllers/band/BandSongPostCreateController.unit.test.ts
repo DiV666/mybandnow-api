@@ -8,11 +8,11 @@ import type { CommandBus } from '../../../../../../../src/Contexts/Shared/domain
 import type { QueryBus } from '../../../../../../../src/Contexts/Shared/domain/QueryBus.js';
 import ApiExceptionsHttpStatusCodeMapping from '../../../../../../../src/Contexts/Shared/infrastructure/Express/ApiExceptionsHttpStatusCodeMapping.js';
 import BandSongPostCreateController from '../../../../../../../src/apps/mybandnow/backend/controllers/band/BandSongPostCreateController.js';
-import { CreateSongCommand } from '../../../../../../../src/Contexts/Moat/Song/application/create/CreateSongCommand.js';
-import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
-import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Moat/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
-import { SongCheckBandMembershipQuery } from '../../../../../../../src/Contexts/Moat/Song/application/checkBandMembership/SongCheckBandMembershipQuery.js';
-import { SongCheckBandMembershipResponse } from '../../../../../../../src/Contexts/Moat/Song/application/checkBandMembership/SongCheckBandMembershipResponse.js';
+import { CreateSongCommand } from '../../../../../../../src/Contexts/Song/application/create/CreateSongCommand.js';
+import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
+import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
+import { SongCheckBandMembershipQuery } from '../../../../../../../src/Contexts/Song/application/checkBandMembership/SongCheckBandMembershipQuery.js';
+import { SongCheckBandMembershipResponse } from '../../../../../../../src/Contexts/Song/application/checkBandMembership/SongCheckBandMembershipResponse.js';
 import { ForbiddenException } from '../../../../../../../src/Contexts/Shared/domain/exceptions/ForbiddenException.js';
 
 describe('BandSongPostCreateController', () => {

@@ -4,7 +4,7 @@ import type { CommandBus } from '@Contexts/Shared/domain/CommandBus.js';
 import Logger from '@Contexts/Shared/domain/Logger.js';
 import { Exception } from '@Contexts/Shared/domain/Exception.js';
 import { InvalidArgumentException } from '@Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
-import { DeletePreviousSongInstrumentVideoCommand } from '@Contexts/Moat/SongInstrumentVideo/application/deletePrevious/DeletePreviousSongInstrumentVideoCommand.js';
+import { DeletePreviousSongInstrumentVideoCommand } from '@Contexts/SongInstrument/Video/application/deletePrevious/DeletePreviousSongInstrumentVideoCommand.js';
 
 type ReplacementPayload = {
   songInstrumentId: string;
