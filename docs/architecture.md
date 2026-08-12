@@ -80,6 +80,7 @@ Responsabilidad:
 Módulos:
 
 - `SongInstrumentProcess`
+- `VideoclipProcess`
 
 ### `Shared`
 
@@ -117,6 +118,29 @@ Responsabilidad:
 5. Si el fichero es válido, se sube a GCS y se persiste el estado técnico del proceso.
 6. Al completarse el proceso, otro subscriber marca `SongInstrumentUpload` como completado.
 7. Finalmente se crea el `SongInstrumentVideo` persistido que luego expone el endpoint `GET`.
+
+## Flujo principal de `Videoclip`
+
+### Solicitud de generación
+
+1. Un cliente autenticado invoca `POST /v1/songs/{songId}/videoclip` con un `id` generado en cliente.
+2. El controller resuelve el `Musician` del `userId` autenticado y valida la canción.
+3. El controller consulta (vía query bus) todos los `SongInstrument` de la canción y, para cada uno, si tiene
+   `SongInstrumentVideo` asociado — estas lecturas cross-context se resuelven en la capa de composición
+   (`apps/`), no dentro del agregado.
+4. `VideoclipProcessRequester` valida la regla de negocio: la canción debe tener al menos un instrumento y
+   todos deben tener vídeo subido. Si falta alguno, lanza `IncompleteSongInstrumentsException` (`400`). Si ya
+   existe un proceso **activo** (`PENDING`/`MIXING`) para la canción, lanza
+   `VideoclipProcessAlreadyRequestedException` (`409`). Un proceso previo en estado terminal
+   (`SUCCESS`/`FAILED`/`TIMEOUT`) no bloquea una nueva solicitud.
+5. Si todo es válido, se crea un **nuevo** `VideoclipProcess` en estado `PENDING` (el `aiPayload` guarda el
+   snapshot de instrumentos/URLs enviado al worker de IA) y se publica `VideoclipRequestedDomainEvent`. Los
+   procesos nunca se sobrescriben: `songId` no es único, por lo que cada solicitud añade un registro y queda
+   como historial de la canción.
+6. La respuesta termina en `202 Accepted`.
+7. Un worker de IA independiente (repositorio privado, fuera de este monorepo) consume el evento y ejecuta el
+   pipeline de generación. Las transiciones `MIXING`/`SUCCESS`/`FAILED`/`TIMEOUT` y el callback que las dispara
+   son una funcionalidad futura, no implementada todavía.
 
 ## Persistencia y mensajería
 

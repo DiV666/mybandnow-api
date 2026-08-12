@@ -77,6 +77,7 @@ model Song {
   songInstrumentUploads          SongInstrumentUpload[]
   songInstruments                SongInstrument[]
   videoclip                      Videoclip?
+  videoclipProcesses             VideoclipProcess[]
 
   @@index([bandId])
   @@index([title])
@@ -157,13 +158,18 @@ model SongInstrumentProcess {
 }
 
 model VideoclipProcess {
-  id           String   @id // Comparte exactamente el ID del modelo Videoclip (Moat)
+  id           String   @id // Comparte exactamente el ID del modelo Videoclip (Moat) una vez generado
+  song         Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+  songId       String // Historial: pueden existir varios procesos por canción a lo largo del tiempo
   status       String   @default("PENDING") // PENDING | MIXING | SUCCESS | FAILED | TIMEOUT
   aiPayload    Json? // Snapshot denormalizado enviado al worker de IA
   aiResponse   Json? // Registro de logs e intercambio con la IA
   finalGcsPath String? // Ruta inmutable del videoclip generado en GCS
   startedAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@index([songId])
+  @@index([songId, status])
 }
 
 // =========================================================================

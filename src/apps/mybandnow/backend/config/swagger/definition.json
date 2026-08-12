@@ -684,6 +684,65 @@
                 }
             }
         },
+        "/v1/songs/{songId}/videoclip": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "operationId": "songVideoclipPostRequest",
+                "tags": [
+                    "Song"
+                ],
+                "summary": "Request videoclip generation for a song",
+                "description": "Validates that every song instrument has an uploaded video and, if so, starts the asynchronous videoclip generation process.",
+                "parameters": [
+                    {
+                        "name": "songId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Song identifier",
+                        "schema": {
+                            "$ref": "#/components/schemas/UUID"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SongVideoclipRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "The videoclip generation process has been requested"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Conflict"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Unknown"
+                    }
+                }
+            }
+        },
         "/v1/songs/{songId}/instruments": {
             "post": {
                 "security": [
@@ -2022,6 +2081,23 @@
                         "type": "string",
                         "format": "email",
                         "description": "Must belong to an existing user with a musician profile. True email invitations are out of scope for this POC."
+                    }
+                }
+            },
+            "SongVideoclipRequest": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "id"
+                ],
+                "properties": {
+                    "id": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/UUID"
+                            }
+                        ],
+                        "description": "Client-generated identifier for the videoclip generation process."
                     }
                 }
             },

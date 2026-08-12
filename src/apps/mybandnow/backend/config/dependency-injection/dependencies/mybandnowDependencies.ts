@@ -46,6 +46,8 @@ import { register as registerSongMatcher } from '@Apps/moat/backend/config/depen
 import { register as registerSongFindById } from '@Apps/moat/backend/config/dependency-injection/use-cases/song/songFindById.dependency.js';
 import { SongInstrumentPrismaRepository } from '@Contexts/SongInstrument/SongInstrument/infrastructure/persistence/SongInstrumentPrismaRepository.js';
 import { SongInstrumentVideoPrismaRepository } from '@Contexts/SongInstrument/Video/infrastructure/persistence/SongInstrumentVideoPrismaRepository.js';
+import { SongInstrumentVideoFindBySongInstrumentId } from '@Contexts/SongInstrument/Video/application/findBySongInstrumentId/SongInstrumentVideoFindBySongInstrumentId.js';
+import { FindSongInstrumentVideoBySongInstrumentIdQueryHandler } from '@Contexts/SongInstrument/Video/application/findBySongInstrumentId/FindSongInstrumentVideoBySongInstrumentIdQueryHandler.js';
 import { SongInstrumentCheckSongOwnership } from '@Contexts/SongInstrument/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnership.js';
 import { SongInstrumentCheckSongOwnershipQueryHandler } from '@Contexts/SongInstrument/SongInstrument/application/checkSongOwnership/SongInstrumentCheckSongOwnershipQueryHandler.js';
 import { SongInstrumentUploadPrismaRepository } from '@Contexts/SongInstrument/Upload/infrastructure/persistence/SongInstrumentUploadPrismaRepository.js';
@@ -208,5 +210,20 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
       SongInstrumentCheckSongOwnershipQueryHandler
     )
     .addArgument(new Reference('SongInstrument.SongInstrument.SongInstrumentCheckSongOwnership'))
+    .addTag('queryHandler');
+
+  container
+    .register(
+      'SongInstrument.Video.SongInstrumentVideoFindBySongInstrumentId',
+      SongInstrumentVideoFindBySongInstrumentId
+    )
+    .addArgument(new Reference('SongInstrument.Video.SongInstrumentVideoRepository'));
+
+  container
+    .register(
+      'SongInstrument.Video.FindSongInstrumentVideoBySongInstrumentIdQueryHandler',
+      FindSongInstrumentVideoBySongInstrumentIdQueryHandler
+    )
+    .addArgument(new Reference('SongInstrument.Video.SongInstrumentVideoFindBySongInstrumentId'))
     .addTag('queryHandler');
 }

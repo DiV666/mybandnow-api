@@ -10,3 +10,12 @@ export async function songGetMatchByCriteria(
 ): Promise<void> {
   await runController('Apps.Mybandnow.Backend.controllers.SongGetMatchByCriteriaController', context, req, res, next);
 }
+
+export async function songVideoclipPostRequest(
+  context: OpenAPIContext,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  await runController('Apps.Mybandnow.Backend.controllers.SongVideoclipPostRequestController', context, req, res, next);
+}
