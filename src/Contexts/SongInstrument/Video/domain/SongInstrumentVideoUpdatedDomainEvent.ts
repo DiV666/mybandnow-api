@@ -10,7 +10,7 @@ export type SongInstrumentVideoUpdatedDomainEventAttributes = {
 };
 
 export class SongInstrumentVideoUpdatedDomainEvent extends DomainEvent {
-  static readonly EVENT_NAME: string = 'rubricae.moat.1.command.songinstrumentvideo.updated';
+  static readonly EVENT_NAME: string = 'song_instrument.1.video.updated';
 
   readonly attributes: SongInstrumentVideoUpdatedDomainEventAttributes;
 

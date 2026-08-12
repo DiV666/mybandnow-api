@@ -7,7 +7,7 @@ export type InstrumentsUpdatedDomainEventAttributes = {
 };
 
 export class InstrumentsUpdatedDomainEvent extends DomainEvent {
-  static readonly EVENT_NAME: string = 'rubricae.moat.1.command.instruments.updated';
+  static readonly EVENT_NAME: string = 'instruments.1.instruments.updated';
 
   readonly attributes: InstrumentsUpdatedDomainEventAttributes;
 

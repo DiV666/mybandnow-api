@@ -6,7 +6,7 @@ export type SongInstrumentUploadFailedDomainEventAttributes = {
 };
 
 export class SongInstrumentUploadFailedDomainEvent extends DomainEvent {
-  static readonly EVENT_NAME = 'moat.song_instrument_upload.failed';
+  static readonly EVENT_NAME = 'song_instrument.1.upload.failed';
 
   readonly id: string;
   readonly attemptId: string;

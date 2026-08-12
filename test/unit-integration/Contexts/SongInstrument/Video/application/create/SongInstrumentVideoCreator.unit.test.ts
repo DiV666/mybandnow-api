@@ -186,7 +186,7 @@ describe('SongInstrumentVideoCreator should', () => {
     );
     expect(testCase.eventBus().publish).toHaveBeenCalledWith([
       expect.objectContaining({
-        eventName: 'rubricae.moat.1.command.songinstrumentvideo.replaced',
+        eventName: 'song_instrument.1.video.replaced',
         aggregateId: currentSongInstrumentVideo.id.value,
         attributes: {
           songInstrumentId: currentSongInstrumentVideo.songInstrumentId.value,

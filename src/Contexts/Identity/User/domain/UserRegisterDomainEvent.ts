@@ -6,7 +6,7 @@ export type UserRegisterDomainEventAttributes = {
 };
 
 export class UserRegisterDomainEvent extends DomainEvent {
-  static readonly EVENT_NAME: string = 'rubricae.mybandnow.1.command.user.register';
+  static readonly EVENT_NAME: string = 'identity.1.user.register';
 
   readonly attributes: UserRegisterDomainEventAttributes;
 

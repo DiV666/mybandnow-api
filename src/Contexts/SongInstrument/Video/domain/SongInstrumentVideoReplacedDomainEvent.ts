@@ -7,7 +7,7 @@ export type SongInstrumentVideoReplacedDomainEventAttributes = {
 };
 
 export class SongInstrumentVideoReplacedDomainEvent extends DomainEvent {
-  static readonly EVENT_NAME: string = 'rubricae.moat.1.command.songinstrumentvideo.replaced';
+  static readonly EVENT_NAME: string = 'song_instrument.1.video.replaced';
 
   readonly attributes: SongInstrumentVideoReplacedDomainEventAttributes;
 

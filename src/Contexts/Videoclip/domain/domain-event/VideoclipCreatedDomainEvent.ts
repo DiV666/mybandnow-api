@@ -10,7 +10,7 @@ export type VideoclipCreatedDomainEventAttributes = {
 };
 
 export class VideoclipCreatedDomainEvent extends DomainEvent {
-  static readonly EVENT_NAME: string = 'rubricae-moat-1-command-videoclip-created';
+  static readonly EVENT_NAME: string = 'videoclip.1.videoclip.created';
 
   readonly attributes: VideoclipCreatedDomainEventAttributes;
 

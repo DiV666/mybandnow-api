@@ -10,7 +10,7 @@ export type SongInstrumentUploadCompletedDomainEventAttributes = {
 };
 
 export class SongInstrumentUploadCompletedDomainEvent extends DomainEvent {
-  static readonly EVENT_NAME = 'moat.song_instrument_upload.completed';
+  static readonly EVENT_NAME = 'song_instrument.1.upload.completed';
 
   readonly id: string;
   readonly attemptId: string;

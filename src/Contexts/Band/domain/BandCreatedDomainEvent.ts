@@ -7,7 +7,7 @@ export type BandCreatedDomainEventAttributes = {
 };
 
 export class BandCreatedDomainEvent extends DomainEvent {
-  static readonly EVENT_NAME: string = 'rubricae.moat.1.command.band.created';
+  static readonly EVENT_NAME: string = 'band.1.band.created';
 
   readonly attributes: BandCreatedDomainEventAttributes;
 

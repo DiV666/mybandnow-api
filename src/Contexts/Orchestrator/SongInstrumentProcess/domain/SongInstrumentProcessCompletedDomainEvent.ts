@@ -8,7 +8,7 @@ export type SongInstrumentProcessCompletedDomainEventAttributes = {
 };
 
 export class SongInstrumentProcessCompletedDomainEvent extends DomainEvent {
-  static readonly EVENT_NAME = 'orchestrator.song_instrument_process.completed';
+  static readonly EVENT_NAME = 'orchestrator.1.song_instrument_process.completed';
 
   readonly attemptId: string;
   readonly url: string;

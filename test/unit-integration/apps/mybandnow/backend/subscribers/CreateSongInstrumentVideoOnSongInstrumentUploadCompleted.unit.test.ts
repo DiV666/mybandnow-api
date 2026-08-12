@@ -21,7 +21,7 @@ describe('CreateSongInstrumentVideoOnSongInstrumentUploadCompleted', () => {
   it('dispatches CreateSongInstrumentVideoCommand with business completion payload', async () => {
     // Arrange
     const subscriber = new CreateSongInstrumentVideoOnSongInstrumentUploadCompleted(
-      'moat.song_instrument_upload.completed',
+      'song_instrument.1.upload.completed',
       logger,
       commandBusResolver
     );
@@ -57,7 +57,7 @@ describe('CreateSongInstrumentVideoOnSongInstrumentUploadCompleted', () => {
   it('dispatches CreateSongInstrumentVideoCommand when RabbitMQ provides only generic event attributes', async () => {
     // Arrange
     const subscriber = new CreateSongInstrumentVideoOnSongInstrumentUploadCompleted(
-      'moat.song_instrument_upload.completed',
+      'song_instrument.1.upload.completed',
       logger,
       commandBusResolver
     );
@@ -91,7 +91,7 @@ describe('CreateSongInstrumentVideoOnSongInstrumentUploadCompleted', () => {
   it('delegates handlerException to logger.error', () => {
     // Arrange
     const subscriber = new CreateSongInstrumentVideoOnSongInstrumentUploadCompleted(
-      'moat.song_instrument_upload.completed',
+      'song_instrument.1.upload.completed',
       logger,
       commandBusResolver
     );

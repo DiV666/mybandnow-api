@@ -97,7 +97,7 @@ export function registerAppsDependencies(container: ContainerBuilder) {
       'Apps.Mybandnow.Backend.subscribers.ValidateSongInstrumentUploadOnUploadRequested',
       ValidateSongInstrumentUploadOnUploadRequested
     )
-    .addArgument('moat.song_instrument_upload.upload_requested')
+    .addArgument('song_instrument.1.upload.requested')
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(() => container.get<CommandBus>('Shared.CommandBus'))
     .addArgument(new Reference('Song.SongRepository'))
@@ -108,7 +108,7 @@ export function registerAppsDependencies(container: ContainerBuilder) {
       'Apps.Mybandnow.Backend.subscribers.CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted',
       CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted
     )
-    .addArgument('orchestrator.song_instrument_process.completed')
+    .addArgument('orchestrator.1.song_instrument_process.completed')
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(() => container.get<CommandBus>('Shared.CommandBus'))
     .addTag('domainEventSubscriber');
@@ -118,7 +118,7 @@ export function registerAppsDependencies(container: ContainerBuilder) {
       'Apps.Mybandnow.Backend.subscribers.FailSongInstrumentUploadOnSongInstrumentProcessFailed',
       FailSongInstrumentUploadOnSongInstrumentProcessFailed
     )
-    .addArgument('orchestrator.song_instrument_process.failed')
+    .addArgument('orchestrator.1.song_instrument_process.failed')
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(() => container.get<CommandBus>('Shared.CommandBus'))
     .addTag('domainEventSubscriber');
@@ -128,7 +128,7 @@ export function registerAppsDependencies(container: ContainerBuilder) {
       'Apps.Mybandnow.Backend.subscribers.CreateSongInstrumentVideoOnSongInstrumentUploadCompleted',
       CreateSongInstrumentVideoOnSongInstrumentUploadCompleted
     )
-    .addArgument('moat.song_instrument_upload.completed')
+    .addArgument('song_instrument.1.upload.completed')
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(() => container.get<CommandBus>('Shared.CommandBus'))
     .addTag('domainEventSubscriber');
@@ -138,7 +138,7 @@ export function registerAppsDependencies(container: ContainerBuilder) {
       'Apps.Mybandnow.Backend.subscribers.DeletePreviousSongInstrumentVideoOnSongInstrumentVideoReplaced',
       DeletePreviousSongInstrumentVideoOnSongInstrumentVideoReplaced
     )
-    .addArgument('rubricae.moat.1.command.songinstrumentvideo.replaced')
+    .addArgument('song_instrument.1.video.replaced')
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(() => container.get<CommandBus>('Shared.CommandBus'))
     .addTag('domainEventSubscriber');

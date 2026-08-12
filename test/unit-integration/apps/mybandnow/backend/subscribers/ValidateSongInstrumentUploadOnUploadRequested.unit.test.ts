@@ -35,7 +35,7 @@ describe('ValidateSongInstrumentUploadOnUploadRequested', () => {
   it('dispatches SongInstrumentProcessValidateCommand with aggregateId, fileReference, and upload ownership data from the domain event', async () => {
     // Arrange
     const subscriber = new ValidateSongInstrumentUploadOnUploadRequested(
-      'moat.song_instrument_upload.upload_requested',
+      'song_instrument.1.upload.requested',
       logger,
       commandBusResolver,
       songRepository
@@ -70,7 +70,7 @@ describe('ValidateSongInstrumentUploadOnUploadRequested', () => {
   it('dispatches SongInstrumentProcessValidateCommand when RabbitMQ provides only generic event attributes', async () => {
     // Arrange
     const subscriber = new ValidateSongInstrumentUploadOnUploadRequested(
-      'moat.song_instrument_upload.upload_requested',
+      'song_instrument.1.upload.requested',
       logger,
       commandBusResolver,
       songRepository
@@ -104,7 +104,7 @@ describe('ValidateSongInstrumentUploadOnUploadRequested', () => {
     // Arrange
     songRepository.search.mockResolvedValue(null);
     const subscriber = new ValidateSongInstrumentUploadOnUploadRequested(
-      'moat.song_instrument_upload.upload_requested',
+      'song_instrument.1.upload.requested',
       logger,
       commandBusResolver,
       songRepository
@@ -124,7 +124,7 @@ describe('ValidateSongInstrumentUploadOnUploadRequested', () => {
   it('delegates handlerException to logger.error', () => {
     // Arrange
     const subscriber = new ValidateSongInstrumentUploadOnUploadRequested(
-      'moat.song_instrument_upload.upload_requested',
+      'song_instrument.1.upload.requested',
       logger,
       commandBusResolver,
       songRepository

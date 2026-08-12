@@ -24,7 +24,7 @@ describe('FailSongInstrumentUploadOnSongInstrumentProcessFailed', () => {
   it('dispatches SongInstrumentUploadUpdateStatusCommand with FAILED status when the technical process fails', async () => {
     // Arrange
     const subscriber = new FailSongInstrumentUploadOnSongInstrumentProcessFailed(
-      'orchestrator.song_instrument_process.failed',
+      'orchestrator.1.song_instrument_process.failed',
       logger,
       commandBusResolver
     );
@@ -55,7 +55,7 @@ describe('FailSongInstrumentUploadOnSongInstrumentProcessFailed', () => {
   it('routes missing upload attempts to dead-letter without retry', () => {
     // Arrange
     const subscriber = new FailSongInstrumentUploadOnSongInstrumentProcessFailed(
-      'orchestrator.song_instrument_process.failed',
+      'orchestrator.1.song_instrument_process.failed',
       logger,
       commandBusResolver
     );
@@ -72,7 +72,7 @@ describe('FailSongInstrumentUploadOnSongInstrumentProcessFailed', () => {
   it('delegates handlerException to logger.error', () => {
     // Arrange
     const subscriber = new FailSongInstrumentUploadOnSongInstrumentProcessFailed(
-      'orchestrator.song_instrument_process.failed',
+      'orchestrator.1.song_instrument_process.failed',
       logger,
       commandBusResolver
     );

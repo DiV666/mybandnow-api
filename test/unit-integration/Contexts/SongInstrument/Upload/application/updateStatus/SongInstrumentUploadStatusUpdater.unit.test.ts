@@ -59,7 +59,7 @@ describe('SongInstrumentUploadStatusUpdater', () => {
     expect(repository.save).toHaveBeenCalled();
     expect(eventBus.publish).toHaveBeenCalledWith([
       expect.objectContaining({
-        eventName: 'moat.song_instrument_upload.completed',
+        eventName: 'song_instrument.1.upload.completed',
         aggregateId: songInstrumentUpload.id.value,
         attributes: expect.objectContaining({
           id: songInstrumentUpload.id.value,
@@ -95,7 +95,7 @@ describe('SongInstrumentUploadStatusUpdater', () => {
     );
     expect(eventBus.publish).toHaveBeenCalledWith([
       expect.objectContaining({
-        eventName: 'moat.song_instrument_upload.failed',
+        eventName: 'song_instrument.1.upload.failed',
         aggregateId: songInstrumentUpload.id.value,
         id: songInstrumentUpload.id.value
       })

@@ -99,7 +99,7 @@ describe('SongInstrumentUploadUploader', () => {
     );
     expect(eventBus.publish).toHaveBeenCalledWith([
       expect.objectContaining({
-        eventName: 'moat.song_instrument_upload.upload_requested',
+        eventName: 'song_instrument.1.upload.requested',
         aggregateId: expect.any(String),
         attributes: expect.objectContaining({
           attemptId: expect.any(String),
@@ -146,7 +146,7 @@ describe('SongInstrumentUploadUploader', () => {
     );
     expect(eventBus.publish).toHaveBeenCalledWith([
       expect.objectContaining({
-        eventName: 'moat.song_instrument_upload.upload_requested',
+        eventName: 'song_instrument.1.upload.requested',
         aggregateId: expect.any(String),
         attributes: expect.objectContaining({
           attemptId: expect.any(String),

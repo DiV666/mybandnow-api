@@ -34,7 +34,7 @@ describe('SongInstrumentVideo should', () => {
       const [domainEvent] = createdModel.pullDomainEvents();
       const primitives: SongInstrumentVideoPrimitives = createdModel.toPrimitives();
 
-      expect(domainEvent.eventName).toBe('rubricae.moat.1.command.songinstrumentvideo.created');
+      expect(domainEvent.eventName).toBe('song_instrument.1.video.created');
       expect(domainEvent.aggregateId).toBe(createdModel.id.value);
       expect(domainEvent.attributes).toEqual(
         SongInstrumentVideoCreatedDomainEventMother.fromModel(createdModel).attributes
@@ -63,7 +63,7 @@ describe('SongInstrumentVideo should', () => {
       const [domainEvent] = updatedModel.pullDomainEvents();
 
       expect(updatedModel.startTimeMs.value).toBe(model.duration.value * 1000 + 5000);
-      expect(domainEvent.eventName).toBe('rubricae.moat.1.command.songinstrumentvideo.updated');
+      expect(domainEvent.eventName).toBe('song_instrument.1.video.updated');
       expect(domainEvent.aggregateId).toBe(model.id.value);
       expect(domainEvent.attributes).toEqual({
         createdAt: updatedModel.createdAt.value.toISOString(),
@@ -98,7 +98,7 @@ describe('SongInstrumentVideo should', () => {
       expect(replacedModel.size.value).toBe(model.size.value + 10);
       expect(replacedModel.duration.value).toBe(model.duration.value + 20);
       expect(replacedModel.url.value).toBe(`${model.url.value}-replaced`);
-      expect(domainEvent.eventName).toBe('rubricae.moat.1.command.songinstrumentvideo.replaced');
+      expect(domainEvent.eventName).toBe('song_instrument.1.video.replaced');
       expect(domainEvent.aggregateId).toBe(model.id.value);
       expect(domainEvent.attributes).toEqual({
         songInstrumentId: model.songInstrumentId.value,

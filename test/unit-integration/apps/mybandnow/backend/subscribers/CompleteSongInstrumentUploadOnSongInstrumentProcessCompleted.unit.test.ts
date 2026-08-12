@@ -22,7 +22,7 @@ describe('CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted', () => {
   it('dispatches SongInstrumentUploadUpdateStatusCommand with completion payload from the technical process event', async () => {
     // Arrange
     const subscriber = new CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted(
-      'orchestrator.song_instrument_process.completed',
+      'orchestrator.1.song_instrument_process.completed',
       logger,
       commandBusResolver
     );
@@ -58,7 +58,7 @@ describe('CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted', () => {
   it('dispatches SongInstrumentUploadUpdateStatusCommand when RabbitMQ provides only generic event attributes', async () => {
     // Arrange
     const subscriber = new CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted(
-      'orchestrator.song_instrument_process.completed',
+      'orchestrator.1.song_instrument_process.completed',
       logger,
       commandBusResolver
     );
@@ -92,7 +92,7 @@ describe('CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted', () => {
   it('delegates handlerException to logger.error', () => {
     // Arrange
     const subscriber = new CompleteSongInstrumentUploadOnSongInstrumentProcessCompleted(
-      'orchestrator.song_instrument_process.completed',
+      'orchestrator.1.song_instrument_process.completed',
       logger,
       commandBusResolver
     );
