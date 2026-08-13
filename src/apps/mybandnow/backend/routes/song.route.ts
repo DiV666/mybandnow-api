@@ -26,5 +26,11 @@ export async function songVideoclipDeleteCancel(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  await runController('Apps.Mybandnow.Backend.controllers.SongVideoclipDeleteCancelController', context, req, res, next);
+  await runController(
+    'Apps.Mybandnow.Backend.controllers.SongVideoclipDeleteCancelController',
+    context,
+    req,
+    res,
+    next
+  );
 }
