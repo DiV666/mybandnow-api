@@ -9,6 +9,7 @@ export class RequestVideoclipCommand extends Command {
   constructor(
     readonly id: string,
     readonly songId: string,
+    readonly originalVideoclipUrl: string,
     readonly instruments: Array<RequestVideoclipCommandInstrument>
   ) {
     super();

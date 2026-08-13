@@ -10,6 +10,7 @@ import { EventBus } from '@Contexts/Shared/domain/EventBus.js';
 const ID = '12345678-1234-4234-8234-123456789012';
 const SONG_ID = '22345678-1234-4234-8234-123456789012';
 const SONG_INSTRUMENT_ID = '32345678-1234-4234-8234-123456789012';
+const ORIGINAL_VIDEOCLIP_URL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
 
 function existingProcessWithStatus(status: string): VideoclipProcess {
   return VideoclipProcess.fromPrimitives({
@@ -48,7 +49,7 @@ describe('VideoclipProcessRequester', () => {
     async (status) => {
       repository.searchActiveBySongId.mockResolvedValue(existingProcessWithStatus(status));
 
-      const command = new RequestVideoclipCommand(ID, SONG_ID, [
+      const command = new RequestVideoclipCommand(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, [
         { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://x.mp4' }
       ]);
 
@@ -60,7 +61,7 @@ describe('VideoclipProcessRequester', () => {
   it('allows a new request when the existing process for the song has reached a terminal status', async () => {
     repository.searchActiveBySongId.mockResolvedValue(null);
 
-    const command = new RequestVideoclipCommand(ID, SONG_ID, [
+    const command = new RequestVideoclipCommand(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, [
       { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4' }
     ]);
 
@@ -73,7 +74,7 @@ describe('VideoclipProcessRequester', () => {
   it('throws IncompleteSongInstrumentsException when there are no instruments', async () => {
     repository.searchActiveBySongId.mockResolvedValue(null);
 
-    const command = new RequestVideoclipCommand(ID, SONG_ID, []);
+    const command = new RequestVideoclipCommand(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, []);
 
     await expect(requester.run(command)).rejects.toThrow(IncompleteSongInstrumentsException);
     expect(repository.save).not.toHaveBeenCalled();
@@ -82,7 +83,7 @@ describe('VideoclipProcessRequester', () => {
   it('throws IncompleteSongInstrumentsException when an instrument has no video', async () => {
     repository.searchActiveBySongId.mockResolvedValue(null);
 
-    const command = new RequestVideoclipCommand(ID, SONG_ID, [
+    const command = new RequestVideoclipCommand(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, [
       { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: null }
     ]);
 
@@ -93,7 +94,7 @@ describe('VideoclipProcessRequester', () => {
   it('saves the process and publishes the domain event when all instruments have a video', async () => {
     repository.searchActiveBySongId.mockResolvedValue(null);
 
-    const command = new RequestVideoclipCommand(ID, SONG_ID, [
+    const command = new RequestVideoclipCommand(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, [
       { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4' }
     ]);
 
@@ -102,6 +103,7 @@ describe('VideoclipProcessRequester', () => {
     expect(repository.save).toHaveBeenCalledTimes(1);
     const savedProcess = repository.save.mock.calls[0][0];
     expect(savedProcess.id.value).toBe(ID);
+    expect(savedProcess.aiPayload).toMatchObject({ originalVideoclipUrl: ORIGINAL_VIDEOCLIP_URL });
     expect(eventBus.publish).toHaveBeenCalledTimes(1);
   });
 });

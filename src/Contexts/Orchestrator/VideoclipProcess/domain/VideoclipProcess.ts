@@ -39,6 +39,7 @@ export class VideoclipProcess extends AggregateRoot {
   static request(
     id: string,
     songId: string,
+    originalVideoclipUrl: string,
     instruments: Array<VideoclipRequestedInstrumentAttributes>
   ): VideoclipProcess {
     const now = new Date();
@@ -46,7 +47,7 @@ export class VideoclipProcess extends AggregateRoot {
       new VideoclipProcessId(id),
       VideoclipProcessStatus.pending(),
       new VideoclipProcessSongId(songId),
-      { instruments },
+      { originalVideoclipUrl, instruments },
       null,
       null,
       new VideoclipProcessStartedAt(now),
@@ -57,6 +58,7 @@ export class VideoclipProcess extends AggregateRoot {
       new VideoclipRequestedDomainEvent({
         aggregateId: id,
         songId,
+        originalVideoclipUrl,
         instruments
       })
     );

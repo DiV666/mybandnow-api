@@ -12,8 +12,8 @@ export class SongFindById {
       return new SongFindByIdResponse(null);
     }
 
-    const { id: songId, bandId, title } = song.toPrimitives();
+    const { id: songId, bandId, title, originalVideoclipUrl } = song.toPrimitives();
 
-    return new SongFindByIdResponse({ id: songId, bandId, title });
+    return new SongFindByIdResponse({ id: songId, bandId, title, originalVideoclipUrl });
   }
 }

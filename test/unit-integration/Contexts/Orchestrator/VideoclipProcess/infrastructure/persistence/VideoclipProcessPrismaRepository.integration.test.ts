@@ -62,7 +62,8 @@ describe('VideoclipProcessPrismaRepository', () => {
       const songInstrumentId = '32345678-1234-4234-8234-123456789011';
       await createSong(songId);
 
-      const expectedModel = VideoclipProcess.request(id, songId, [
+      const originalVideoclipUrl = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+      const expectedModel = VideoclipProcess.request(id, songId, originalVideoclipUrl, [
         { songInstrumentId, videoUrl: 'gs://bucket/video.mp4' }
       ]);
 
@@ -74,7 +75,10 @@ describe('VideoclipProcessPrismaRepository', () => {
         id,
         status: 'PENDING',
         songId,
-        aiPayload: { instruments: [{ songInstrumentId, videoUrl: 'gs://bucket/video.mp4' }] },
+        aiPayload: {
+          originalVideoclipUrl,
+          instruments: [{ songInstrumentId, videoUrl: 'gs://bucket/video.mp4' }]
+        },
         aiResponse: null,
         finalGcsPath: null
       });
@@ -92,7 +96,7 @@ describe('VideoclipProcessPrismaRepository', () => {
       const songInstrumentId = '32345678-1234-4234-8234-123456789012';
       await createSong(songId);
 
-      const expectedModel = VideoclipProcess.request(id, songId, [
+      const expectedModel = VideoclipProcess.request(id, songId, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', [
         { songInstrumentId, videoUrl: 'gs://bucket/video.mp4' }
       ]);
       await persistenceRepository.save(expectedModel);
@@ -150,7 +154,7 @@ describe('VideoclipProcessPrismaRepository', () => {
       });
       await persistenceRepository.save(failedModel);
 
-      const newModel = VideoclipProcess.request(secondId, songId, [
+      const newModel = VideoclipProcess.request(secondId, songId, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', [
         { songInstrumentId, videoUrl: 'gs://bucket/video.mp4' }
       ]);
       await persistenceRepository.save(newModel);

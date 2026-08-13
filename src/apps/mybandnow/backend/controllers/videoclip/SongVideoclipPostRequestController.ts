@@ -44,6 +44,8 @@ export default class SongVideoclipPostRequestController extends ApiController {
       throw new SongNotExistException(songId);
     }
 
+    const { originalVideoclipUrl } = songResponse.song;
+
     const songInstrumentsResponse = await this.queryBus.ask<MatchByCriteriaSongInstrumentResponse>(
       new MatchByCriteriaSongInstrumentQuery(
         songId,
@@ -67,7 +69,7 @@ export default class SongVideoclipPostRequestController extends ApiController {
       })
     );
 
-    await this.commandBus.dispatch(new RequestVideoclipCommand(id, songId, instruments));
+    await this.commandBus.dispatch(new RequestVideoclipCommand(id, songId, originalVideoclipUrl, instruments));
 
     res.status(httpStatus.ACCEPTED).end();
   }

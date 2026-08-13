@@ -64,7 +64,14 @@ describe('SongInstrumentPostInviteController', () => {
           name: 'Invited Musician'
         })
       )
-      .mockResolvedValueOnce(new SongFindByIdResponse({ id: 'song-id', bandId: BAND_ID, title: 'Song title' }));
+      .mockResolvedValueOnce(
+        new SongFindByIdResponse({
+          id: 'song-id',
+          bandId: BAND_ID,
+          title: 'Song title',
+          originalVideoclipUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+        })
+      );
 
     await controller.run(context, req, res);
 

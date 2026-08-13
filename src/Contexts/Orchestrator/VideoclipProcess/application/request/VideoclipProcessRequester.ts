@@ -13,7 +13,7 @@ export class VideoclipProcessRequester {
   ) {}
 
   async run(command: RequestVideoclipCommand): Promise<void> {
-    const { id, songId, instruments } = command;
+    const { id, songId, originalVideoclipUrl, instruments } = command;
 
     const existingProcess = await this.repository.searchActiveBySongId(new VideoclipProcessSongId(songId));
 
@@ -32,6 +32,7 @@ export class VideoclipProcessRequester {
     const videoclipProcess = VideoclipProcess.request(
       id,
       songId,
+      originalVideoclipUrl,
       instruments.map((instrument) => ({
         songInstrumentId: instrument.songInstrumentId,
         videoUrl: instrument.videoUrl as string
