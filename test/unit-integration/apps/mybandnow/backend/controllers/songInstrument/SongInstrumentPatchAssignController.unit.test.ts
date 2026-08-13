@@ -20,6 +20,7 @@ import { ForbiddenException } from '../../../../../../../src/Contexts/Shared/dom
 import { InvalidArgumentException } from '../../../../../../../src/Contexts/Shared/domain/exceptions/InvalidArgumentException.js';
 
 const BAND_ID = '44444444-4444-4444-8444-444444444444';
+const ORIGINAL_VIDEOCLIP_URL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
 
 describe('SongInstrumentPatchAssignController', () => {
   it('dispatches the assignment command using the provided musician id', async () => {
@@ -70,7 +71,7 @@ describe('SongInstrumentPatchAssignController', () => {
           id: 'song-id',
           bandId: BAND_ID,
           title: 'Song title',
-          originalVideoclipUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+          originalVideoclipUrl: ORIGINAL_VIDEOCLIP_URL
         })
       );
 

@@ -18,6 +18,7 @@ import { InviteSongInstrumentMusicianCommand } from '../../../../../../../src/Co
 import { ForbiddenException } from '../../../../../../../src/Contexts/Shared/domain/exceptions/ForbiddenException.js';
 
 const BAND_ID = '44444444-4444-4444-8444-444444444444';
+const ORIGINAL_VIDEOCLIP_URL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
 
 describe('SongInstrumentPostInviteController', () => {
   it('dispatches the invite command using the provided musician email', async () => {
@@ -69,7 +70,7 @@ describe('SongInstrumentPostInviteController', () => {
           id: 'song-id',
           bandId: BAND_ID,
           title: 'Song title',
-          originalVideoclipUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+          originalVideoclipUrl: ORIGINAL_VIDEOCLIP_URL
         })
       );
 

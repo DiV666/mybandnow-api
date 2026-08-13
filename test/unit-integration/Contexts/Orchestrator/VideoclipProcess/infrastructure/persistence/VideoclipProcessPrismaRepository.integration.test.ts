@@ -11,6 +11,7 @@ const persistenceRepository: VideoclipProcessPersistenceRepository = container.g
 );
 const prismaEnvironmentArranger: Promise<EnvironmentArranger> = container.get('Shared.PrismaEnvironmentArranger');
 const prisma = PrismaClientFactory.createClient();
+const ORIGINAL_VIDEOCLIP_URL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
 
 async function createSong(songId: string): Promise<void> {
   const userId = songId.replace(/^./, '1');
@@ -62,8 +63,7 @@ describe('VideoclipProcessPrismaRepository', () => {
       const songInstrumentId = '32345678-1234-4234-8234-123456789011';
       await createSong(songId);
 
-      const originalVideoclipUrl = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
-      const expectedModel = VideoclipProcess.request(id, songId, originalVideoclipUrl, [
+      const expectedModel = VideoclipProcess.request(id, songId, ORIGINAL_VIDEOCLIP_URL, [
         { songInstrumentId, videoUrl: 'gs://bucket/video.mp4' }
       ]);
 
@@ -76,7 +76,7 @@ describe('VideoclipProcessPrismaRepository', () => {
         status: 'PENDING',
         songId,
         aiPayload: {
-          originalVideoclipUrl,
+          originalVideoclipUrl: ORIGINAL_VIDEOCLIP_URL,
           instruments: [{ songInstrumentId, videoUrl: 'gs://bucket/video.mp4' }]
         },
         aiResponse: null,
@@ -96,7 +96,7 @@ describe('VideoclipProcessPrismaRepository', () => {
       const songInstrumentId = '32345678-1234-4234-8234-123456789012';
       await createSong(songId);
 
-      const expectedModel = VideoclipProcess.request(id, songId, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', [
+      const expectedModel = VideoclipProcess.request(id, songId, ORIGINAL_VIDEOCLIP_URL, [
         { songInstrumentId, videoUrl: 'gs://bucket/video.mp4' }
       ]);
       await persistenceRepository.save(expectedModel);
@@ -154,7 +154,7 @@ describe('VideoclipProcessPrismaRepository', () => {
       });
       await persistenceRepository.save(failedModel);
 
-      const newModel = VideoclipProcess.request(secondId, songId, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', [
+      const newModel = VideoclipProcess.request(secondId, songId, ORIGINAL_VIDEOCLIP_URL, [
         { songInstrumentId, videoUrl: 'gs://bucket/video.mp4' }
       ]);
       await persistenceRepository.save(newModel);
