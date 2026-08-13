@@ -8,6 +8,8 @@ import {
   VideoclipRequestedDomainEvent,
   VideoclipRequestedInstrumentAttributes
 } from './VideoclipRequestedDomainEvent.js';
+import { VideoclipCancelledDomainEvent } from './VideoclipCancelledDomainEvent.js';
+import { VideoclipProcessNotCancellableException } from './exception/VideoclipProcessNotCancellableException.js';
 
 export type VideoclipProcessPrimitives = {
   id: string;
@@ -60,6 +62,29 @@ export class VideoclipProcess extends AggregateRoot {
     );
 
     return process;
+  }
+
+  cancel(): VideoclipProcess {
+    if (!this.status.isPending()) {
+      throw new VideoclipProcessNotCancellableException(this.id.value, this.status.value);
+    }
+
+    const cancelledProcess = new VideoclipProcess(
+      this.id,
+      VideoclipProcessStatus.cancelled(),
+      this.songId,
+      this.aiPayload,
+      this.aiResponse,
+      this.finalGcsPath,
+      this.startedAt,
+      new VideoclipProcessUpdatedAt(new Date())
+    );
+
+    cancelledProcess.record(
+      new VideoclipCancelledDomainEvent({ aggregateId: this.id.value, songId: this.songId.value })
+    );
+
+    return cancelledProcess;
   }
 
   static fromPrimitives(plainData: VideoclipProcessPrimitives): VideoclipProcess {

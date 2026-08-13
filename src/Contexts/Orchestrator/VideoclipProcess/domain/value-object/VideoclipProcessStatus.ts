@@ -6,7 +6,8 @@ export enum VideoclipProcessStatusValues {
   MIXING = 'MIXING',
   SUCCESS = 'SUCCESS',
   FAILED = 'FAILED',
-  TIMEOUT = 'TIMEOUT'
+  TIMEOUT = 'TIMEOUT',
+  CANCELLED = 'CANCELLED'
 }
 
 const ACTIVE_STATUS_VALUES: ReadonlyArray<VideoclipProcessStatusValues> = [
@@ -27,6 +28,10 @@ export class VideoclipProcessStatus extends EnumValueObject<VideoclipProcessStat
     return ACTIVE_STATUS_VALUES.includes(this.value);
   }
 
+  isPending(): boolean {
+    return this.value === VideoclipProcessStatusValues.PENDING;
+  }
+
   static fromValue(value: keyof typeof VideoclipProcessStatusValues): VideoclipProcessStatus {
     try {
       return new VideoclipProcessStatus(VideoclipProcessStatusValues[value]);
@@ -44,6 +49,10 @@ export class VideoclipProcessStatus extends EnumValueObject<VideoclipProcessStat
 
   static pending(): VideoclipProcessStatus {
     return new VideoclipProcessStatus(VideoclipProcessStatusValues.PENDING);
+  }
+
+  static cancelled(): VideoclipProcessStatus {
+    return new VideoclipProcessStatus(VideoclipProcessStatusValues.CANCELLED);
   }
 
   protected throwErrorForInvalidValue(value: VideoclipProcessStatusValues): void {

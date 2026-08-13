@@ -741,6 +741,53 @@
                         "$ref": "#/components/responses/Unknown"
                     }
                 }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "operationId": "songVideoclipDeleteCancel",
+                "tags": [
+                    "Song"
+                ],
+                "summary": "Cancel a pending videoclip generation process for a song",
+                "description": "Cancels the videoclip generation process for a song when it is still in PENDING status.",
+                "parameters": [
+                    {
+                        "name": "songId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Song identifier",
+                        "schema": {
+                            "$ref": "#/components/schemas/UUID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The videoclip generation process has been cancelled"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Conflict"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Unknown"
+                    }
+                }
             }
         },
         "/v1/songs/{songId}/instruments": {

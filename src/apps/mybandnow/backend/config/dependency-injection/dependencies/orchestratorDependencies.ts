@@ -6,6 +6,8 @@ import { SongInstrumentProcessValidateCommandHandler } from '@Contexts/Orchestra
 import { VideoclipProcessPrismaRepository } from '@Contexts/Orchestrator/VideoclipProcess/infrastructure/persistence/VideoclipProcessPrismaRepository.js';
 import { VideoclipProcessRequester } from '@Contexts/Orchestrator/VideoclipProcess/application/request/VideoclipProcessRequester.js';
 import { RequestVideoclipCommandHandler } from '@Contexts/Orchestrator/VideoclipProcess/application/request/RequestVideoclipCommandHandler.js';
+import { VideoclipProcessCanceller } from '@Contexts/Orchestrator/VideoclipProcess/application/cancel/VideoclipProcessCanceller.js';
+import { CancelVideoclipCommandHandler } from '@Contexts/Orchestrator/VideoclipProcess/application/cancel/CancelVideoclipCommandHandler.js';
 
 export function registerOrchestratorDependencies(container: ContainerBuilder) {
   // Repositories & Services
@@ -50,5 +52,15 @@ export function registerOrchestratorDependencies(container: ContainerBuilder) {
   container
     .register('Orchestrator.VideoclipProcess.RequestVideoclipCommandHandler', RequestVideoclipCommandHandler)
     .addArgument(new Reference('Orchestrator.VideoclipProcess.VideoclipProcessRequester'))
+    .addTag('commandHandler');
+
+  container
+    .register('Orchestrator.VideoclipProcess.VideoclipProcessCanceller', VideoclipProcessCanceller)
+    .addArgument(new Reference('Orchestrator.VideoclipProcess.VideoclipProcessPersistenceRepository'))
+    .addArgument(new Reference('Shared.EventBus'));
+
+  container
+    .register('Orchestrator.VideoclipProcess.CancelVideoclipCommandHandler', CancelVideoclipCommandHandler)
+    .addArgument(new Reference('Orchestrator.VideoclipProcess.VideoclipProcessCanceller'))
     .addTag('commandHandler');
 }

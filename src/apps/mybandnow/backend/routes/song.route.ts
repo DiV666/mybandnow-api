@@ -19,3 +19,12 @@ export async function songVideoclipPostRequest(
 ): Promise<void> {
   await runController('Apps.Mybandnow.Backend.controllers.SongVideoclipPostRequestController', context, req, res, next);
 }
+
+export async function songVideoclipDeleteCancel(
+  context: OpenAPIContext,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  await runController('Apps.Mybandnow.Backend.controllers.SongVideoclipDeleteCancelController', context, req, res, next);
+}
