@@ -64,7 +64,7 @@ describe('VideoclipProcessPrismaRepository', () => {
       await createSong(songId);
 
       const expectedModel = VideoclipProcess.request(id, songId, ORIGINAL_VIDEOCLIP_URL, [
-        { songInstrumentId, videoUrl: 'gs://bucket/video.mp4' }
+        { songInstrumentId, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar' }
       ]);
 
       await persistenceRepository.save(expectedModel);
@@ -77,7 +77,7 @@ describe('VideoclipProcessPrismaRepository', () => {
         songId,
         aiPayload: {
           originalVideoclipUrl: ORIGINAL_VIDEOCLIP_URL,
-          instruments: [{ songInstrumentId, videoUrl: 'gs://bucket/video.mp4' }]
+          instruments: [{ songInstrumentId, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar' }]
         },
         aiResponse: null,
         finalGcsPath: null
@@ -97,7 +97,7 @@ describe('VideoclipProcessPrismaRepository', () => {
       await createSong(songId);
 
       const expectedModel = VideoclipProcess.request(id, songId, ORIGINAL_VIDEOCLIP_URL, [
-        { songInstrumentId, videoUrl: 'gs://bucket/video.mp4' }
+        { songInstrumentId, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar' }
       ]);
       await persistenceRepository.save(expectedModel);
 
@@ -123,7 +123,7 @@ describe('VideoclipProcessPrismaRepository', () => {
         id,
         status: 'SUCCESS',
         songId,
-        aiPayload: { instruments: [{ songInstrumentId, videoUrl: 'gs://bucket/video.mp4' }] },
+        aiPayload: { instruments: [{ songInstrumentId, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar' }] },
         aiResponse: null,
         finalGcsPath: 'gs://bucket/final.mp4',
         startedAt: new Date(),
@@ -146,7 +146,7 @@ describe('VideoclipProcessPrismaRepository', () => {
         id: firstId,
         status: 'FAILED',
         songId,
-        aiPayload: { instruments: [{ songInstrumentId, videoUrl: 'gs://bucket/video.mp4' }] },
+        aiPayload: { instruments: [{ songInstrumentId, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar' }] },
         aiResponse: null,
         finalGcsPath: null,
         startedAt: new Date(),
@@ -155,7 +155,7 @@ describe('VideoclipProcessPrismaRepository', () => {
       await persistenceRepository.save(failedModel);
 
       const newModel = VideoclipProcess.request(secondId, songId, ORIGINAL_VIDEOCLIP_URL, [
-        { songInstrumentId, videoUrl: 'gs://bucket/video.mp4' }
+        { songInstrumentId, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar' }
       ]);
       await persistenceRepository.save(newModel);
 

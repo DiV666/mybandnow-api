@@ -50,7 +50,7 @@ describe('VideoclipProcessRequester', () => {
       repository.searchActiveBySongId.mockResolvedValue(existingProcessWithStatus(status));
 
       const command = new RequestVideoclipCommand(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, [
-        { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://x.mp4' }
+        { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://x.mp4', instrumentName: 'Guitar' }
       ]);
 
       await expect(requester.run(command)).rejects.toThrow(VideoclipProcessAlreadyRequestedException);
@@ -62,7 +62,7 @@ describe('VideoclipProcessRequester', () => {
     repository.searchActiveBySongId.mockResolvedValue(null);
 
     const command = new RequestVideoclipCommand(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, [
-      { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4' }
+      { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar' }
     ]);
 
     await requester.run(command);
@@ -84,7 +84,7 @@ describe('VideoclipProcessRequester', () => {
     repository.searchActiveBySongId.mockResolvedValue(null);
 
     const command = new RequestVideoclipCommand(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, [
-      { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: null }
+      { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: null, instrumentName: 'Guitar' }
     ]);
 
     await expect(requester.run(command)).rejects.toThrow(IncompleteSongInstrumentsException);
@@ -95,7 +95,7 @@ describe('VideoclipProcessRequester', () => {
     repository.searchActiveBySongId.mockResolvedValue(null);
 
     const command = new RequestVideoclipCommand(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, [
-      { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4' }
+      { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar' }
     ]);
 
     await requester.run(command);

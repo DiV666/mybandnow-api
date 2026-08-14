@@ -3,6 +3,7 @@ import { DomainEvent } from '@Contexts/Shared/domain/DomainEvent.js';
 export type VideoclipRequestedInstrumentAttributes = {
   readonly songInstrumentId: string;
   readonly videoUrl: string;
+  readonly instrumentName: string;
 };
 
 export type VideoclipRequestedDomainEventAttributes = {

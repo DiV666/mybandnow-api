@@ -10,6 +10,8 @@ import { MatchByCriteriaSongInstrumentQuery } from '@Contexts/SongInstrument/Son
 import { MatchByCriteriaSongInstrumentResponse } from '@Contexts/SongInstrument/SongInstrument/application/matchByCriteria/MatchByCriteriaSongInstrumentResponse.js';
 import { FindSongInstrumentVideoBySongInstrumentIdQuery } from '@Contexts/SongInstrument/Video/application/findBySongInstrumentId/FindSongInstrumentVideoBySongInstrumentIdQuery.js';
 import { FindSongInstrumentVideoBySongInstrumentIdResponse } from '@Contexts/SongInstrument/Video/application/findBySongInstrumentId/FindSongInstrumentVideoBySongInstrumentIdResponse.js';
+import { SearchInstrumentsQuery } from '@Contexts/Instruments/application/search/SearchInstrumentsQuery.js';
+import { SearchInstrumentsResponse } from '@Contexts/Instruments/application/search/SearchInstrumentsResponse.js';
 import { RequestVideoclipCommand } from '@Contexts/Orchestrator/VideoclipProcess/application/request/RequestVideoclipCommand.js';
 import { VideoclipProcessAlreadyRequestedException } from '@Contexts/Orchestrator/VideoclipProcess/domain/exception/VideoclipProcessAlreadyRequestedException.js';
 import { IncompleteSongInstrumentsException } from '@Contexts/Orchestrator/VideoclipProcess/domain/exception/IncompleteSongInstrumentsException.js';
@@ -62,9 +64,14 @@ export default class SongVideoclipPostRequestController extends ApiController {
           new FindSongInstrumentVideoBySongInstrumentIdQuery(songInstrument.id)
         );
 
+        const instrumentResponse = await this.queryBus.ask<SearchInstrumentsResponse>(
+          new SearchInstrumentsQuery(songInstrument.instrumentId)
+        );
+
         return {
           songInstrumentId: songInstrument.id,
-          videoUrl: videoResponse.video ? videoResponse.video.url : null
+          videoUrl: videoResponse.video ? videoResponse.video.url : null,
+          instrumentName: instrumentResponse.toPrimitives().name
         };
       })
     );

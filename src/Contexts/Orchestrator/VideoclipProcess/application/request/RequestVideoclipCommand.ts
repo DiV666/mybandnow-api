@@ -3,6 +3,7 @@ import { Command } from '@Contexts/Shared/domain/Command.js';
 export type RequestVideoclipCommandInstrument = {
   songInstrumentId: string;
   videoUrl: string | null;
+  instrumentName: string;
 };
 
 export class RequestVideoclipCommand extends Command {

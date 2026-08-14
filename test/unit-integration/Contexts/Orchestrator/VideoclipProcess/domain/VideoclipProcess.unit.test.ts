@@ -13,7 +13,9 @@ const ORIGINAL_VIDEOCLIP_URL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
 describe('VideoclipProcess', () => {
   describe('request', () => {
     it('creates a process with PENDING status and the given songId', () => {
-      const instruments = [{ songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4' }];
+      const instruments = [
+        { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar' }
+      ];
 
       const process = VideoclipProcess.request(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, instruments);
 
@@ -26,7 +28,9 @@ describe('VideoclipProcess', () => {
     });
 
     it('records a VideoclipRequestedDomainEvent with the songId and instruments', () => {
-      const instruments = [{ songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4' }];
+      const instruments = [
+        { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar' }
+      ];
 
       const process = VideoclipProcess.request(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, instruments);
       const events = process.pullDomainEvents();
@@ -38,12 +42,15 @@ describe('VideoclipProcess', () => {
       expect(event.attributes.songId).toBe(SONG_ID);
       expect(event.attributes.originalVideoclipUrl).toBe(ORIGINAL_VIDEOCLIP_URL);
       expect(event.attributes.instruments).toEqual(instruments);
+      expect(event.attributes.instruments[0].instrumentName).toBe('Guitar');
     });
   });
 
   describe('cancel', () => {
     it('cancels a PENDING process, setting status to CANCELLED and updating updatedAt', () => {
-      const instruments = [{ songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4' }];
+      const instruments = [
+        { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar' }
+      ];
       const process = VideoclipProcess.request(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, instruments);
 
       const cancelledProcess = process.cancel();
@@ -55,7 +62,9 @@ describe('VideoclipProcess', () => {
     });
 
     it('records a VideoclipCancelledDomainEvent with the songId', () => {
-      const instruments = [{ songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4' }];
+      const instruments = [
+        { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar' }
+      ];
       const process = VideoclipProcess.request(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, instruments);
       process.pullDomainEvents();
 
