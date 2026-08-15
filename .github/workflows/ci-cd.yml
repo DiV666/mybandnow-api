@@ -46,7 +46,6 @@ jobs:
           --health-timeout 30s
           --health-retries 15
     env:
-      NEXUS_NPM_AUTH: ${{ secrets.NEXUS_NPM_AUTH }}
       NODE_ENV: test
       E2E_MODE: local
       DATABASE_URL: postgresql://devUser:devPass@localhost:5432/devDB
@@ -72,17 +71,6 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-
-      - name: Configure private npm registry
-        run: |
-          cat > .npmrc <<EOF
-          ignore-scripts=true
-          audit=true
-          audit-level=high
-          save-exact=true
-          registry=https://devtools.rubricae.net/nexus/repository/npm-group/
-          //devtools.rubricae.net/nexus/repository/npm-group/:_auth=${NEXUS_NPM_AUTH}
-          EOF
 
       - run: npm ci
 
@@ -121,7 +109,6 @@ jobs:
           --health-timeout 30s
           --health-retries 15
     env:
-      NEXUS_NPM_AUTH: ${{ secrets.NEXUS_NPM_AUTH }}
       NODE_ENV: test
     steps:
       - uses: actions/checkout@v4
@@ -130,17 +117,6 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-
-      - name: Configure private npm registry
-        run: |
-          cat > .npmrc <<EOF
-          ignore-scripts=true
-          audit=true
-          audit-level=high
-          save-exact=true
-          registry=https://devtools.rubricae.net/nexus/repository/npm-group/
-          //devtools.rubricae.net/nexus/repository/npm-group/:_auth=${NEXUS_NPM_AUTH}
-          EOF
 
       - run: npm ci
 
@@ -211,8 +187,6 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    env:
-      NEXUS_NPM_AUTH: ${{ secrets.NEXUS_NPM_AUTH }}
     steps:
       - uses: actions/checkout@v4
 
@@ -220,17 +194,6 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-
-      - name: Configure private npm registry
-        run: |
-          cat > .npmrc <<EOF
-          ignore-scripts=true
-          audit=true
-          audit-level=high
-          save-exact=true
-          registry=https://devtools.rubricae.net/nexus/repository/npm-group/
-          //devtools.rubricae.net/nexus/repository/npm-group/:_auth=${NEXUS_NPM_AUTH}
-          EOF
 
       - run: npm ci
 
