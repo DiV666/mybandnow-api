@@ -7,13 +7,17 @@ RUN apk upgrade --no-cache && apk add --no-cache ffmpeg
 # Create app directory
 WORKDIR /opt/mybandnow
 
-# Copy application bundle and private npm configuration for dependency install only
+# Copy application bundle
 COPY docs ./
 ADD dist ./
-COPY .npmrc ./.npmrc
 
-# Install mybandnow API dependencies without shipping .npmrc in the final image
-RUN npm ci --omit=dev --ignore-scripts && rm -f .npmrc
+# Install mybandnow API dependencies
+RUN npm ci --omit=dev --ignore-scripts
+
+# --ignore-scripts skips @prisma/client's own postinstall generation step, and
+# the Prisma CLI/schema aren't shipped in this image, so we overlay the client
+# already generated on the host by `npm run build` (prisma:generate).
+COPY node_modules/.prisma ./node_modules/.prisma
 
 FROM node:24.16.0-alpine3.24
 LABEL maintainer=developers@kloding.com

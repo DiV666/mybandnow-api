@@ -1,0 +1,254 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: '24.16.0'
+  GCP_PROJECT_ID: my-band-now
+  GCP_REGION: us-east1
+  AR_REPOSITORY: mybandnow-api
+  IMAGE_NAME: mybandnow-api
+  CLOUD_RUN_SERVICE: mybandnow-api
+
+jobs:
+  test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: devDB
+          POSTGRES_USER: devUser
+          POSTGRES_PASSWORD: devPass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U devUser -d devDB"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+      rabbitmq:
+        image: rabbitmq:4.1.1-management-alpine
+        env:
+          RABBITMQ_DEFAULT_USER: devUser
+          RABBITMQ_DEFAULT_PASS: devPass
+          RABBITMQ_DEFAULT_VHOST: /
+        ports:
+          - 5672:5672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 10s
+          --health-timeout 30s
+          --health-retries 15
+    env:
+      NODE_ENV: test
+      E2E_MODE: local
+      DATABASE_URL: postgresql://devUser:devPass@localhost:5432/devDB
+      RABBITMQ_USERNAME: devUser
+      RABBITMQ_PASSWORD: devPass
+      RABBITMQ_VHOST: /
+      RABBITMQ_HOSTNAME: localhost
+      RABBITMQ_PORT: 5672
+      RABBITMQ_SECURE: 'false'
+      RABBITMQ_EXCHANGE_NAME: mybandnow
+      RABBITMQ_MAX_RETRIES: 5
+      RABBITMQ_RETRY_TTL: 1000
+      JWT_SECRET: ${{ secrets.JWT_SECRET_TEST }}
+      KLODING_INTERNAL_PUBLIC_KEY_BASE64: ${{ secrets.KLODING_INTERNAL_PUBLIC_KEY_BASE64 }}
+      KLODING_INTERNAL_PRIVATE_KEY_BASE64: ${{ secrets.KLODING_INTERNAL_PRIVATE_KEY_BASE64 }}
+      GCS_BUCKET_TMP_NAME: ${{ secrets.GCS_BUCKET_TMP_NAME }}
+      GCS_BUCKET_APIKEY: ${{ secrets.GCS_BUCKET_APIKEY }}
+      GCS_BUCKET_SECRET_BASE64: ${{ secrets.GCS_BUCKET_SECRET_BASE64 }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Unit, integration and acceptance tests
+        run: npm run tests
+
+  docker-verify:
+    name: Build image & verify acceptance
+    needs: test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: devDB
+          POSTGRES_USER: devUser
+          POSTGRES_PASSWORD: devPass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U devUser -d devDB"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+      rabbitmq:
+        image: rabbitmq:4.1.1-management-alpine
+        env:
+          RABBITMQ_DEFAULT_USER: devUser
+          RABBITMQ_DEFAULT_PASS: devPass
+          RABBITMQ_DEFAULT_VHOST: /
+        ports:
+          - 5672:5672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 10s
+          --health-timeout 30s
+          --health-retries 15
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://devUser:devPass@localhost:5432/devDB
+      RABBITMQ_USERNAME: devUser
+      RABBITMQ_PASSWORD: devPass
+      RABBITMQ_VHOST: /
+      RABBITMQ_HOSTNAME: localhost
+      RABBITMQ_PORT: 5672
+      RABBITMQ_SECURE: 'false'
+      RABBITMQ_EXCHANGE_NAME: mybandnow
+      RABBITMQ_MAX_RETRIES: 5
+      RABBITMQ_RETRY_TTL: 1000
+      JWT_SECRET: ${{ secrets.JWT_SECRET_TEST }}
+      KLODING_INTERNAL_PUBLIC_KEY_BASE64: ${{ secrets.KLODING_INTERNAL_PUBLIC_KEY_BASE64 }}
+      KLODING_INTERNAL_PRIVATE_KEY_BASE64: ${{ secrets.KLODING_INTERNAL_PRIVATE_KEY_BASE64 }}
+      GCS_BUCKET_TMP_NAME: ${{ secrets.GCS_BUCKET_TMP_NAME }}
+      GCS_BUCKET_APIKEY: ${{ secrets.GCS_BUCKET_APIKEY }}
+      GCS_BUCKET_SECRET_BASE64: ${{ secrets.GCS_BUCKET_SECRET_BASE64 }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      # El Dockerfile copia `dist/` y `docs/` ya compilados, no compila dentro del build.
+      - name: Compile dist bundle
+        run: npm run build
+
+      - name: Build Docker image
+        run: docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} .
+
+      - name: Run container under test
+        run: |
+          docker run -d --name api-under-test \
+            --network host \
+            -e NODE_ENV=production \
+            -e PORT=4008 \
+            -e E2E_MODE=local \
+            -e DATABASE_URL=postgresql://devUser:devPass@localhost:5432/devDB \
+            -e RABBITMQ_USERNAME=devUser \
+            -e RABBITMQ_PASSWORD=devPass \
+            -e RABBITMQ_VHOST=/ \
+            -e RABBITMQ_HOSTNAME=localhost \
+            -e RABBITMQ_PORT=5672 \
+            -e RABBITMQ_SECURE=false \
+            -e RABBITMQ_EXCHANGE_NAME=mybandnow \
+            -e RABBITMQ_MAX_RETRIES=5 \
+            -e RABBITMQ_RETRY_TTL=1000 \
+            -e JWT_SECRET=${{ secrets.JWT_SECRET_TEST }} \
+            -e KLODING_INTERNAL_PUBLIC_KEY_BASE64=${{ secrets.KLODING_INTERNAL_PUBLIC_KEY_BASE64 }} \
+            -e KLODING_INTERNAL_PRIVATE_KEY_BASE64=${{ secrets.KLODING_INTERNAL_PRIVATE_KEY_BASE64 }} \
+            -e GCS_BUCKET_TMP_NAME=${{ secrets.GCS_BUCKET_TMP_NAME }} \
+            -e GCS_BUCKET_APIKEY=${{ secrets.GCS_BUCKET_APIKEY }} \
+            -e GCS_BUCKET_SECRET_BASE64=${{ secrets.GCS_BUCKET_SECRET_BASE64 }} \
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      # TODO: sustituir por un curl a un endpoint /health real cuando exista.
+      - name: Wait for container to accept connections
+        run: timeout 60 bash -c 'until nc -z localhost 4008; do sleep 2; done'
+
+      - name: Acceptance tests against the container
+        run: npm run tests:acceptance
+        env:
+          E2E_MODE: remote
+          API_HOST: localhost
+          API_PORT: 4008
+
+      - name: Container logs (on failure)
+        if: failure()
+        run: docker logs api-under-test
+
+      - name: Save image as artifact
+        run: docker save ${{ env.IMAGE_NAME }}:${{ github.sha }} -o /tmp/image.tar
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: /tmp/image.tar
+          retention-days: 1
+
+  deploy:
+    name: Deploy to Cloud Run
+    needs: docker-verify
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      # Aplica las migraciones pendientes contra Supabase ANTES de servir la
+      # nueva revisión en Cloud Run. `migrate deploy` solo aplica migraciones
+      # ya generadas en prisma/migrations, nunca crea ni resetea el esquema.
+      - name: Run database migrations
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_PRODUCTION }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+          path: /tmp
+
+      - name: Load image
+        run: docker load -i /tmp/image.tar
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SA_EMAIL }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev --quiet
+
+      - name: Tag and push image
+        run: |
+          AR_IMAGE=${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.AR_REPOSITORY }}/${{ env.IMAGE_NAME }}
+          docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} "$AR_IMAGE:${{ github.sha }}"
+          docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} "$AR_IMAGE:latest"
+          docker push "$AR_IMAGE:${{ github.sha }}"
+          docker push "$AR_IMAGE:latest"
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.CLOUD_RUN_SERVICE }} \
+            --image ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.AR_REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --region ${{ env.GCP_REGION }} \
+            --platform managed \
+            --quiet
