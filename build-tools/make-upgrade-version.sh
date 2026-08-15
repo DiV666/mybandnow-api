@@ -4,6 +4,7 @@ set -eu
 ACTION="${1:-release}"
 VERSION_TYPE="${2:-}"
 DRY_RUN="${DRY_RUN:-0}"
+RELEASE_BRANCH="${RELEASE_BRANCH:-master}"
 
 case "$ACTION" in
 	patch | minor | major)
@@ -108,7 +109,7 @@ finalize_release() {
 	run_cmd git commit -m "chore(release): Bump version to v$NEW_PACKAGE_VERSION"
 	run_cmd git tag -a "v$NEW_PACKAGE_VERSION" -m "v$NEW_PACKAGE_VERSION"
 	run_cmd git push origin --tags
-	run_cmd git push origin master
+	run_cmd git push origin "$RELEASE_BRANCH"
 
 	echo ''
 	echo "¡Versión actualizada a v$NEW_PACKAGE_VERSION!"

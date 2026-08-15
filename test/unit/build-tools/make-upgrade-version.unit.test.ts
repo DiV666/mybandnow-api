@@ -146,4 +146,35 @@ printf '1.2.4\n'
     expect(result.stdout).toContain('[dry-run] git push origin master');
     expect(result.stdout).not.toContain('npm run development:update-version');
   });
+
+  it('pushes to the branch upgrade-version was run from, not a hardcoded master', () => {
+    const tempDir = mkdtempSync(join(tmpdir(), 'make-upgrade-version-'));
+    tempDirs.push(tempDir);
+
+    writeFileSync(join(tempDir, 'package.json'), JSON.stringify({ version: '1.2.4' }, null, 2));
+
+    // eslint-disable-next-line sonarjs/no-os-command-from-path -- test executes bash from PATH to run the script in a temp workspace
+    const result = spawnSync('bash', [SCRIPT_PATH, 'finalize'], {
+      cwd: tempDir,
+      env: {
+        ...process.env,
+        DRY_RUN: '1',
+        RELEASE_BRANCH: 'main'
+      },
+      encoding: 'utf-8'
+    });
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('[dry-run] git push origin main');
+    expect(result.stdout).not.toContain('[dry-run] git push origin master');
+  });
+
+  it('passes the branch make was invoked from to the finalize step', () => {
+    const makeArgs = ['-n', 'upgrade-version', 'v=patch', 'EXEC_CMD=container-runner', 'CURRENT_BRANCH=main'];
+    // eslint-disable-next-line sonarjs/no-os-command-from-path -- test executes the system make binary from PATH
+    const result = spawnSync('make', makeArgs, { cwd: REPO_ROOT, encoding: 'utf-8' });
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('RELEASE_BRANCH="main" ./build-tools/make-upgrade-version.sh finalize');
+  });
 });

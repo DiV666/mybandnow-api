@@ -116,7 +116,7 @@ upgrade-version:
 		exit 1; \
 	fi
 	@$(MAKE) exec-no-deps c="./build-tools/make-upgrade-version.sh prepare $(v)"
-	@./build-tools/make-upgrade-version.sh finalize
+	@RELEASE_BRANCH="$(CURRENT_BRANCH)" ./build-tools/make-upgrade-version.sh finalize
 
 check-c-param:
 ifeq ($(strip $(c)),)
