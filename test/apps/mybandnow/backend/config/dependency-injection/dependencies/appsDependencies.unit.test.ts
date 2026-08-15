@@ -36,7 +36,7 @@ describe('registerAppsDependencies', () => {
     );
 
     // Assert
-    expect(definition.args).toHaveLength(3);
+    expect(definition.args).toHaveLength(4);
     expect(definition.args[2]).toEqual(expect.any(Function));
   });
 
