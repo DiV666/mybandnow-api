@@ -110,6 +110,22 @@ jobs:
           --health-retries 15
     env:
       NODE_ENV: test
+      DATABASE_URL: postgresql://devUser:devPass@localhost:5432/devDB
+      RABBITMQ_USERNAME: devUser
+      RABBITMQ_PASSWORD: devPass
+      RABBITMQ_VHOST: /
+      RABBITMQ_HOSTNAME: localhost
+      RABBITMQ_PORT: 5672
+      RABBITMQ_SECURE: 'false'
+      RABBITMQ_EXCHANGE_NAME: mybandnow
+      RABBITMQ_MAX_RETRIES: 5
+      RABBITMQ_RETRY_TTL: 1000
+      JWT_SECRET: ${{ secrets.JWT_SECRET_TEST }}
+      KLODING_INTERNAL_PUBLIC_KEY_BASE64: ${{ secrets.KLODING_INTERNAL_PUBLIC_KEY_BASE64 }}
+      KLODING_INTERNAL_PRIVATE_KEY_BASE64: ${{ secrets.KLODING_INTERNAL_PRIVATE_KEY_BASE64 }}
+      GCS_BUCKET_TMP_NAME: ${{ secrets.GCS_BUCKET_TMP_NAME }}
+      GCS_BUCKET_APIKEY: ${{ secrets.GCS_BUCKET_APIKEY }}
+      GCS_BUCKET_SECRET_BASE64: ${{ secrets.GCS_BUCKET_SECRET_BASE64 }}
     steps:
       - uses: actions/checkout@v5
 
@@ -123,8 +139,6 @@ jobs:
       # El Dockerfile copia `dist/` y `docs/` ya compilados, no compila dentro del build.
       - name: Compile dist bundle
         run: npm run build
-        env:
-          DATABASE_URL: postgresql://devUser:devPass@localhost:5432/devDB
 
       - name: Build Docker image
         run: docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} .
@@ -164,7 +178,6 @@ jobs:
           E2E_MODE: remote
           API_HOST: localhost
           API_PORT: 4008
-          DATABASE_URL: postgresql://devUser:devPass@localhost:5432/devDB
 
       - name: Container logs (on failure)
         if: failure()
