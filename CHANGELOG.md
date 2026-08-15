@@ -7,6 +7,8 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 ### Añadido
 
 - Enriquecimiento asíncrono de canciones con `originalVideoClipDurationSeconds` a partir del videoclip original de YouTube, incluyendo persistencia, contrato OpenAPI y cobertura de pruebas.
+- Finalización y fallo del proceso de generación de videoclip (`VideoclipProcess`) a partir de los eventos `videoclip_generation.completed`/`.failed` emitidos por el worker externo, con mapeo de `SLA_TIMEOUT` a estado `TIMEOUT` y cobertura unitaria completa.
+- Pipeline de CI/CD en GitHub Actions: build y tests en cada push/PR a `main`, verificación de la imagen Docker con tests de aceptación, y despliegue automático a Cloud Run.
 
 ### Arreglado
 
