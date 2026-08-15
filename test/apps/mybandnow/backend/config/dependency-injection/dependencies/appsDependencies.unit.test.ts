@@ -23,6 +23,10 @@ describe('registerAppsDependencies', () => {
     expect(subscriberIds).toContain(
       'Apps.Mybandnow.Backend.subscribers.CreateSongInstrumentVideoOnSongInstrumentUploadCompleted'
     );
+    expect(subscriberIds).toContain(
+      'Apps.Mybandnow.Backend.subscribers.CompleteVideoclipOnVideoclipGenerationCompleted'
+    );
+    expect(subscriberIds).toContain('Apps.Mybandnow.Backend.subscribers.FailVideoclipOnVideoclipGenerationFailed');
   });
 
   it('injects a lazy command bus resolver into the song instrument upload subscriber', () => {

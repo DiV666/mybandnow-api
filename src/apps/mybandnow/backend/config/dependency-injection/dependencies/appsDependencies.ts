@@ -38,6 +38,8 @@ import { FailSongInstrumentUploadOnSongInstrumentProcessFailed } from '../../../
 import { CreateSongInstrumentVideoOnSongInstrumentUploadCompleted } from '../../../subscribers/CreateSongInstrumentVideoOnSongInstrumentUploadCompleted.js';
 import { DeletePreviousSongInstrumentVideoOnSongInstrumentVideoReplaced } from '../../../subscribers/DeletePreviousSongInstrumentVideoOnSongInstrumentVideoReplaced.js';
 import { EnrichSongOriginalVideoClipDurationOnSongCreated } from '../../../subscribers/EnrichSongOriginalVideoClipDurationOnSongCreated.js';
+import { CompleteVideoclipOnVideoclipGenerationCompleted } from '../../../subscribers/CompleteVideoclipOnVideoclipGenerationCompleted.js';
+import { FailVideoclipOnVideoclipGenerationFailed } from '../../../subscribers/FailVideoclipOnVideoclipGenerationFailed.js';
 import { SongCreatedDomainEvent } from '@Contexts/Song/domain/SongCreatedDomainEvent.js';
 import type { CommandBus } from '@Contexts/Shared/domain/CommandBus.js';
 import { MultipartFileParser } from '@Contexts/Shared/infrastructure/Express/MultipartFileParser.js';
@@ -151,6 +153,26 @@ export function registerAppsDependencies(container: ContainerBuilder) {
       EnrichSongOriginalVideoClipDurationOnSongCreated
     )
     .addArgument(SongCreatedDomainEvent.EVENT_NAME)
+    .addArgument(new Reference('Shared.BunyanLogger'))
+    .addArgument(() => container.get<CommandBus>('Shared.CommandBus'))
+    .addTag('domainEventSubscriber');
+
+  container
+    .register(
+      'Apps.Mybandnow.Backend.subscribers.CompleteVideoclipOnVideoclipGenerationCompleted',
+      CompleteVideoclipOnVideoclipGenerationCompleted
+    )
+    .addArgument('videoclip_worker.1.videoclip_generation.completed')
+    .addArgument(new Reference('Shared.BunyanLogger'))
+    .addArgument(() => container.get<CommandBus>('Shared.CommandBus'))
+    .addTag('domainEventSubscriber');
+
+  container
+    .register(
+      'Apps.Mybandnow.Backend.subscribers.FailVideoclipOnVideoclipGenerationFailed',
+      FailVideoclipOnVideoclipGenerationFailed
+    )
+    .addArgument('videoclip_worker.1.videoclip_generation.failed')
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(() => container.get<CommandBus>('Shared.CommandBus'))
     .addTag('domainEventSubscriber');

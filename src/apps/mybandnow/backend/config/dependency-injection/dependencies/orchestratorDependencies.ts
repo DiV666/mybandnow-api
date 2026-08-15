@@ -8,6 +8,10 @@ import { VideoclipProcessRequester } from '@Contexts/Orchestrator/VideoclipProce
 import { RequestVideoclipCommandHandler } from '@Contexts/Orchestrator/VideoclipProcess/application/request/RequestVideoclipCommandHandler.js';
 import { VideoclipProcessCanceller } from '@Contexts/Orchestrator/VideoclipProcess/application/cancel/VideoclipProcessCanceller.js';
 import { CancelVideoclipCommandHandler } from '@Contexts/Orchestrator/VideoclipProcess/application/cancel/CancelVideoclipCommandHandler.js';
+import { VideoclipProcessCompleter } from '@Contexts/Orchestrator/VideoclipProcess/application/complete/VideoclipProcessCompleter.js';
+import { CompleteVideoclipCommandHandler } from '@Contexts/Orchestrator/VideoclipProcess/application/complete/CompleteVideoclipCommandHandler.js';
+import { VideoclipProcessFailer } from '@Contexts/Orchestrator/VideoclipProcess/application/fail/VideoclipProcessFailer.js';
+import { FailVideoclipCommandHandler } from '@Contexts/Orchestrator/VideoclipProcess/application/fail/FailVideoclipCommandHandler.js';
 
 export function registerOrchestratorDependencies(container: ContainerBuilder) {
   // Repositories & Services
@@ -62,5 +66,25 @@ export function registerOrchestratorDependencies(container: ContainerBuilder) {
   container
     .register('Orchestrator.VideoclipProcess.CancelVideoclipCommandHandler', CancelVideoclipCommandHandler)
     .addArgument(new Reference('Orchestrator.VideoclipProcess.VideoclipProcessCanceller'))
+    .addTag('commandHandler');
+
+  container
+    .register('Orchestrator.VideoclipProcess.VideoclipProcessCompleter', VideoclipProcessCompleter)
+    .addArgument(new Reference('Orchestrator.VideoclipProcess.VideoclipProcessPersistenceRepository'))
+    .addArgument(new Reference('Shared.EventBus'));
+
+  container
+    .register('Orchestrator.VideoclipProcess.CompleteVideoclipCommandHandler', CompleteVideoclipCommandHandler)
+    .addArgument(new Reference('Orchestrator.VideoclipProcess.VideoclipProcessCompleter'))
+    .addTag('commandHandler');
+
+  container
+    .register('Orchestrator.VideoclipProcess.VideoclipProcessFailer', VideoclipProcessFailer)
+    .addArgument(new Reference('Orchestrator.VideoclipProcess.VideoclipProcessPersistenceRepository'))
+    .addArgument(new Reference('Shared.EventBus'));
+
+  container
+    .register('Orchestrator.VideoclipProcess.FailVideoclipCommandHandler', FailVideoclipCommandHandler)
+    .addArgument(new Reference('Orchestrator.VideoclipProcess.VideoclipProcessFailer'))
     .addTag('commandHandler');
 }

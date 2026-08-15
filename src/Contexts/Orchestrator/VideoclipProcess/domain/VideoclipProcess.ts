@@ -9,7 +9,11 @@ import {
   VideoclipRequestedInstrumentAttributes
 } from './VideoclipRequestedDomainEvent.js';
 import { VideoclipCancelledDomainEvent } from './VideoclipCancelledDomainEvent.js';
+import { VideoclipCompletedDomainEvent } from './VideoclipCompletedDomainEvent.js';
+import { VideoclipFailedDomainEvent } from './VideoclipFailedDomainEvent.js';
 import { VideoclipProcessNotCancellableException } from './exception/VideoclipProcessNotCancellableException.js';
+import { VideoclipProcessNotCompletableException } from './exception/VideoclipProcessNotCompletableException.js';
+import { VideoclipProcessNotFailableException } from './exception/VideoclipProcessNotFailableException.js';
 
 export type VideoclipProcessPrimitives = {
   id: string;
@@ -87,6 +91,61 @@ export class VideoclipProcess extends AggregateRoot {
     );
 
     return cancelledProcess;
+  }
+
+  complete(finalGcsPath: string): VideoclipProcess {
+    if (!this.status.isActive()) {
+      throw new VideoclipProcessNotCompletableException(this.id.value, this.status.value);
+    }
+
+    const completedProcess = new VideoclipProcess(
+      this.id,
+      VideoclipProcessStatus.success(),
+      this.songId,
+      this.aiPayload,
+      this.aiResponse,
+      finalGcsPath,
+      this.startedAt,
+      new VideoclipProcessUpdatedAt(new Date())
+    );
+
+    completedProcess.record(
+      new VideoclipCompletedDomainEvent({ aggregateId: this.id.value, songId: this.songId.value, finalGcsPath })
+    );
+
+    return completedProcess;
+  }
+
+  fail(errorCode: string, errorMessage: string, failedPhase: string): VideoclipProcess {
+    if (!this.status.isActive()) {
+      throw new VideoclipProcessNotFailableException(this.id.value, this.status.value);
+    }
+
+    const failedStatus =
+      errorCode === 'SLA_TIMEOUT' ? VideoclipProcessStatus.timeout() : VideoclipProcessStatus.failed();
+
+    const failedProcess = new VideoclipProcess(
+      this.id,
+      failedStatus,
+      this.songId,
+      this.aiPayload,
+      { errorCode, errorMessage, failedPhase },
+      this.finalGcsPath,
+      this.startedAt,
+      new VideoclipProcessUpdatedAt(new Date())
+    );
+
+    failedProcess.record(
+      new VideoclipFailedDomainEvent({
+        aggregateId: this.id.value,
+        songId: this.songId.value,
+        errorCode,
+        errorMessage,
+        failedPhase
+      })
+    );
+
+    return failedProcess;
   }
 
   static fromPrimitives(plainData: VideoclipProcessPrimitives): VideoclipProcess {

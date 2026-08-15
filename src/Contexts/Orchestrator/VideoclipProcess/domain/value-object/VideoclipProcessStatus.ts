@@ -55,6 +55,18 @@ export class VideoclipProcessStatus extends EnumValueObject<VideoclipProcessStat
     return new VideoclipProcessStatus(VideoclipProcessStatusValues.CANCELLED);
   }
 
+  static success(): VideoclipProcessStatus {
+    return new VideoclipProcessStatus(VideoclipProcessStatusValues.SUCCESS);
+  }
+
+  static failed(): VideoclipProcessStatus {
+    return new VideoclipProcessStatus(VideoclipProcessStatusValues.FAILED);
+  }
+
+  static timeout(): VideoclipProcessStatus {
+    return new VideoclipProcessStatus(VideoclipProcessStatusValues.TIMEOUT);
+  }
+
   protected throwErrorForInvalidValue(value: VideoclipProcessStatusValues): void {
     throw new InvalidArgumentException({
       code: 'INVALID_ARGUMENT',
