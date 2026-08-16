@@ -53,7 +53,7 @@ function createValidEnv(): NodeJS.ProcessEnv {
     MAX_PAYLOAD_SIZE: '256kb',
     DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/mybandnow',
     GCS_BUCKET_APIKEY: 'service-account@example.com',
-    GCS_BUCKET_TMP_NAME: 'mybandnow-tmp',
+    GCS_BUCKET_NAME: 'mybandnow',
     GCS_BUCKET_SECRET_BASE64: Buffer.from('private-key').toString('base64'),
     NODE_ENV: 'test',
     PORT: '4008',

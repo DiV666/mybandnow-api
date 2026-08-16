@@ -9,7 +9,7 @@ on:
 env:
   NODE_VERSION: '24.16.0'
   GCP_PROJECT_ID: my-band-now
-  GCP_REGION: us-east1
+  GCP_REGION: us-west1
   AR_REPOSITORY: mybandnow-api
   IMAGE_NAME: mybandnow-api
   CLOUD_RUN_SERVICE: mybandnow-api
@@ -61,7 +61,7 @@ jobs:
       JWT_SECRET: ${{ secrets.JWT_SECRET_TEST }}
       KLODING_INTERNAL_PUBLIC_KEY_BASE64: ${{ secrets.KLODING_INTERNAL_PUBLIC_KEY_BASE64 }}
       KLODING_INTERNAL_PRIVATE_KEY_BASE64: ${{ secrets.KLODING_INTERNAL_PRIVATE_KEY_BASE64 }}
-      GCS_BUCKET_TMP_NAME: ${{ secrets.GCS_BUCKET_TMP_NAME }}
+      GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
       GCS_BUCKET_APIKEY: ${{ secrets.GCS_BUCKET_APIKEY }}
       GCS_BUCKET_SECRET_BASE64: ${{ secrets.GCS_BUCKET_SECRET_BASE64 }}
     steps:
@@ -123,7 +123,7 @@ jobs:
       JWT_SECRET: ${{ secrets.JWT_SECRET_TEST }}
       KLODING_INTERNAL_PUBLIC_KEY_BASE64: ${{ secrets.KLODING_INTERNAL_PUBLIC_KEY_BASE64 }}
       KLODING_INTERNAL_PRIVATE_KEY_BASE64: ${{ secrets.KLODING_INTERNAL_PRIVATE_KEY_BASE64 }}
-      GCS_BUCKET_TMP_NAME: ${{ secrets.GCS_BUCKET_TMP_NAME }}
+      GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
       GCS_BUCKET_APIKEY: ${{ secrets.GCS_BUCKET_APIKEY }}
       GCS_BUCKET_SECRET_BASE64: ${{ secrets.GCS_BUCKET_SECRET_BASE64 }}
     steps:
@@ -163,7 +163,7 @@ jobs:
             -e JWT_SECRET=${{ secrets.JWT_SECRET_TEST }} \
             -e KLODING_INTERNAL_PUBLIC_KEY_BASE64=${{ secrets.KLODING_INTERNAL_PUBLIC_KEY_BASE64 }} \
             -e KLODING_INTERNAL_PRIVATE_KEY_BASE64=${{ secrets.KLODING_INTERNAL_PRIVATE_KEY_BASE64 }} \
-            -e GCS_BUCKET_TMP_NAME=${{ secrets.GCS_BUCKET_TMP_NAME }} \
+            -e GCS_BUCKET_NAME=${{ secrets.GCS_BUCKET_NAME }} \
             -e GCS_BUCKET_APIKEY=${{ secrets.GCS_BUCKET_APIKEY }} \
             -e GCS_BUCKET_SECRET_BASE64=${{ secrets.GCS_BUCKET_SECRET_BASE64 }} \
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
@@ -251,4 +251,7 @@ jobs:
             --image ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.AR_REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.GCP_REGION }} \
             --platform managed \
+            --vpc-connector cloudrun-connector \
+            --vpc-egress private-ranges-only \
+            --set-env-vars "^:^NODE_ENV=production:RABBITMQ_USERNAME=${{ secrets.RABBITMQ_USERNAME }}:RABBITMQ_PASSWORD=${{ secrets.RABBITMQ_PASSWORD }}:RABBITMQ_VHOST=${{ secrets.RABBITMQ_VHOST }}:RABBITMQ_HOSTNAME=${{ secrets.RABBITMQ_HOSTNAME }}:RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}:RABBITMQ_SECURE=false:RABBITMQ_EXCHANGE_NAME=${{ secrets.RABBITMQ_EXCHANGE_NAME }}:RABBITMQ_MAX_RETRIES=5:RABBITMQ_RETRY_TTL=1000:DATABASE_URL=${{ secrets.DATABASE_URL_PRODUCTION }}:JWT_SECRET=${{ secrets.JWT_SECRET }}:KLODING_INTERNAL_PUBLIC_KEY_BASE64=${{ secrets.KLODING_INTERNAL_PUBLIC_KEY_BASE64 }}:KLODING_INTERNAL_PRIVATE_KEY_BASE64=${{ secrets.KLODING_INTERNAL_PRIVATE_KEY_BASE64 }}:GCS_BUCKET_NAME=${{ secrets.GCS_BUCKET_NAME }}:GCS_BUCKET_APIKEY=${{ secrets.GCS_BUCKET_APIKEY }}:GCS_BUCKET_SECRET_BASE64=${{ secrets.GCS_BUCKET_SECRET_BASE64 }}" \
             --quiet

@@ -32,7 +32,7 @@ export function registerSharedDependencies(container: ContainerBuilder) {
   container
     .register('Shared.StorageRepository', GcsStorageRepository)
     .addArgument(new Reference('Shared.BunyanLogger'))
-    .addArgument(env.GCS_BUCKET_TMP_NAME)
+    .addArgument(env.GCS_BUCKET_NAME)
     .addArgument(env.GCS_BUCKET_APIKEY)
     .addArgument(env.GCS_BUCKET_SECRET_BASE64);
 

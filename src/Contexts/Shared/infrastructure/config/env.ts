@@ -50,7 +50,7 @@ export const envSchema = z.object({
   SENTRY_DSN: z.url().optional(),
 
   // Storage
-  GCS_BUCKET_TMP_NAME: z.string().min(1),
+  GCS_BUCKET_NAME: z.string().min(1),
   GCS_BUCKET_APIKEY: z.string().min(1),
   GCS_BUCKET_SECRET_BASE64: z.string().min(1),
 

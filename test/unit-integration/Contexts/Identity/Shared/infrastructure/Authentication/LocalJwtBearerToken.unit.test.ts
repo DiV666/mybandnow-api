@@ -208,7 +208,7 @@ function createValidEnv(): NodeJS.ProcessEnv {
     DATABASE_URL: 'postgresql://example_user:example_password@localhost:5432/example_db',
     GCS_BUCKET_APIKEY: 'service-account@example.com',
     GCS_BUCKET_SECRET_BASE64: Buffer.from('example-gcs-private-key').toString('base64'),
-    GCS_BUCKET_TMP_NAME: 'mybandnow-tmp',
+    GCS_BUCKET_NAME: 'mybandnow',
     JWT_SECRET: 'example-jwt-signing-key-for-unit-tests-1234',
     KLODING_INTERNAL_PRIVATE_KEY_BASE64: Buffer.from('example-private-key').toString('base64'),
     KLODING_INTERNAL_PUBLIC_KEY_BASE64: Buffer.from('example-public-key').toString('base64'),
