@@ -55,6 +55,14 @@ export class SongInstrument extends AggregateRoot {
     return this.activeUploadAttemptId?.value === uploadAttemptId;
   }
 
+  clearUploadAttempt(uploadAttemptId: string): void {
+    if (!this.hasActiveUploadAttempt(uploadAttemptId)) {
+      return;
+    }
+
+    this.activeUploadAttemptId = null;
+  }
+
   reassignMusician(musicianId: string): SongInstrument {
     if (this.musicianId.value === musicianId) {
       return this;

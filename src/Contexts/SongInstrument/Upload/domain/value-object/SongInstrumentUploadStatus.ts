@@ -6,7 +6,8 @@ export enum SongInstrumentUploadStatusValues {
   READY = 'READY',
   PROCESSING = 'PROCESSING',
   COMPLETED = 'COMPLETED',
-  FAILED = 'FAILED'
+  FAILED = 'FAILED',
+  CANCELLED = 'CANCELLED'
 }
 export class SongInstrumentUploadStatus extends EnumValueObject<SongInstrumentUploadStatusValues> {
   constructor(value: SongInstrumentUploadStatusValues) {

@@ -35,3 +35,19 @@ export async function songInstrumentUploadPostUploadConfirm(
     [...requireMusicianProfile]
   );
 }
+
+export async function songInstrumentUploadPostUploadCancel(
+  context: OpenAPIContext,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  await runController(
+    'Apps.Mybandnow.Backend.controllers.SongInstrumentUploadPostUploadCancelController',
+    context,
+    req,
+    res,
+    next,
+    [...requireMusicianProfile]
+  );
+}

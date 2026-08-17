@@ -300,6 +300,7 @@ describe('SongInstrumentFindById', () => {
           url: 'song-instrument-videos/band-id/song-id/internal-video.mp4'
         },
         {
+          id: activeUpload.id.value,
           status: SongInstrumentUploadStatusValues.PROCESSING
         }
       )

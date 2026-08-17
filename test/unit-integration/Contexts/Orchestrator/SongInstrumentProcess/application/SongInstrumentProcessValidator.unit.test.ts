@@ -38,6 +38,8 @@ describe('SongInstrumentProcessValidator', () => {
       uploadFile: vi.fn(),
       downloadFileToTemp: vi.fn(),
       getSignedUrl: vi.fn(),
+      getWriteSignedUrl: vi.fn(),
+      fileExists: vi.fn(),
       deleteFile: vi.fn()
     };
     fileSystemRepository = {

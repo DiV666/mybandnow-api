@@ -4,16 +4,19 @@ import { SongInstrumentUploadStatusValues } from '@Contexts/SongInstrument/Uploa
 const DEFAULT_FAILED_UPLOAD_PUBLIC_ERROR_MESSAGE = 'The uploaded video could not be processed. Please try again.';
 
 export interface FailedPublicSongInstrumentUploadResponse {
+  id: string;
   status: typeof SongInstrumentUploadStatusValues.FAILED;
   errorMessage: string;
 }
 
 export interface NonFailedPublicSongInstrumentUploadResponse {
+  id: string;
   status:
     | typeof SongInstrumentUploadStatusValues.PENDING
     | typeof SongInstrumentUploadStatusValues.READY
     | typeof SongInstrumentUploadStatusValues.PROCESSING
-    | typeof SongInstrumentUploadStatusValues.COMPLETED;
+    | typeof SongInstrumentUploadStatusValues.COMPLETED
+    | typeof SongInstrumentUploadStatusValues.CANCELLED;
 }
 
 export type PublicSongInstrumentUploadResponse =
@@ -29,12 +32,14 @@ export function toPublicSongInstrumentUploadResponse(
 
   if (upload.status.value === SongInstrumentUploadStatusValues.FAILED) {
     return {
+      id: upload.id.value,
       status: SongInstrumentUploadStatusValues.FAILED,
       errorMessage: upload.errorMessage?.value ?? DEFAULT_FAILED_UPLOAD_PUBLIC_ERROR_MESSAGE
     };
   }
 
   return {
+    id: upload.id.value,
     status: upload.status.value as NonFailedPublicSongInstrumentUploadResponse['status']
   };
 }

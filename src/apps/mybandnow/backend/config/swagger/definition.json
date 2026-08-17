@@ -684,6 +684,70 @@
                 }
             }
         },
+        "/v1/songs/{songId}/instruments/{songInstrumentId}/upload/{uploadId}/cancel": {
+            "post": {
+                "tags": [
+                    "SongInstrumentUpload"
+                ],
+                "summary": "Cancel a pending song instrument video upload",
+                "description": "Cancels an upload attempt while it is still PENDING (before confirm). Deletes the object from storage if it was already uploaded and clears the active upload attempt on the song instrument.",
+                "operationId": "songInstrumentUploadPostUploadCancel",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "songId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Song identifier",
+                        "schema": {
+                            "$ref": "#/components/schemas/UUID"
+                        }
+                    },
+                    {
+                        "name": "songInstrumentId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Song instrument identifier",
+                        "schema": {
+                            "$ref": "#/components/schemas/UUID"
+                        }
+                    },
+                    {
+                        "name": "uploadId",
+                        "in": "path",
+                        "required": true,
+                        "description": "SongInstrumentUpload identifier returned by the upload URL request",
+                        "schema": {
+                            "$ref": "#/components/schemas/UUID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The upload attempt has been cancelled"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Conflict"
+                    }
+                }
+            }
+        },
         "/v1/songs": {
             "get": {
                 "security": [
@@ -2055,8 +2119,7 @@
                         "required": [
                             "id",
                             "status",
-                            "errorMessage",
-                            "errorCode"
+                            "errorMessage"
                         ],
                         "properties": {
                             "id": {
@@ -2070,17 +2133,6 @@
                             },
                             "errorMessage": {
                                 "type": "string"
-                            },
-                            "errorCode": {
-                                "type": "string",
-                                "enum": [
-                                    "UNSUPPORTED_CODEC",
-                                    "DURATION_EXCEEDED",
-                                    "SIZE_EXCEEDED",
-                                    "INVALID_VIDEO_FORMAT",
-                                    "FILE_NOT_FOUND",
-                                    "PROCESSING_FAILED"
-                                ]
                             }
                         }
                     },

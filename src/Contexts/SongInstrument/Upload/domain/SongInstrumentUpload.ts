@@ -100,6 +100,16 @@ export class SongInstrumentUpload extends AggregateRoot {
     this.record(new SongInstrumentUploadFailedDomainEvent({ aggregateId: this.id.value, id: this.id.value }));
   }
 
+  public cancel(): void {
+    if (this.status.value !== SongInstrumentUploadStatusValues.PENDING) {
+      throw new InvalidArgumentException({
+        message: `SongInstrumentUpload ${this.id.value} cannot be cancelled in status ${this.status.value}`
+      });
+    }
+
+    this.status = new SongInstrumentUploadStatus(SongInstrumentUploadStatusValues.CANCELLED);
+  }
+
   static fromPrimitives(plainData: SongInstrumentUploadPrimitives): SongInstrumentUpload {
     return new SongInstrumentUpload(
       new SongInstrumentUploadId(plainData.id),
