@@ -18,6 +18,7 @@ import {
 import { EventBus } from '@Contexts/Shared/domain/EventBus.js';
 import { SongInstrumentPersistenceRepository } from '@Contexts/SongInstrument/SongInstrument/domain/repository/SongInstrumentPersistenceRepository.js';
 import { SongInstrumentId } from '@Contexts/SongInstrument/SongInstrument/domain/value-object/SongInstrumentId.js';
+import { SongInstrumentUploadErrorCodeValues } from '../../domain/value-object/SongInstrumentUploadErrorCode.js';
 
 const FAILED_UPLOAD_PUBLIC_ERROR_MESSAGE = 'The uploaded video could not be processed. Please try again.';
 
@@ -29,7 +30,10 @@ export class SongInstrumentUploadStatusUpdater {
   ) {}
 
   async run(
-    command: Pick<SongInstrumentUploadUpdateStatusCommand, 'id' | 'status' | 'completionData' | 'errorMessage'>
+    command: Pick<
+      SongInstrumentUploadUpdateStatusCommand,
+      'id' | 'status' | 'completionData' | 'errorMessage' | 'errorCode'
+    >
   ): Promise<void> {
     const songInstrumentUploadId = new SongInstrumentUploadId(command.id);
     const songInstrumentUpload = await this.repository.search(songInstrumentUploadId);
@@ -66,7 +70,10 @@ export class SongInstrumentUploadStatusUpdater {
         return;
       }
 
-      songInstrumentUpload.markAsFailed(command.errorMessage ?? FAILED_UPLOAD_PUBLIC_ERROR_MESSAGE);
+      songInstrumentUpload.markAsFailed(
+        command.errorMessage ?? FAILED_UPLOAD_PUBLIC_ERROR_MESSAGE,
+        command.errorCode ?? SongInstrumentUploadErrorCodeValues.PROCESSING_FAILED
+      );
     } else {
       throw new InvalidArgumentException({
         message: `SongInstrumentUpload status updater only accepts COMPLETED or FAILED, received ${command.status}`

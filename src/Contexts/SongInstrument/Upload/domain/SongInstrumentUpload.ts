@@ -17,6 +17,7 @@ import { SongInstrumentUploadRequestedDomainEvent } from './SongInstrumentUpload
 import { SongInstrumentUploadCompletedDomainEvent } from './SongInstrumentUploadCompletedDomainEvent.js';
 import { SongInstrumentUploadFailedDomainEvent } from './SongInstrumentUploadFailedDomainEvent.js';
 import { SongInstrumentUploadErrorMessage } from './value-object/SongInstrumentUploadErrorMessage.js';
+import { SongInstrumentUploadErrorCode } from './value-object/SongInstrumentUploadErrorCode.js';
 
 export type SongInstrumentUploadPrimitives = {
   id: string;
@@ -26,6 +27,7 @@ export type SongInstrumentUploadPrimitives = {
   songId: string;
   createdAt: string;
   errorMessage: string | null;
+  errorCode: string | null;
 };
 
 export class SongInstrumentUpload extends AggregateRoot {
@@ -36,7 +38,8 @@ export class SongInstrumentUpload extends AggregateRoot {
     readonly songInstrumentId: SongInstrumentUploadSongInstrumentId,
     readonly songId: SongInstrumentUploadSongId,
     readonly createdAt: SongInstrumentUploadCreatedAt,
-    public errorMessage: SongInstrumentUploadErrorMessage | null
+    public errorMessage: SongInstrumentUploadErrorMessage | null,
+    public errorCode: SongInstrumentUploadErrorCode | null
   ) {
     super();
   }
@@ -52,7 +55,8 @@ export class SongInstrumentUpload extends AggregateRoot {
       songInstrumentId: params.songInstrumentId,
       songId: params.songId,
       createdAt: clock.now().toISOString(),
-      errorMessage: null
+      errorMessage: null,
+      errorCode: null
     });
   }
 
@@ -72,6 +76,7 @@ export class SongInstrumentUpload extends AggregateRoot {
 
     this.status = new SongInstrumentUploadStatus(SongInstrumentUploadStatusValues.PROCESSING);
     this.errorMessage = null;
+    this.errorCode = null;
 
     this.record(
       new SongInstrumentUploadRequestedDomainEvent({
@@ -86,6 +91,7 @@ export class SongInstrumentUpload extends AggregateRoot {
   public markAsCompleted(completionData: SongInstrumentUploadCompletionData): void {
     this.status = new SongInstrumentUploadStatus(SongInstrumentUploadStatusValues.COMPLETED);
     this.errorMessage = null;
+    this.errorCode = null;
     this.record(
       new SongInstrumentUploadCompletedDomainEvent({
         aggregateId: this.id.value,
@@ -98,9 +104,10 @@ export class SongInstrumentUpload extends AggregateRoot {
     );
   }
 
-  public markAsFailed(errorMessage: string): void {
+  public markAsFailed(errorMessage: string, errorCode: string): void {
     this.status = new SongInstrumentUploadStatus(SongInstrumentUploadStatusValues.FAILED);
     this.errorMessage = new SongInstrumentUploadErrorMessage(errorMessage);
+    this.errorCode = SongInstrumentUploadErrorCode.fromString(errorCode);
     this.record(new SongInstrumentUploadFailedDomainEvent({ aggregateId: this.id.value, id: this.id.value }));
   }
 
@@ -122,7 +129,8 @@ export class SongInstrumentUpload extends AggregateRoot {
       new SongInstrumentUploadSongInstrumentId(plainData.songInstrumentId),
       new SongInstrumentUploadSongId(plainData.songId),
       new SongInstrumentUploadCreatedAt(plainData.createdAt),
-      plainData.errorMessage ? new SongInstrumentUploadErrorMessage(plainData.errorMessage) : null
+      plainData.errorMessage ? new SongInstrumentUploadErrorMessage(plainData.errorMessage) : null,
+      plainData.errorCode ? SongInstrumentUploadErrorCode.fromString(plainData.errorCode) : null
     );
   }
 
@@ -134,7 +142,8 @@ export class SongInstrumentUpload extends AggregateRoot {
       songInstrumentId: this.songInstrumentId.value,
       songId: this.songId.value,
       createdAt: this.createdAt.value.toISOString(),
-      errorMessage: this.errorMessage?.value ?? null
+      errorMessage: this.errorMessage?.value ?? null,
+      errorCode: this.errorCode?.value ?? null
     };
   }
 }

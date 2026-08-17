@@ -1,5 +1,6 @@
 import { SongInstrumentUpload } from '@Contexts/SongInstrument/Upload/domain/SongInstrumentUpload.js';
 import { SongInstrumentUploadStatusValues } from '@Contexts/SongInstrument/Upload/domain/value-object/SongInstrumentUploadStatus.js';
+import { SongInstrumentUploadErrorCodeValues } from '@Contexts/SongInstrument/Upload/domain/value-object/SongInstrumentUploadErrorCode.js';
 
 const DEFAULT_FAILED_UPLOAD_PUBLIC_ERROR_MESSAGE = 'The uploaded video could not be processed. Please try again.';
 
@@ -7,6 +8,7 @@ export interface FailedPublicSongInstrumentUploadResponse {
   id: string;
   status: typeof SongInstrumentUploadStatusValues.FAILED;
   errorMessage: string;
+  errorCode: SongInstrumentUploadErrorCodeValues;
 }
 
 export interface NonFailedPublicSongInstrumentUploadResponse {
@@ -34,7 +36,8 @@ export function toPublicSongInstrumentUploadResponse(
     return {
       id: upload.id.value,
       status: SongInstrumentUploadStatusValues.FAILED,
-      errorMessage: upload.errorMessage?.value ?? DEFAULT_FAILED_UPLOAD_PUBLIC_ERROR_MESSAGE
+      errorMessage: upload.errorMessage?.value ?? DEFAULT_FAILED_UPLOAD_PUBLIC_ERROR_MESSAGE,
+      errorCode: upload.errorCode?.value ?? SongInstrumentUploadErrorCodeValues.PROCESSING_FAILED
     };
   }
 

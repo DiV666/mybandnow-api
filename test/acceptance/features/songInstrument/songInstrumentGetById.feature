@@ -93,8 +93,10 @@ Feature: Get a song instrument by id
         "musicianId": "#musicianId",
         "video": null,
         "upload": {
+          "id": "#uploadAttemptId",
           "status": "FAILED",
-          "errorMessage": "Upload processing failed. Please try again."
+          "errorMessage": "Upload processing failed. Please try again.",
+          "errorCode": "PROCESSING_FAILED"
         }
       }
       """

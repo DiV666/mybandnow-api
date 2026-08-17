@@ -4,6 +4,7 @@ import Logger from '@Contexts/Shared/domain/Logger.js';
 import { Exception } from '@Contexts/Shared/domain/Exception.js';
 import { SongInstrumentUploadUpdateStatusCommand } from '@Contexts/SongInstrument/Upload/application/updateStatus/SongInstrumentUploadUpdateStatusCommand.js';
 import { SongInstrumentUploadStatusValues } from '@Contexts/SongInstrument/Upload/domain/value-object/SongInstrumentUploadStatus.js';
+import { SongInstrumentUploadErrorCodeValues } from '@Contexts/SongInstrument/Upload/domain/value-object/SongInstrumentUploadErrorCode.js';
 import { SongInstrumentUploadNotExistException } from '@Contexts/SongInstrument/Upload/domain/exception/SongInstrumentUploadNotExistException.js';
 import { NonRetryableException } from '@Contexts/Shared/domain/exceptions/NonRetryableException.js';
 import { CommandBusResolver } from './ValidateSongInstrumentUploadOnUploadRequested.js';
@@ -33,12 +34,19 @@ export class FailSongInstrumentUploadOnSongInstrumentProcessFailed implements Do
         ? domainEvent.attributes.publicErrorMessage
         : 'The uploaded video could not be processed. Please try again.';
 
+    const publicErrorCode =
+      typeof domainEvent.attributes.publicErrorCode === 'string' &&
+      (Object.values(SongInstrumentUploadErrorCodeValues) as string[]).includes(domainEvent.attributes.publicErrorCode)
+        ? domainEvent.attributes.publicErrorCode
+        : SongInstrumentUploadErrorCodeValues.PROCESSING_FAILED;
+
     await commandBus.dispatch(
       new SongInstrumentUploadUpdateStatusCommand(
         domainEvent.aggregateId,
         SongInstrumentUploadStatusValues.FAILED,
         undefined,
-        publicErrorMessage
+        publicErrorMessage,
+        publicErrorCode
       )
     );
   }

@@ -77,4 +77,26 @@ describe('SongInstrumentUpload should', () => {
       }
     );
   });
+
+  describe('#markAsFailed', () => {
+    it('sets status, errorMessage and errorCode', () => {
+      const model = SongInstrumentUploadMother.create({
+        status: SongInstrumentUploadStatusMother.create(SongInstrumentUploadStatusValues.PROCESSING)
+      });
+
+      model.markAsFailed('The uploaded video must use H.264 codec.', 'UNSUPPORTED_CODEC');
+
+      expect(model.status.value).toBe(SongInstrumentUploadStatusValues.FAILED);
+      expect(model.errorMessage?.value).toBe('The uploaded video must use H.264 codec.');
+      expect(model.errorCode?.value).toBe('UNSUPPORTED_CODEC');
+    });
+
+    it('rejects an unrecognized error code', () => {
+      const model = SongInstrumentUploadMother.create({
+        status: SongInstrumentUploadStatusMother.create(SongInstrumentUploadStatusValues.PROCESSING)
+      });
+
+      expect(() => model.markAsFailed('Something went wrong.', 'SOME_UNKNOWN_CODE')).toThrow(InvalidArgumentException);
+    });
+  });
 });

@@ -120,13 +120,14 @@ model SongInstrumentVideo {
 model SongInstrumentUpload {
   id                      String          @id @default(uuid())
   instrumentName          String
-  status                  String          @default("PENDING") // PENDING | READY | PROCESSING | FAILED
+  status                  String          @default("PENDING") // PENDING | READY | PROCESSING | COMPLETED | FAILED | CANCELLED
   song                    Song            @relation(fields: [songId], references: [id], onDelete: Cascade)
   songId                  String
   songInstrument          SongInstrument  @relation("SongInstrumentUploadAttempts", fields: [songInstrumentId], references: [id], onDelete: Cascade)
   songInstrumentId        String
   activeForSongInstrument SongInstrument? @relation("SongInstrumentActiveUploadAttempt")
   errorMessage            String?
+  errorCode               String?
   createdAt               DateTime        @default(now())
 
   @@index([songInstrumentId])

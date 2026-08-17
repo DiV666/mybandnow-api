@@ -131,7 +131,8 @@ describe('SongInstrumentProcessValidator', () => {
     );
 
     storageRepository.downloadFileToTemp.mockResolvedValue(tempFilePath);
-    validationService.validate.mockRejectedValue(new Error('Invalid video'));
+    fileSystemRepository.getFileSize.mockResolvedValue(100000);
+    validationService.validate.mockRejectedValue(new Error('No video stream found in the file'));
 
     await validator.run(command);
 
@@ -154,7 +155,8 @@ describe('SongInstrumentProcessValidator', () => {
         occurredOn: expect.any(Date),
         attributes: {
           attemptId: aggregateId,
-          publicErrorMessage: 'The uploaded file is not a valid video.'
+          publicErrorMessage: 'The uploaded file is not a valid video.',
+          publicErrorCode: 'INVALID_VIDEO_FORMAT'
         }
       })
     ]);
@@ -270,7 +272,8 @@ describe('SongInstrumentProcessValidator', () => {
       expect.objectContaining({
         attributes: {
           attemptId: aggregateId,
-          publicErrorMessage: 'The uploaded file could not be found for processing. Please upload it again.'
+          publicErrorMessage: 'The uploaded file could not be found for processing. Please upload it again.',
+          publicErrorCode: 'FILE_NOT_FOUND'
         }
       })
     ]);
@@ -289,6 +292,7 @@ describe('SongInstrumentProcessValidator', () => {
     );
 
     storageRepository.downloadFileToTemp.mockResolvedValue(tempFilePath);
+    fileSystemRepository.getFileSize.mockResolvedValue(100000);
     validationService.validate.mockResolvedValue({
       codec: 'vp9',
       durationInSeconds: 120,
@@ -303,7 +307,76 @@ describe('SongInstrumentProcessValidator', () => {
         eventName: SongInstrumentProcessFailedDomainEvent.EVENT_NAME,
         attributes: {
           attemptId: aggregateId,
-          publicErrorMessage: 'The uploaded video must use H.264 codec.'
+          publicErrorMessage: 'The uploaded video must use H.264 codec.',
+          publicErrorCode: 'UNSUPPORTED_CODEC'
+        }
+      })
+    ]);
+    expect(storageRepository.deleteFile).toHaveBeenCalledWith(fileReference);
+  });
+
+  it('should publish a sanitized public error when the duration exceeds the 320 second limit', async () => {
+    const aggregateId = '12345678-1234-4234-8234-123456789012';
+    const fileReference = `song-instrument-uploads/${SONG_ID}/${SONG_INSTRUMENT_ID}/upload.mp4`;
+    const tempFilePath = '/workdir/tmp/song-instrument-process-fixed-uuid.mp4';
+    const command = new SongInstrumentProcessValidateCommand(
+      aggregateId,
+      fileReference,
+      SONG_ID,
+      SONG_INSTRUMENT_ID,
+      BAND_ID
+    );
+
+    storageRepository.downloadFileToTemp.mockResolvedValue(tempFilePath);
+    fileSystemRepository.getFileSize.mockResolvedValue(100000);
+    validationService.validate.mockResolvedValue({
+      codec: 'h264',
+      durationInSeconds: 321,
+      width: 1920,
+      height: 1080
+    });
+
+    await validator.run(command);
+
+    expect(eventBus.publish).toHaveBeenCalledWith([
+      expect.objectContaining({
+        eventName: SongInstrumentProcessFailedDomainEvent.EVENT_NAME,
+        attributes: {
+          attemptId: aggregateId,
+          publicErrorMessage: 'The uploaded video exceeds the maximum duration of 320 seconds.',
+          publicErrorCode: 'DURATION_EXCEEDED'
+        }
+      })
+    ]);
+    expect(storageRepository.uploadFile).not.toHaveBeenCalled();
+  });
+
+  it('should publish a sanitized public error when the file exceeds the 80MB size limit', async () => {
+    const aggregateId = '12345678-1234-4234-8234-123456789012';
+    const fileReference = `song-instrument-uploads/${SONG_ID}/${SONG_INSTRUMENT_ID}/upload.mp4`;
+    const tempFilePath = '/workdir/tmp/song-instrument-process-fixed-uuid.mp4';
+    const command = new SongInstrumentProcessValidateCommand(
+      aggregateId,
+      fileReference,
+      SONG_ID,
+      SONG_INSTRUMENT_ID,
+      BAND_ID
+    );
+
+    storageRepository.downloadFileToTemp.mockResolvedValue(tempFilePath);
+    fileSystemRepository.getFileSize.mockResolvedValue(90 * 1024 * 1024);
+
+    await validator.run(command);
+
+    expect(validationService.validate).not.toHaveBeenCalled();
+    expect(storageRepository.uploadFile).not.toHaveBeenCalled();
+    expect(eventBus.publish).toHaveBeenCalledWith([
+      expect.objectContaining({
+        eventName: SongInstrumentProcessFailedDomainEvent.EVENT_NAME,
+        attributes: {
+          attemptId: aggregateId,
+          publicErrorMessage: 'The uploaded video exceeds the maximum allowed size of 80MB.',
+          publicErrorCode: 'SIZE_EXCEEDED'
         }
       })
     ]);
@@ -361,12 +434,13 @@ describe('SongInstrumentProcessValidator', () => {
     );
 
     storageRepository.downloadFileToTemp.mockResolvedValue(tempFilePath);
-    validationService.validate.mockRejectedValue(new Error('Invalid video'));
+    fileSystemRepository.getFileSize.mockResolvedValue(100000);
+    validationService.validate.mockRejectedValue(new Error('No video stream found in the file'));
     songInstrumentProcessRepository.save.mockRejectedValueOnce(new Error('db failure while saving failed state'));
 
     const execution = validator.run(command);
 
-    await expect(execution).rejects.toThrow(/Invalid video/);
+    await expect(execution).rejects.toThrow(/No video stream found in the file/);
     await expect(execution).rejects.toThrow(/db failure while saving failed state/);
 
     expect(storageRepository.uploadFile).not.toHaveBeenCalled();

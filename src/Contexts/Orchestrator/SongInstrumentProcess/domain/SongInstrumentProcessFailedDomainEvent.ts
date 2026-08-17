@@ -5,11 +5,13 @@ export class SongInstrumentProcessFailedDomainEvent extends DomainEvent {
 
   readonly attemptId: string;
   readonly publicErrorMessage: string;
+  readonly publicErrorCode: string;
 
   constructor(params: {
     aggregateId: string;
     attemptId?: string;
     publicErrorMessage: string;
+    publicErrorCode: string;
     eventId?: string;
     occurredOn?: Date;
     meta?: Record<string, unknown>;
@@ -23,9 +25,11 @@ export class SongInstrumentProcessFailedDomainEvent extends DomainEvent {
     });
     this.attemptId = params.attemptId ?? params.aggregateId;
     this.publicErrorMessage = params.publicErrorMessage;
+    this.publicErrorCode = params.publicErrorCode;
     this.attributes = {
       attemptId: this.attemptId,
-      publicErrorMessage: this.publicErrorMessage
+      publicErrorMessage: this.publicErrorMessage,
+      publicErrorCode: this.publicErrorCode
     };
   }
 
@@ -46,6 +50,10 @@ export class SongInstrumentProcessFailedDomainEvent extends DomainEvent {
         typeof params.attributes.publicErrorMessage === 'string' && params.attributes.publicErrorMessage.length > 0
           ? params.attributes.publicErrorMessage
           : 'The uploaded video could not be processed. Please try again.',
+      publicErrorCode:
+        typeof params.attributes.publicErrorCode === 'string' && params.attributes.publicErrorCode.length > 0
+          ? params.attributes.publicErrorCode
+          : 'PROCESSING_FAILED',
       eventId: params.eventId,
       occurredOn: params.occurredOn,
       meta: params.meta

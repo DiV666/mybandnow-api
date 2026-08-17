@@ -116,8 +116,10 @@ Feature: List song instruments by criteria
             "songId": "#songId",
             "musicianId": "#musicianId",
             "upload": {
+              "id": "#uploadAttemptId",
               "status": "FAILED",
-              "errorMessage": "Upload processing failed. Please try again."
+              "errorMessage": "Upload processing failed. Please try again.",
+              "errorCode": "PROCESSING_FAILED"
             }
           },
           {

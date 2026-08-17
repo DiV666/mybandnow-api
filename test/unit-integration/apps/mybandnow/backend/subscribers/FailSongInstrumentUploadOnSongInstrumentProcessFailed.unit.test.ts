@@ -30,7 +30,8 @@ describe('FailSongInstrumentUploadOnSongInstrumentProcessFailed', () => {
     );
     const domainEvent = new SongInstrumentProcessFailedDomainEvent({
       aggregateId: '12345678-1234-4234-8234-123456789012',
-      publicErrorMessage: 'The uploaded video must use H.264 codec.'
+      publicErrorMessage: 'The uploaded video must use H.264 codec.',
+      publicErrorCode: 'UNSUPPORTED_CODEC'
     });
 
     // Act
@@ -48,7 +49,8 @@ describe('FailSongInstrumentUploadOnSongInstrumentProcessFailed', () => {
       id: domainEvent.aggregateId,
       status: SongInstrumentUploadStatusValues.FAILED,
       completionData: undefined,
-      errorMessage: 'The uploaded video must use H.264 codec.'
+      errorMessage: 'The uploaded video must use H.264 codec.',
+      errorCode: 'UNSUPPORTED_CODEC'
     });
   });
 

@@ -54,20 +54,22 @@ export class SongInstrumentProcessValidator {
 
       shouldDeleteDurableSourceFile = true;
 
+      const fileSize = new FileSize(await this.fileSystem.getFileSize(downloadedTempFileReference));
+
       const metadata = await this.validationService.validate(downloadedTempFileReference.value);
 
       if (metadata.codec !== 'h264') {
         throw new Error(`Unsupported codec: ${metadata.codec}. Expected h264.`);
       }
 
-      if (metadata.durationInSeconds > 190) {
-        throw new Error(`Duration exceeded: ${metadata.durationInSeconds}s. Limit is 190 seconds.`);
+      if (metadata.durationInSeconds > 320) {
+        throw new Error(`Duration exceeded: ${metadata.durationInSeconds}s. Limit is 320 seconds.`);
       }
 
       await this.storage.uploadFile(downloadedTempFileReference.value, destinationPath.value);
       shouldDeleteDestinationFile = true;
 
-      await this.completeProcess(downloadedTempFileReference, songInstrumentProcessId, destinationPath, metadata);
+      await this.completeProcess(songInstrumentProcessId, destinationPath, fileSize, metadata);
 
       shouldDeleteDestinationFile = false;
 
@@ -140,14 +142,11 @@ export class SongInstrumentProcessValidator {
   }
 
   private async completeProcess(
-    downloadedTempFileReference: FileReference,
     songInstrumentProcessId: SongInstrumentProcessId,
     destinationPath: GcsPath,
+    fileSize: FileSize,
     metadata: Awaited<ReturnType<VideoValidationService['validate']>>
   ): Promise<void> {
-    const rawFileSize = await this.fileSystem.getFileSize(downloadedTempFileReference);
-    const fileSize = new FileSize(rawFileSize);
-
     const process = SongInstrumentProcess.complete(
       songInstrumentProcessId,
       destinationPath,
@@ -186,10 +185,12 @@ export class SongInstrumentProcessValidator {
     }
 
     try {
+      const { code: publicErrorCode, message: publicErrorMessage } = this.classifyPublicError(errorMsg);
       const failedProcess = SongInstrumentProcess.fail(
         songInstrumentProcessId,
         errorMsg,
-        this.toPublicErrorMessage(errorMsg)
+        publicErrorMessage,
+        publicErrorCode
       );
       await this.songInstrumentProcessRepository.save(failedProcess);
       await this.eventBus.publish(failedProcess.pullDomainEvents());
@@ -211,24 +212,40 @@ export class SongInstrumentProcessValidator {
     }
   }
 
-  private toPublicErrorMessage(errorMessage: string): string {
+  private classifyPublicError(errorMessage: string): { code: string; message: string } {
     if (errorMessage.includes('Unsupported codec:')) {
-      return 'The uploaded video must use H.264 codec.';
+      return { code: 'UNSUPPORTED_CODEC', message: 'The uploaded video must use H.264 codec.' };
     }
 
     if (errorMessage.includes('Duration exceeded:')) {
-      return 'The uploaded video exceeds the maximum duration of 190 seconds.';
+      return {
+        code: 'DURATION_EXCEEDED',
+        message: 'The uploaded video exceeds the maximum duration of 320 seconds.'
+      };
+    }
+
+    if (errorMessage.includes('exceeds the maximum allowed size of 80MB')) {
+      return {
+        code: 'SIZE_EXCEEDED',
+        message: 'The uploaded video exceeds the maximum allowed size of 80MB.'
+      };
     }
 
     if (errorMessage.includes('No such object:')) {
-      return 'The uploaded file could not be found for processing. Please upload it again.';
+      return {
+        code: 'FILE_NOT_FOUND',
+        message: 'The uploaded file could not be found for processing. Please upload it again.'
+      };
     }
 
-    if (errorMessage.includes('Invalid video') || errorMessage.includes('Invalid file format')) {
-      return 'The uploaded file is not a valid video.';
+    if (
+      errorMessage.includes('Error parsing video with ffprobe:') ||
+      errorMessage.includes('No video stream found in the file')
+    ) {
+      return { code: 'INVALID_VIDEO_FORMAT', message: 'The uploaded file is not a valid video.' };
     }
 
-    return 'The uploaded video could not be processed. Please try again.';
+    return { code: 'PROCESSING_FAILED', message: 'The uploaded video could not be processed. Please try again.' };
   }
 
   private logReplayDetected(songInstrumentProcessIdentifier: string, sourceFileReference: FileReference): void {

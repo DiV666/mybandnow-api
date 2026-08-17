@@ -2119,7 +2119,8 @@
                         "required": [
                             "id",
                             "status",
-                            "errorMessage"
+                            "errorMessage",
+                            "errorCode"
                         ],
                         "properties": {
                             "id": {
@@ -2133,6 +2134,17 @@
                             },
                             "errorMessage": {
                                 "type": "string"
+                            },
+                            "errorCode": {
+                                "type": "string",
+                                "enum": [
+                                    "UNSUPPORTED_CODEC",
+                                    "DURATION_EXCEEDED",
+                                    "SIZE_EXCEEDED",
+                                    "INVALID_VIDEO_FORMAT",
+                                    "FILE_NOT_FOUND",
+                                    "PROCESSING_FAILED"
+                                ]
                             }
                         }
                     },
