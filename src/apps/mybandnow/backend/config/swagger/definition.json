@@ -569,8 +569,8 @@
                 "tags": [
                     "SongInstrumentUpload"
                 ],
-                "summary": "Upload a song instrument video for asynchronous validation",
-                "description": "Send the multipart/form-data field named video with an MP4 file for a specific song instrument participation.",
+                "summary": "Request a signed URL to upload a song instrument video",
+                "description": "Creates a pending upload attempt and returns a short-lived GCS signed URL. The client must PUT the MP4 video directly to that URL and then call the confirm endpoint.",
                 "operationId": "songInstrumentUploadPostUpload",
                 "security": [
                     {
@@ -597,27 +597,74 @@
                         }
                     }
                 ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "type": "object",
-                                "additionalProperties": false,
-                                "required": [
-                                    "video"
-                                ],
-                                "properties": {
-                                    "video": {
-                                        "type": "string",
-                                        "format": "binary",
-                                        "description": "MP4 video file uploaded in the video field"
-                                    }
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SongInstrumentUploadUrlResponse"
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
                     }
-                },
+                }
+            }
+        },
+        "/v1/songs/{songId}/instruments/{songInstrumentId}/upload/{uploadId}/confirm": {
+            "post": {
+                "tags": [
+                    "SongInstrumentUpload"
+                ],
+                "summary": "Confirm a song instrument video upload for asynchronous validation",
+                "description": "Call this after the video has been PUT to the signed URL. Verifies the object landed in the bucket and starts the asynchronous validation workflow.",
+                "operationId": "songInstrumentUploadPostUploadConfirm",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "songId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Song identifier",
+                        "schema": {
+                            "$ref": "#/components/schemas/UUID"
+                        }
+                    },
+                    {
+                        "name": "songInstrumentId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Song instrument identifier",
+                        "schema": {
+                            "$ref": "#/components/schemas/UUID"
+                        }
+                    },
+                    {
+                        "name": "uploadId",
+                        "in": "path",
+                        "required": true,
+                        "description": "SongInstrumentUpload identifier returned by the upload URL request",
+                        "schema": {
+                            "$ref": "#/components/schemas/UUID"
+                        }
+                    }
+                ],
                 "responses": {
                     "202": {
                         "description": "Accepted"
@@ -1617,6 +1664,23 @@
                 "format": "uuid",
                 "example": "30437b49-faac-4ab1-9809-037ce93cb6d0"
             },
+            "SongInstrumentUploadUrlResponse": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "uploadId",
+                    "uploadUrl"
+                ],
+                "properties": {
+                    "uploadId": {
+                        "$ref": "#/components/schemas/UUID"
+                    },
+                    "uploadUrl": {
+                        "type": "string",
+                        "description": "Short-lived GCS signed URL. PUT the MP4 video directly to this URL with Content-Type: video/mp4."
+                    }
+                }
+            },
             "Error": {
                 "title": "The error object",
                 "type": "object",
@@ -1966,16 +2030,21 @@
                         "type": "object",
                         "additionalProperties": false,
                         "required": [
+                            "id",
                             "status"
                         ],
                         "properties": {
+                            "id": {
+                                "$ref": "#/components/schemas/UUID"
+                            },
                             "status": {
                                 "type": "string",
                                 "enum": [
                                     "PENDING",
                                     "READY",
                                     "PROCESSING",
-                                    "COMPLETED"
+                                    "COMPLETED",
+                                    "CANCELLED"
                                 ]
                             }
                         }
@@ -1984,10 +2053,15 @@
                         "type": "object",
                         "additionalProperties": false,
                         "required": [
+                            "id",
                             "status",
-                            "errorMessage"
+                            "errorMessage",
+                            "errorCode"
                         ],
                         "properties": {
+                            "id": {
+                                "$ref": "#/components/schemas/UUID"
+                            },
                             "status": {
                                 "type": "string",
                                 "enum": [
@@ -1996,6 +2070,17 @@
                             },
                             "errorMessage": {
                                 "type": "string"
+                            },
+                            "errorCode": {
+                                "type": "string",
+                                "enum": [
+                                    "UNSUPPORTED_CODEC",
+                                    "DURATION_EXCEEDED",
+                                    "SIZE_EXCEEDED",
+                                    "INVALID_VIDEO_FORMAT",
+                                    "FILE_NOT_FOUND",
+                                    "PROCESSING_FAILED"
+                                ]
                             }
                         }
                     },

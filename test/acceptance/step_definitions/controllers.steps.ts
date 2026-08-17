@@ -158,49 +158,53 @@ When('I send a DELETE request to {string}', async function (this: MybandnowWorld
 });
 
 When(
-  'I send a multipart POST request to {string} with a valid MP4 video',
+  'I request a song instrument upload url for {string}',
   async function (this: MybandnowWorld, route: string) {
     route = this.dataUtil.replaceTokensWithCustomOrFakerValues(route) as string;
-    const req = this.request.post(route).attach('video', createValidMp4Buffer(), {
-      filename: 'track.mp4',
-      contentType: 'video/mp4'
-    });
+    const req = this.request.post(route);
+    attachAuthHeader(this, req);
+    this.response = await req;
+
+    const uploadId = (this.response.body as { uploadId?: string }).uploadId;
+    if (uploadId) {
+      this.dataUtil.addPersonalizedParameterAndValue('uploadId', uploadId);
+    }
+  }
+);
+
+When('I upload a valid MP4 video to the requested upload url', async function (this: MybandnowWorld) {
+  const uploadUrl = (this.response.body as { uploadUrl?: string }).uploadUrl;
+
+  if (!uploadUrl) {
+    throw new Error('No uploadUrl found on the last response. Did you request an upload url first?');
+  }
+
+  const putResponse = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'video/mp4' },
+    body: createValidMp4Buffer()
+  });
+
+  if (!putResponse.ok) {
+    throw new Error(`Failed to PUT the video to the signed upload url: ${putResponse.status}`);
+  }
+});
+
+When(
+  'I confirm the requested song instrument upload at {string}',
+  async function (this: MybandnowWorld, route: string) {
+    route = this.dataUtil.replaceTokensWithCustomOrFakerValues(route) as string;
+    const req = this.request.post(route);
     attachAuthHeader(this, req);
     this.response = await req;
   }
 );
 
 When(
-  'I send a multipart POST request to {string} without a video file',
+  'I cancel the requested song instrument upload at {string}',
   async function (this: MybandnowWorld, route: string) {
     route = this.dataUtil.replaceTokensWithCustomOrFakerValues(route) as string;
-    const req = this.request.post(route).field('note', 'missing-video');
-    attachAuthHeader(this, req);
-    this.response = await req;
-  }
-);
-
-When(
-  'I send a multipart POST request to {string} with an invalid video mime type',
-  async function (this: MybandnowWorld, route: string) {
-    route = this.dataUtil.replaceTokensWithCustomOrFakerValues(route) as string;
-    const req = this.request.post(route).attach('video', Buffer.from('plain-text-upload'), {
-      filename: 'track.txt',
-      contentType: 'text/plain'
-    });
-    attachAuthHeader(this, req);
-    this.response = await req;
-  }
-);
-
-When(
-  'I send a multipart POST request to {string} with a corrupted MP4 header',
-  async function (this: MybandnowWorld, route: string) {
-    route = this.dataUtil.replaceTokensWithCustomOrFakerValues(route) as string;
-    const req = this.request.post(route).attach('video', Buffer.from('6e6f7466747970686561646572', 'hex'), {
-      filename: 'track.mp4',
-      contentType: 'video/mp4'
-    });
+    const req = this.request.post(route);
     attachAuthHeader(this, req);
     this.response = await req;
   }
@@ -591,16 +595,19 @@ Given(
     const prisma = PrismaClientFactory.createClient();
     const resolvedSongId = this.dataUtil.replaceTokensWithCustomOrFakerValues(songId) as string;
     const resolvedSongInstrumentId = this.dataUtil.replaceTokensWithCustomOrFakerValues(songInstrumentId) as string;
+    const uploadId = uuidv5(`track-${resolvedSongInstrumentId}`, '1b671a64-40d5-491e-99b0-da01ff1f3341');
 
     await prisma.songInstrumentUpload.create({
       data: {
-        id: uuidv5(`track-${resolvedSongInstrumentId}`, '1b671a64-40d5-491e-99b0-da01ff1f3341'),
+        id: uploadId,
         instrumentName: 'Lead Guitar',
         songId: resolvedSongId,
         songInstrumentId: resolvedSongInstrumentId,
         status: 'PENDING'
       }
     });
+
+    this.dataUtil.addPersonalizedParameterAndValue('uploadId', uploadId);
   }
 );
 

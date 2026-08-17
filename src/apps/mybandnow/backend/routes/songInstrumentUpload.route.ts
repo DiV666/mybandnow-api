@@ -19,3 +19,19 @@ export async function songInstrumentUploadPostUpload(
     [...requireMusicianProfile]
   );
 }
+
+export async function songInstrumentUploadPostUploadConfirm(
+  context: OpenAPIContext,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  await runController(
+    'Apps.Mybandnow.Backend.controllers.SongInstrumentUploadPostUploadConfirmController',
+    context,
+    req,
+    res,
+    next,
+    [...requireMusicianProfile]
+  );
+}

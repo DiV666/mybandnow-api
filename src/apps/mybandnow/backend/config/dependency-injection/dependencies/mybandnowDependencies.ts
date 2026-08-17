@@ -26,7 +26,8 @@ import { register as registerSongInstrumentMatcher } from '@Apps/moat/backend/co
 import { register as registerDeletePreviousSongInstrumentVideo } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-video/deletePreviousSongInstrumentVideo.dependency.js';
 import { register as registerSongInstrumentVideoCreator } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-video/songInstrumentVideoCreator.dependency.js';
 import { register as registerSongInstrumentVideoUpdateStartTime } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-video/songInstrumentVideoUpdateStartTime.dependency.js';
-import { register as registerSongInstrumentUploadUploader } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-upload/songInstrumentUploadUploader.dependency.js';
+import { register as registerSongInstrumentUploadRequestUploadUrl } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-upload/songInstrumentUploadRequestUploadUrl.dependency.js';
+import { register as registerSongInstrumentUploadConfirmUpload } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-upload/songInstrumentUploadConfirmUpload.dependency.js';
 import { register as registerSongInstrumentUploadStatusUpdater } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument-upload/songInstrumentUploadStatusUpdater.dependency.js';
 import { register as registerInstrumentsFinder } from '@Apps/moat/backend/config/dependency-injection/use-cases/instruments/instrumentsFinder.dependency.js';
 import { register as registerInstrumentsMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/instruments/instrumentsMatcher.dependency.js';
@@ -154,7 +155,8 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   registerDeletePreviousSongInstrumentVideo(container);
   registerSongInstrumentVideoCreator(container);
   registerSongInstrumentVideoUpdateStartTime(container);
-  registerSongInstrumentUploadUploader(container);
+  registerSongInstrumentUploadRequestUploadUrl(container);
+  registerSongInstrumentUploadConfirmUpload(container);
   registerSongInstrumentUploadStatusUpdater(container);
   registerInstrumentsFinder(container);
   registerInstrumentsMatcher(container);

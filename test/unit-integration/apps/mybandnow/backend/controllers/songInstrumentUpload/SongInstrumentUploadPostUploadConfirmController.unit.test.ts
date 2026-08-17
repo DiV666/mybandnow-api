@@ -7,13 +7,12 @@ import type Logger from '../../../../../../../src/Contexts/Shared/domain/Logger.
 import type { CommandBus } from '../../../../../../../src/Contexts/Shared/domain/CommandBus.js';
 import type { QueryBus } from '../../../../../../../src/Contexts/Shared/domain/QueryBus.js';
 import ApiExceptionsHttpStatusCodeMapping from '../../../../../../../src/Contexts/Shared/infrastructure/Express/ApiExceptionsHttpStatusCodeMapping.js';
-import SongInstrumentUploadPostUploadController from '../../../../../../../src/apps/mybandnow/backend/controllers/songInstrumentUpload/SongInstrumentUploadPostUploadController.js';
-import { SongInstrumentUploadRequestUploadUrlQuery } from '../../../../../../../src/Contexts/SongInstrument/Upload/application/requestUploadUrl/SongInstrumentUploadRequestUploadUrlQuery.js';
-import { SongInstrumentUploadRequestUploadUrlResponse } from '../../../../../../../src/Contexts/SongInstrument/Upload/application/requestUploadUrl/SongInstrumentUploadRequestUploadUrlResponse.js';
+import SongInstrumentUploadPostUploadConfirmController from '../../../../../../../src/apps/mybandnow/backend/controllers/songInstrumentUpload/SongInstrumentUploadPostUploadConfirmController.js';
+import { SongInstrumentUploadConfirmUploadCommand } from '../../../../../../../src/Contexts/SongInstrument/Upload/application/confirmUpload/SongInstrumentUploadConfirmUploadCommand.js';
 import { MusicianSearchByUserIdQuery } from '../../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdQuery.js';
 import { MusicianSearchByUserIdResponse } from '../../../../../../../src/Contexts/Musician/application/searchByUserId/MusicianSearchByUserIdResponse.js';
 
-describe('SongInstrumentUploadPostUploadController', () => {
+describe('SongInstrumentUploadPostUploadConfirmController', () => {
   function buildContext(): Context {
     return {
       security: {
@@ -24,51 +23,46 @@ describe('SongInstrumentUploadPostUploadController', () => {
       request: {
         params: {
           songId: 'path-song-id',
-          songInstrumentId: 'path-instrument-id'
+          songInstrumentId: 'path-instrument-id',
+          uploadId: 'path-upload-id'
         }
       }
     } as unknown as Context;
   }
 
-  it('returns the upload id and the signed upload url for the requesting musician', async () => {
+  it('dispatches the confirm upload command for the requesting musician', async () => {
     const logger = mock<Logger>();
     const commandBus = mock<CommandBus>();
     const queryBus = mock<QueryBus>();
     const exceptionHandler = new ApiExceptionsHttpStatusCodeMapping();
-    const controller = new SongInstrumentUploadPostUploadController(logger, commandBus, queryBus, exceptionHandler);
+    const controller = new SongInstrumentUploadPostUploadConfirmController(
+      logger,
+      commandBus,
+      queryBus,
+      exceptionHandler
+    );
 
     const req = mock<Request>();
     const res = mock<Response>();
     res.status.mockReturnValue(res);
 
-    queryBus.ask
-      .mockResolvedValueOnce(
-        new MusicianSearchByUserIdResponse({
-          id: 'musician-id',
-          userId: 'authenticated-user-id',
-          username: 'trackuser',
-          name: 'SongInstrumentUpload User'
-        })
-      )
-      .mockResolvedValueOnce(
-        new SongInstrumentUploadRequestUploadUrlResponse(
-          'upload-id',
-          'https://storage.googleapis.com/bucket/signed-write-url'
-        )
-      );
+    queryBus.ask.mockResolvedValue(
+      new MusicianSearchByUserIdResponse({
+        id: 'musician-id',
+        userId: 'authenticated-user-id',
+        username: 'trackuser',
+        name: 'SongInstrumentUpload User'
+      })
+    );
 
     await controller.run(buildContext(), req, res);
 
-    expect(queryBus.ask).toHaveBeenNthCalledWith(1, new MusicianSearchByUserIdQuery('authenticated-user-id'));
-    expect(queryBus.ask).toHaveBeenNthCalledWith(
-      2,
-      new SongInstrumentUploadRequestUploadUrlQuery('path-song-id', 'path-instrument-id', 'musician-id')
+    expect(queryBus.ask).toHaveBeenCalledWith(new MusicianSearchByUserIdQuery('authenticated-user-id'));
+    expect(commandBus.dispatch).toHaveBeenCalledWith(
+      new SongInstrumentUploadConfirmUploadCommand('path-song-id', 'path-instrument-id', 'musician-id', 'path-upload-id')
     );
-    expect(res.status).toHaveBeenCalledWith(httpStatus.OK);
-    expect(res.json).toHaveBeenCalledWith({
-      uploadId: 'upload-id',
-      uploadUrl: 'https://storage.googleapis.com/bucket/signed-write-url'
-    });
+    expect(res.status).toHaveBeenCalledWith(httpStatus.ACCEPTED);
+    expect(res.end).toHaveBeenCalledOnce();
   });
 
   it('rejects the request when the authenticated user has no musician profile', async () => {
@@ -76,7 +70,12 @@ describe('SongInstrumentUploadPostUploadController', () => {
     const commandBus = mock<CommandBus>();
     const queryBus = mock<QueryBus>();
     const exceptionHandler = new ApiExceptionsHttpStatusCodeMapping();
-    const controller = new SongInstrumentUploadPostUploadController(logger, commandBus, queryBus, exceptionHandler);
+    const controller = new SongInstrumentUploadPostUploadConfirmController(
+      logger,
+      commandBus,
+      queryBus,
+      exceptionHandler
+    );
 
     const req = mock<Request>();
     const res = mock<Response>();
@@ -85,6 +84,7 @@ describe('SongInstrumentUploadPostUploadController', () => {
 
     await expect(controller.run(buildContext(), req, res)).rejects.toThrow('Profile required');
 
+    expect(commandBus.dispatch).not.toHaveBeenCalled();
     expect(res.status).not.toHaveBeenCalled();
   });
 });

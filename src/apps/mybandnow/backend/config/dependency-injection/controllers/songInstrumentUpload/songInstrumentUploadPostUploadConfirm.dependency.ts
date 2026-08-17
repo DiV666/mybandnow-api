@@ -1,11 +1,11 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
-import SongInstrumentUploadPostUploadController from '../../../../controllers/songInstrumentUpload/SongInstrumentUploadPostUploadController.js';
+import SongInstrumentUploadPostUploadConfirmController from '../../../../controllers/songInstrumentUpload/SongInstrumentUploadPostUploadConfirmController.js';
 
 export const register = (container: ContainerBuilder) => {
   container
     .register(
-      'Apps.Mybandnow.Backend.controllers.SongInstrumentUploadPostUploadController',
-      SongInstrumentUploadPostUploadController
+      'Apps.Mybandnow.Backend.controllers.SongInstrumentUploadPostUploadConfirmController',
+      SongInstrumentUploadPostUploadConfirmController
     )
     .addArgument(new Reference('Shared.BunyanLogger'))
     .addArgument(new Reference('Shared.CommandBus'))

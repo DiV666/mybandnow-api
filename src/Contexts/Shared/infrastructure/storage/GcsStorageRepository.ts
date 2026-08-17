@@ -6,6 +6,7 @@ import Logger from '@Contexts/Shared/domain/Logger.js';
 import { StorageRepository } from '@Contexts/Shared/domain/StorageRepository.js';
 
 const PLAYBACK_SIGNED_URL_TTL_IN_MS = 15 * 60 * 1000;
+const UPLOAD_SIGNED_URL_TTL_IN_MS = 15 * 60 * 1000;
 
 export class GcsStorageRepository implements StorageRepository {
   private readonly storage: Storage;
@@ -61,6 +62,31 @@ export class GcsStorageRepository implements StorageRepository {
     this.logger.info('[GcsStorageRepository] Signed url generated successfully.');
 
     return signedUrl;
+  }
+
+  async getWriteSignedUrl(destinationPath: string, contentType: string): Promise<string> {
+    this.logger.info(
+      `[GcsStorageRepository] Generating write signed url for ${destinationPath} on GCS bucket ${this.bucketName}...`
+    );
+    const [signedUrl] = await this.storage
+      .bucket(this.bucketName)
+      .file(destinationPath)
+      .getSignedUrl({
+        action: 'write',
+        contentType,
+        expires: Date.now() + UPLOAD_SIGNED_URL_TTL_IN_MS
+      });
+    this.logger.info('[GcsStorageRepository] Write signed url generated successfully.');
+
+    return signedUrl;
+  }
+
+  async fileExists(path: string): Promise<boolean> {
+    this.logger.info(`[GcsStorageRepository] Checking existence of ${path} on GCS bucket ${this.bucketName}...`);
+    const [exists] = await this.storage.bucket(this.bucketName).file(path).exists();
+    this.logger.info(`[GcsStorageRepository] Existence check for ${path} resolved to ${exists}.`);
+
+    return exists;
   }
 
   async deleteFile(destinationPath: string): Promise<void> {

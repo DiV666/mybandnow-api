@@ -28,6 +28,14 @@ class InMemorySongInstrumentStorageRepository implements StorageRepository {
     return `https://storage.googleapis.com/test-bucket/${sourcePath}?signature=test`;
   }
 
+  async getWriteSignedUrl(destinationPath: string, contentType: string): Promise<string> {
+    return `https://storage.googleapis.com/test-bucket/${destinationPath}?signature=test-write&contentType=${encodeURIComponent(contentType)}`;
+  }
+
+  async fileExists(path: string): Promise<boolean> {
+    return this.files.has(path);
+  }
+
   async deleteFile(destinationPath: string): Promise<void> {
     if (!this.files.delete(destinationPath)) {
       throw new Error(`No such object: test-bucket/${destinationPath}`);

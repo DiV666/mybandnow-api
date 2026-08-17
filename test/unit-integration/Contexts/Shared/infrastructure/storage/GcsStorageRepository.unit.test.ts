@@ -8,10 +8,12 @@ const storageMocks = vi.hoisted(() => {
   const deleteFile = vi.fn();
   const download = vi.fn();
   const getSignedUrl = vi.fn();
+  const exists = vi.fn();
   const file = vi.fn(() => ({
     delete: deleteFile,
     download,
-    getSignedUrl
+    getSignedUrl,
+    exists
   }));
   const bucket = vi.fn(() => ({
     upload,
@@ -30,6 +32,7 @@ const storageMocks = vi.hoisted(() => {
     deleteFile,
     download,
     getSignedUrl,
+    exists,
     file,
     bucket,
     constructorSpy,
@@ -53,6 +56,7 @@ describe('GcsStorageRepository', () => {
     storageMocks.deleteFile.mockReset();
     storageMocks.download.mockReset();
     storageMocks.getSignedUrl.mockReset();
+    storageMocks.exists.mockReset();
     storageMocks.file.mockClear();
     storageMocks.bucket.mockClear();
     storageMocks.constructorSpy.mockClear();
@@ -121,5 +125,60 @@ describe('GcsStorageRepository', () => {
     expect(storageMocks.download).toHaveBeenCalledWith({ destination: tempFilePath });
     expect(tempFilePath).toMatch(/^\/tmp\/song-instrument-process_/);
     expect(tempFilePath).toMatch(/\.mp4$/);
+  });
+
+  it('returns a short-lived write signed url for a durable GCS object', async () => {
+    vi.spyOn(Date, 'now').mockReturnValue(1_700_000_000_000);
+    storageMocks.getSignedUrl.mockResolvedValue([
+      'https://storage.googleapis.com/tmp-bucket/song-instrument-uploads/video.mp4?signature=456'
+    ]);
+    const repository = new GcsStorageRepository(
+      logger,
+      'tmp-bucket',
+      'service-account@example.com',
+      Buffer.from('private-key').toString('base64')
+    );
+
+    const signedUrl = await repository.getWriteSignedUrl('song-instrument-uploads/video.mp4', 'video/mp4');
+
+    expect(storageMocks.bucket).toHaveBeenCalledWith('tmp-bucket');
+    expect(storageMocks.file).toHaveBeenCalledWith('song-instrument-uploads/video.mp4');
+    expect(storageMocks.getSignedUrl).toHaveBeenCalledExactlyOnceWith({
+      action: 'write',
+      contentType: 'video/mp4',
+      expires: 1_700_000_900_000
+    });
+    expect(signedUrl).toBe('https://storage.googleapis.com/tmp-bucket/song-instrument-uploads/video.mp4?signature=456');
+  });
+
+  it('returns whether a durable GCS object exists', async () => {
+    storageMocks.exists.mockResolvedValue([true]);
+    const repository = new GcsStorageRepository(
+      logger,
+      'tmp-bucket',
+      'service-account@example.com',
+      Buffer.from('private-key').toString('base64')
+    );
+
+    const exists = await repository.fileExists('song-instrument-uploads/video.mp4');
+
+    expect(storageMocks.bucket).toHaveBeenCalledWith('tmp-bucket');
+    expect(storageMocks.file).toHaveBeenCalledWith('song-instrument-uploads/video.mp4');
+    expect(storageMocks.exists).toHaveBeenCalledOnce();
+    expect(exists).toBe(true);
+  });
+
+  it('returns false when a durable GCS object does not exist', async () => {
+    storageMocks.exists.mockResolvedValue([false]);
+    const repository = new GcsStorageRepository(
+      logger,
+      'tmp-bucket',
+      'service-account@example.com',
+      Buffer.from('private-key').toString('base64')
+    );
+
+    const exists = await repository.fileExists('song-instrument-uploads/missing.mp4');
+
+    expect(exists).toBe(false);
   });
 });

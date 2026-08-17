@@ -21,6 +21,7 @@ import { register as registerSongInstrumentPatchVideoController } from '../contr
 import { register as registerSongInstrumentPostCreateController } from '../controllers/songInstrument/songInstrumentPostCreate.dependency.js';
 import { register as registerSongInstrumentPostInviteController } from '../controllers/songInstrument/songInstrumentPostInvite.dependency.js';
 import { register as registerSongInstrumentUploadPostUploadController } from '../controllers/songInstrumentUpload/songInstrumentUploadPostUpload.dependency.js';
+import { register as registerSongInstrumentUploadPostUploadConfirmController } from '../controllers/songInstrumentUpload/songInstrumentUploadPostUploadConfirm.dependency.js';
 import { register as registerSongVideoclipPostRequestController } from '../controllers/videoclip/songVideoclipPostRequest.dependency.js';
 import { register as registerSongVideoclipDeleteCancelController } from '../controllers/videoclip/songVideoclipDeleteCancel.dependency.js';
 import { register as registerInstrumentsGetMatchByCriteriaController } from '../controllers/instruments/instrumentsGetMatchByCriteria.dependency.js';
@@ -42,7 +43,6 @@ import { CompleteVideoclipOnVideoclipGenerationCompleted } from '../../../subscr
 import { FailVideoclipOnVideoclipGenerationFailed } from '../../../subscribers/FailVideoclipOnVideoclipGenerationFailed.js';
 import { SongCreatedDomainEvent } from '@Contexts/Song/domain/SongCreatedDomainEvent.js';
 import type { CommandBus } from '@Contexts/Shared/domain/CommandBus.js';
-import { MultipartFileParser } from '@Contexts/Shared/infrastructure/Express/MultipartFileParser.js';
 
 export function registerAppsDependencies(container: ContainerBuilder) {
   // Initialization
@@ -72,6 +72,7 @@ export function registerAppsDependencies(container: ContainerBuilder) {
   registerSongInstrumentPostCreateController(container);
   registerSongInstrumentPostInviteController(container);
   registerSongInstrumentUploadPostUploadController(container);
+  registerSongInstrumentUploadPostUploadConfirmController(container);
   registerSongVideoclipPostRequestController(container);
   registerSongVideoclipDeleteCancelController(container);
   registerInstrumentsGetMatchByCriteriaController(container);
@@ -79,8 +80,6 @@ export function registerAppsDependencies(container: ContainerBuilder) {
   registerInstrumentsPutUpdateController(container);
 
   // Middlewares
-  container.register('Shared.Express.MultipartFileParser', MultipartFileParser);
-
   container
     .register('Apps.Mybandnow.Backend.middlewares.TraceReqAndRes', TraceReqAndRes)
     .addArgument(new Reference('Shared.BunyanLogger'));
