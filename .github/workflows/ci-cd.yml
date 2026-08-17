@@ -266,7 +266,8 @@ jobs:
               KLODING_INTERNAL_PRIVATE_KEY_BASE64: process.env.KLODING_INTERNAL_PRIVATE_KEY_BASE64,
               GCS_BUCKET_NAME: process.env.GCS_BUCKET_NAME,
               GCS_BUCKET_APIKEY: process.env.GCS_BUCKET_APIKEY,
-              GCS_BUCKET_SECRET_BASE64: process.env.GCS_BUCKET_SECRET_BASE64
+              GCS_BUCKET_SECRET_BASE64: process.env.GCS_BUCKET_SECRET_BASE64,
+              CORS_ORIGIN: process.env.CORS_ORIGIN
             };
             fs.writeFileSync('cloud-run-env-vars.json', JSON.stringify(vars));
           "
@@ -284,6 +285,7 @@ jobs:
           GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
           GCS_BUCKET_APIKEY: ${{ secrets.GCS_BUCKET_APIKEY }}
           GCS_BUCKET_SECRET_BASE64: ${{ secrets.GCS_BUCKET_SECRET_BASE64 }}
+          CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
 
       - name: Deploy to Cloud Run
         run: |
