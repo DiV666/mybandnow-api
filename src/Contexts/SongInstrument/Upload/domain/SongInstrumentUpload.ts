@@ -57,6 +57,10 @@ export class SongInstrumentUpload extends AggregateRoot {
   }
 
   public processUpload(fileReference: FileReference): void {
+    if (this.status.value === SongInstrumentUploadStatusValues.PROCESSING) {
+      return;
+    }
+
     if (
       this.status.value !== SongInstrumentUploadStatusValues.PENDING &&
       this.status.value !== SongInstrumentUploadStatusValues.FAILED
