@@ -5,6 +5,7 @@ export type PublicSongInstrumentVideo = {
   id: string;
   url: string;
   songInstrumentId: string;
+  startTimeMs: number;
 };
 
 export class FindSongInstrumentVideoBySongInstrumentIdResponse implements Response {

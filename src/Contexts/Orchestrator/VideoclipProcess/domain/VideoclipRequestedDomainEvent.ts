@@ -4,6 +4,7 @@ export type VideoclipRequestedInstrumentAttributes = {
   readonly songInstrumentId: string;
   readonly videoUrl: string;
   readonly instrumentName: string;
+  readonly startTimeMs: number;
 };
 
 export type VideoclipRequestedDomainEventAttributes = {

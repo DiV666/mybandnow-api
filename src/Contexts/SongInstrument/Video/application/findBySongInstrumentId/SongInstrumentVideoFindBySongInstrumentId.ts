@@ -14,12 +14,13 @@ export class SongInstrumentVideoFindBySongInstrumentId {
       return new FindSongInstrumentVideoBySongInstrumentIdResponse(null);
     }
 
-    const { id, url, songInstrumentId: resolvedSongInstrumentId } = video.toPrimitives();
+    const { id, url, songInstrumentId: resolvedSongInstrumentId, startTimeMs } = video.toPrimitives();
 
     return new FindSongInstrumentVideoBySongInstrumentIdResponse({
       id,
       url,
-      songInstrumentId: resolvedSongInstrumentId
+      songInstrumentId: resolvedSongInstrumentId,
+      startTimeMs
     });
   }
 }

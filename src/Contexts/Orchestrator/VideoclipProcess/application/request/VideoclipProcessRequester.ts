@@ -36,7 +36,8 @@ export class VideoclipProcessRequester {
       instruments.map((instrument) => ({
         songInstrumentId: instrument.songInstrumentId,
         videoUrl: instrument.videoUrl as string,
-        instrumentName: instrument.instrumentName
+        instrumentName: instrument.instrumentName,
+        startTimeMs: instrument.startTimeMs
       }))
     );
 

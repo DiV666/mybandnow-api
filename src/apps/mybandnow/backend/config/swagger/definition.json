@@ -2079,8 +2079,7 @@
                         "type": "integer"
                     },
                     "startTimeMs": {
-                        "type": "integer",
-                        "minimum": 0
+                        "type": "integer"
                     },
                     "createdAt": {
                         "type": "string",
@@ -2209,8 +2208,7 @@
                 ],
                 "properties": {
                     "startTimeMs": {
-                        "type": "integer",
-                        "minimum": 0
+                        "type": "integer"
                     }
                 }
             },

@@ -21,9 +21,8 @@ export type SongInstrumentVideoPrimitives = {
   createdAt: Date;
 };
 
-// `startTimeMs` models the clip position inside the current global composition timeline.
-// For the current product behavior it is validated only as a non-negative offset, even
-// when it exceeds the clip's own duration.
+// `startTimeMs` models the clip position inside the global composition timeline. It may
+// exceed the clip's own duration or be negative (clip starts before the timeline's origin).
 export class SongInstrumentVideo extends AggregateRoot {
   constructor(
     readonly id: SongInstrumentVideoId,

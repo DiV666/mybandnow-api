@@ -4,6 +4,7 @@ export type RequestVideoclipCommandInstrument = {
   songInstrumentId: string;
   videoUrl: string | null;
   instrumentName: string;
+  startTimeMs: number;
 };
 
 export class RequestVideoclipCommand extends Command {

@@ -71,7 +71,8 @@ export default class SongVideoclipPostRequestController extends ApiController {
         return {
           songInstrumentId: songInstrument.id,
           videoUrl: videoResponse.video ? videoResponse.video.url : null,
-          instrumentName: instrumentResponse.toPrimitives().name
+          instrumentName: instrumentResponse.toPrimitives().name,
+          startTimeMs: videoResponse.video ? videoResponse.video.startTimeMs : 0
         };
       })
     );

@@ -33,7 +33,8 @@ describe('SongInstrumentVideoFindBySongInstrumentId', () => {
     expect(response.video).toEqual({
       id: video.id.value,
       url: video.url.value,
-      songInstrumentId: video.songInstrumentId.value
+      songInstrumentId: video.songInstrumentId.value,
+      startTimeMs: video.startTimeMs.value
     });
   });
 });

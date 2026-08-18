@@ -63,15 +63,36 @@ Feature: Update a song instrument video sync start time
       }
       """
 
-  Scenario: A song instrument video update with a negative offset is rejected by the API contract
+  Scenario: A song instrument video update accepts a negative offset
     Given I authenticate as user "song-owner" with id "#musicianId"
     When I send a PATCH request to "/v1/songs/#songId/instruments/#instrumentId/video" with body:
       """
       {
-        "startTimeMs": -1
+        "startTimeMs": -500
       }
       """
-    Then the response status code should be 400
+    Then the response status code should be 200
+    When I send a GET request to "/v1/songs/#songId/instruments/#instrumentId"
+    Then the response status code should be 200
+    And the response with ignored fields "createdAt,video.createdAt" should be:
+      """
+      {
+        "id": "#instrumentId",
+        "name": "Lead Guitar",
+        "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
+        "songId": "#songId",
+        "musicianId": "#musicianId",
+        "video": {
+          "id": "#videoId",
+          "songInstrumentId": "#instrumentId",
+          "url": "https://example.com/song-instrument-video.mp4",
+          "duration": 123,
+          "size": 456,
+          "startTimeMs": -500
+        },
+        "upload": null
+      }
+      """
 
   Scenario: An instrument that belongs to a different song is treated as not found when updating sync metadata
     Given I authenticate as user "song-owner" with id "#musicianId"
