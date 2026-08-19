@@ -70,6 +70,22 @@ export async function bandMemberGetByBand(
   ]);
 }
 
+export async function bandMemberDeleteRemove(
+  context: OpenAPIContext,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  await runController(
+    'Apps.Mybandnow.Backend.controllers.BandMemberDeleteRemoveController',
+    context,
+    req,
+    res,
+    next,
+    [...requireMusicianProfile]
+  );
+}
+
 export async function bandDeleteRemove(
   context: OpenAPIContext,
   req: Request,

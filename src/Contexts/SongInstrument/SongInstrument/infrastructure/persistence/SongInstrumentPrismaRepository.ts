@@ -130,6 +130,22 @@ export class SongInstrumentPrismaRepository
     return song !== null;
   }
 
+  async reassignBandMemberInstruments(
+    bandId: string,
+    previousMusicianId: SongInstrumentMusicianId,
+    newMusicianId: SongInstrumentMusicianId
+  ): Promise<number> {
+    const result = await this.client.songInstrument.updateMany({
+      where: {
+        musicianId: previousMusicianId.value,
+        song: { bandId }
+      },
+      data: { musicianId: newMusicianId.value }
+    });
+
+    return result.count;
+  }
+
   async isBandMember(songId: SongInstrumentSongId, musicianId: SongInstrumentMusicianId): Promise<boolean> {
     const song = await this.client.song.findFirst({
       where: {

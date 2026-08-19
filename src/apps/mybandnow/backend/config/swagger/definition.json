@@ -1197,6 +1197,59 @@
                 }
             }
         },
+        "/v1/bands/{bandId}/members/{musicianId}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "operationId": "bandMemberDeleteRemove",
+                "tags": [
+                    "Band"
+                ],
+                "summary": "Remove a member from a band",
+                "description": "Remove a musician's membership from a band. Only the band owner can remove members. Song instruments previously assigned to the removed musician within the band are reassigned to the band owner.",
+                "parameters": [
+                    {
+                        "name": "bandId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/UUID"
+                        }
+                    },
+                    {
+                        "name": "musicianId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/UUID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The band member has been removed"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Unknown"
+                    }
+                }
+            }
+        },
         "/v1/bands/{bandId}/songs": {
             "get": {
                 "security": [

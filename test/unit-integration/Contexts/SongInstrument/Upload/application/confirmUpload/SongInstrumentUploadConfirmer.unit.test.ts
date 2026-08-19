@@ -41,7 +41,8 @@ describe('SongInstrumentUploadConfirmer', () => {
       save: vi.fn(),
       search: vi.fn(),
       matching: vi.fn(),
-      matchingCount: vi.fn()
+      matchingCount: vi.fn(),
+      reassignBandMemberInstruments: vi.fn()
     } as SongInstrumentPersistenceRepository;
     storageRepository = {
       getWriteSignedUrl: vi.fn(),

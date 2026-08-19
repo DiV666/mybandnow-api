@@ -16,7 +16,10 @@ import { register as registerBandUpdater } from '@Apps/moat/backend/config/depen
 import { register as registerBandRemover } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandRemover.dependency.js';
 import { register as registerBandFinder } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandFinder.dependency.js';
 import { register as registerBandMatcher } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandMatcher.dependency.js';
+import { register as registerBandSongInstrumentReassignmentGateway } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandSongInstrumentReassignmentGateway.dependency.js';
+import { register as registerBandMemberRemover } from '@Apps/moat/backend/config/dependency-injection/use-cases/band/bandMemberRemover.dependency.js';
 import { register as registerSongInstrumentBandMembershipGateway } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentBandMembershipGateway.dependency.js';
+import { register as registerSongInstrumentBandMemberReassigner } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentBandMemberReassigner.dependency.js';
 import { register as registerSongInstrumentAssigner } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentAssigner.dependency.js';
 import { register as registerSongInstrumentEditor } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentEditor.dependency.js';
 import { register as registerSongInstrumentInviter } from '@Apps/moat/backend/config/dependency-injection/use-cases/song-instrument/songInstrumentInviter.dependency.js';
@@ -121,6 +124,8 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
   registerBandRemover(container);
   registerBandFinder(container);
   registerBandMatcher(container);
+  registerBandSongInstrumentReassignmentGateway(container);
+  registerBandMemberRemover(container);
   container
     .register('Song.SongCreator', SongCreator)
     .addArgument(new Reference('Shared.BunyanLogger'))
@@ -147,6 +152,7 @@ export function registerMybandnowDependencies(container: ContainerBuilder) {
     .addTag('commandHandler');
 
   registerSongInstrumentBandMembershipGateway(container);
+  registerSongInstrumentBandMemberReassigner(container);
   registerSongInstrumentAssigner(container);
   registerSongInstrumentEditor(container);
   registerSongInstrumentInviter(container);

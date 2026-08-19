@@ -3,6 +3,7 @@ import { register as registerBandGetSearchController } from '../controllers/band
 import { register as registerBandDeleteRemoveController } from '../controllers/band/bandDeleteRemove.dependency.js';
 import { register as registerBandMemberGetByBandController } from '../controllers/band/bandMemberGetByBand.dependency.js';
 import { register as registerBandMemberPostCreateController } from '../controllers/band/bandMemberPostCreate.dependency.js';
+import { register as registerBandMemberDeleteRemoveController } from '../controllers/band/bandMemberDeleteRemove.dependency.js';
 import { register as registerBandPutUpdateController } from '../controllers/band/bandPutUpdate.dependency.js';
 import { register as registerBandSongGetByBandController } from '../controllers/band/bandSongGetByBand.dependency.js';
 import { register as registerBandSongPostCreateController } from '../controllers/band/bandSongPostCreate.dependency.js';
@@ -55,6 +56,7 @@ export function registerAppsDependencies(container: ContainerBuilder) {
   registerBandDeleteRemoveController(container);
   registerBandMemberGetByBandController(container);
   registerBandMemberPostCreateController(container);
+  registerBandMemberDeleteRemoveController(container);
   registerBandPutUpdateController(container);
   registerBandSongGetByBandController(container);
   registerBandSongPostCreateController(container);
