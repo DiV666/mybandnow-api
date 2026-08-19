@@ -56,6 +56,7 @@ Feature: List song instruments by criteria
             "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
             "songId": "#songId",
             "musicianId": "#musicianId",
+            "video": null,
             "upload": null
           },
           {
@@ -64,6 +65,7 @@ Feature: List song instruments by criteria
             "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
             "songId": "#songId",
             "musicianId": "#musicianId",
+            "video": null,
             "upload": null
           }
         ],
@@ -85,6 +87,7 @@ Feature: List song instruments by criteria
             "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
             "songId": "#songId",
             "musicianId": "#musicianId",
+            "video": null,
             "upload": null
           },
           {
@@ -93,6 +96,7 @@ Feature: List song instruments by criteria
             "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
             "songId": "#songId",
             "musicianId": "#musicianId",
+            "video": null,
             "upload": null
           }
         ],
@@ -115,6 +119,7 @@ Feature: List song instruments by criteria
             "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
             "songId": "#songId",
             "musicianId": "#musicianId",
+            "video": null,
             "upload": {
               "id": "#uploadAttemptId",
               "status": "FAILED",
@@ -128,6 +133,7 @@ Feature: List song instruments by criteria
             "instrumentId": "0e7a0d5f-3d2a-4bc1-8d4d-100000000001",
             "songId": "#songId",
             "musicianId": "#musicianId",
+            "video": null,
             "upload": null
           }
         ],
