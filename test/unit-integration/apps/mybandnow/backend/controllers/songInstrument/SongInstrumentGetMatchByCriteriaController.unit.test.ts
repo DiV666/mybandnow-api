@@ -32,7 +32,7 @@ describe('SongInstrumentGetMatchByCriteriaController', () => {
       offset: 0
     });
     const criteria = queryParamsToCriteria(rawCriteria);
-    const responseBody = new MatchByCriteriaSongInstrumentResponse([{ songInstrument, upload: null }], 1);
+    const responseBody = new MatchByCriteriaSongInstrumentResponse([{ songInstrument, video: null, upload: null }], 1);
 
     const context = {
       security: {

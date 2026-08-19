@@ -72,7 +72,9 @@ describe('SongInstrumentUploadConfirmer', () => {
       `song-instrument-uploads/${songId}/${songInstrumentId}/${uploadId}.mp4`
     );
     expect(repository.save).toHaveBeenCalledWith(
-      expect.objectContaining({ status: expect.objectContaining({ value: SongInstrumentUploadStatusValues.PROCESSING }) })
+      expect.objectContaining({
+        status: expect.objectContaining({ value: SongInstrumentUploadStatusValues.PROCESSING })
+      })
     );
     expect(eventBus.publish).toHaveBeenCalledWith([
       expect.objectContaining({

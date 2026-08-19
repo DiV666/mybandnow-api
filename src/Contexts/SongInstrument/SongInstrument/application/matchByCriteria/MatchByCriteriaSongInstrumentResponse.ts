@@ -1,6 +1,7 @@
 import { Response } from '@Contexts/Shared/domain/Response.js';
 import { SongInstrument } from '../../domain/SongInstrument.js';
 import { PublicSongInstrumentUploadResponse } from '../PublicSongInstrumentUploadResponse.js';
+import { SongInstrumentVideoPrimitives } from '@Contexts/SongInstrument/Video/domain/SongInstrumentVideo.js';
 
 export interface SongInstrumentListItem {
   id: string;
@@ -9,11 +10,13 @@ export interface SongInstrumentListItem {
   songId: string;
   musicianId: string;
   createdAt: Date;
+  video: SongInstrumentVideoPrimitives | null;
   upload: PublicSongInstrumentUploadResponse | null;
 }
 
 export interface SongInstrumentListEntry {
   songInstrument: SongInstrument;
+  video: SongInstrumentVideoPrimitives | null;
   upload: PublicSongInstrumentUploadResponse | null;
 }
 
@@ -35,6 +38,7 @@ export class MatchByCriteriaSongInstrumentResponse implements Response {
           songId: primitives.songId,
           musicianId: primitives.musicianId,
           createdAt: primitives.createdAt,
+          video: item.video,
           upload: item.upload
         };
       }),

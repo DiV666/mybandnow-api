@@ -13,12 +13,17 @@ import { MatchByCriteriaSongInstrumentResponse } from './MatchByCriteriaSongInst
 import { SongInstrumentUploadPersistenceRepository } from '@Contexts/SongInstrument/Upload/domain/repository/SongInstrumentUploadPersistenceRepository.js';
 import { SongInstrumentUploadId } from '@Contexts/SongInstrument/Upload/domain/value-object/SongInstrumentUploadId.js';
 import { toPublicSongInstrumentUploadResponse } from '../PublicSongInstrumentUploadResponse.js';
+import { SongInstrumentVideoPersistenceRepository } from '@Contexts/SongInstrument/Video/domain/repository/SongInstrumentVideoPersistenceRepository.js';
+import { SongInstrumentVideoSongInstrumentId } from '@Contexts/SongInstrument/Video/domain/value-object/SongInstrumentVideoSongInstrumentId.js';
+import type { StorageRepository } from '@Contexts/Shared/domain/StorageRepository.js';
 
 export class SongInstrumentMatcher {
   constructor(
     private readonly repository: SongInstrumentPersistenceRepository,
     private readonly authorizationRepository: SongInstrumentAuthorizationRepository,
-    private readonly songInstrumentUploadRepository: SongInstrumentUploadPersistenceRepository
+    private readonly songInstrumentUploadRepository: SongInstrumentUploadPersistenceRepository,
+    private readonly songInstrumentVideoRepository: SongInstrumentVideoPersistenceRepository,
+    private readonly storageRepository: StorageRepository
   ) {}
 
   async run(songId: string, musicianId: string, criteria: Criteria): Promise<MatchByCriteriaSongInstrumentResponse> {
@@ -40,15 +45,32 @@ export class SongInstrumentMatcher {
               new SongInstrumentUploadId(songInstrument.activeUploadAttemptId.value)
             )
           : null;
+        const video = await this.songInstrumentVideoRepository.searchBySongInstrumentId(
+          new SongInstrumentVideoSongInstrumentId(songInstrument.id.value)
+        );
 
         return {
           songInstrument,
-          upload: toPublicSongInstrumentUploadResponse(upload)
+          upload: toPublicSongInstrumentUploadResponse(upload),
+          video: video
+            ? {
+                ...video.toPrimitives(),
+                url: isAbsoluteHttpUrl(video.url.value) ? video.url.value : await this.getPlaybackUrl(video.url.value)
+              }
+            : null
         };
       })
     );
 
     return new MatchByCriteriaSongInstrumentResponse(items, count);
+  }
+
+  private async getPlaybackUrl(url: string): Promise<string> {
+    try {
+      return await this.storageRepository.getSignedUrl(url);
+    } catch {
+      return url;
+    }
   }
 
   private applySongScope(criteria: Criteria, songId: string): Criteria {
@@ -63,4 +85,8 @@ export class SongInstrumentMatcher {
 
     return new Criteria(new Filters([...nonSongFilters, songFilter]), criteria.order, criteria.limit, criteria.offset);
   }
+}
+
+function isAbsoluteHttpUrl(value: string): boolean {
+  return /^https?:\/\//iu.test(value);
 }

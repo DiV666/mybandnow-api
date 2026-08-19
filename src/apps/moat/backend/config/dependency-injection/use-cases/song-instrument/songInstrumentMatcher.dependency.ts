@@ -7,7 +7,9 @@ export function register(container: ContainerBuilder) {
     .register('SongInstrument.SongInstrument.SongInstrumentMatcher', SongInstrumentMatcher)
     .addArgument(new Reference('SongInstrument.SongInstrument.SongInstrumentRepository'))
     .addArgument(new Reference('SongInstrument.SongInstrument.SongInstrumentRepository'))
-    .addArgument(new Reference('SongInstrument.Upload.SongInstrumentUploadRepository'));
+    .addArgument(new Reference('SongInstrument.Upload.SongInstrumentUploadRepository'))
+    .addArgument(new Reference('SongInstrument.Video.SongInstrumentVideoRepository'))
+    .addArgument(new Reference('Shared.StorageRepository'));
 
   container
     .register(

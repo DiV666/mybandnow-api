@@ -4,7 +4,7 @@ import { SongInstrument } from '@Contexts/SongInstrument/SongInstrument/domain/S
 export class MatchByCriteriaSongInstrumentResponseMother {
   static fromModelList(models: Array<SongInstrument>, total?: number): MatchByCriteriaSongInstrumentResponse {
     return new MatchByCriteriaSongInstrumentResponse(
-      models.map((songInstrument) => ({ songInstrument, upload: null })),
+      models.map((songInstrument) => ({ songInstrument, video: null, upload: null })),
       total ?? models.length
     );
   }

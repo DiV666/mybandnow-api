@@ -3,9 +3,7 @@ import { SongInstrumentUploadConfirmer } from './SongInstrumentUploadConfirmer.j
 import { SongInstrumentUploadConfirmUploadCommand } from './SongInstrumentUploadConfirmUploadCommand.js';
 import { Command } from '@Contexts/Shared/domain/Command.js';
 
-export class SongInstrumentUploadConfirmUploadCommandHandler
-  implements CommandHandler<SongInstrumentUploadConfirmUploadCommand>
-{
+export class SongInstrumentUploadConfirmUploadCommandHandler implements CommandHandler<SongInstrumentUploadConfirmUploadCommand> {
   constructor(private readonly useCase: SongInstrumentUploadConfirmer) {}
 
   subscribedTo(): Command {

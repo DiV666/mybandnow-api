@@ -9,6 +9,8 @@ import { SongInstrumentMatchByCriteriaCriteriaMother } from './SongInstrumentMat
 import type { SongInstrumentPersistenceRepository } from '@Contexts/SongInstrument/SongInstrument/domain/repository/SongInstrumentPersistenceRepository.js';
 import type { SongInstrumentAuthorizationRepository } from '@Contexts/SongInstrument/SongInstrument/domain/repository/SongInstrumentAuthorizationRepository.js';
 import type { SongInstrumentUploadPersistenceRepository } from '@Contexts/SongInstrument/Upload/domain/repository/SongInstrumentUploadPersistenceRepository.js';
+import type { SongInstrumentVideoPersistenceRepository } from '@Contexts/SongInstrument/Video/domain/repository/SongInstrumentVideoPersistenceRepository.js';
+import type { StorageRepository } from '@Contexts/Shared/domain/StorageRepository.js';
 import { SongInstrumentUploadMother } from '@Test/unit-integration/Contexts/SongInstrument/Upload/domain/SongInstrumentUploadMother.js';
 import { SongInstrumentUploadStatusValues } from '@Contexts/SongInstrument/Upload/domain/value-object/SongInstrumentUploadStatus.js';
 import { SongInstrumentActiveUploadAttemptId } from '@Contexts/SongInstrument/SongInstrument/domain/value-object/SongInstrumentActiveUploadAttemptId.js';
@@ -22,7 +24,9 @@ describe('SongInstrumentMatcher should', () => {
     useCase = new SongInstrumentMatcher(
       testCase.persistenceRepository(),
       testCase.authorizationRepository(),
-      mock<SongInstrumentUploadPersistenceRepository>()
+      mock<SongInstrumentUploadPersistenceRepository>(),
+      testCase.videoRepository(),
+      testCase.storageRepository()
     );
   });
 
@@ -61,10 +65,14 @@ describe('SongInstrumentMatcher should', () => {
     const uploadRepository = mock<SongInstrumentUploadPersistenceRepository>();
     const persistenceRepository = mock<SongInstrumentPersistenceRepository>();
     const authorizationRepository = mock<SongInstrumentAuthorizationRepository>();
+    const videoRepository = mock<SongInstrumentVideoPersistenceRepository>();
+    const storageRepository = mock<StorageRepository>();
     const useCaseWithUploads = Reflect.construct(SongInstrumentMatcher, [
       persistenceRepository,
       authorizationRepository,
-      uploadRepository
+      uploadRepository,
+      videoRepository,
+      storageRepository
     ]) as SongInstrumentMatcher;
     const processingUpload = SongInstrumentUploadMother.create({
       status: { value: SongInstrumentUploadStatusValues.PROCESSING } as never

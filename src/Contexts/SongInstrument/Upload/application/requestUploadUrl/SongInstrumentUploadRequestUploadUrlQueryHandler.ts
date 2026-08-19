@@ -4,9 +4,10 @@ import { SongInstrumentUploadUrlRequester } from './SongInstrumentUploadUrlReque
 import { SongInstrumentUploadRequestUploadUrlQuery } from './SongInstrumentUploadRequestUploadUrlQuery.js';
 import { SongInstrumentUploadRequestUploadUrlResponse } from './SongInstrumentUploadRequestUploadUrlResponse.js';
 
-export class SongInstrumentUploadRequestUploadUrlQueryHandler
-  implements QueryHandler<SongInstrumentUploadRequestUploadUrlQuery, SongInstrumentUploadRequestUploadUrlResponse>
-{
+export class SongInstrumentUploadRequestUploadUrlQueryHandler implements QueryHandler<
+  SongInstrumentUploadRequestUploadUrlQuery,
+  SongInstrumentUploadRequestUploadUrlResponse
+> {
   constructor(private readonly useCase: SongInstrumentUploadUrlRequester) {}
 
   subscribedTo(): Query {

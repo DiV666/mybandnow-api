@@ -59,7 +59,12 @@ describe('SongInstrumentUploadPostUploadConfirmController', () => {
 
     expect(queryBus.ask).toHaveBeenCalledWith(new MusicianSearchByUserIdQuery('authenticated-user-id'));
     expect(commandBus.dispatch).toHaveBeenCalledWith(
-      new SongInstrumentUploadConfirmUploadCommand('path-song-id', 'path-instrument-id', 'musician-id', 'path-upload-id')
+      new SongInstrumentUploadConfirmUploadCommand(
+        'path-song-id',
+        'path-instrument-id',
+        'musician-id',
+        'path-upload-id'
+      )
     );
     expect(res.status).toHaveBeenCalledWith(httpStatus.ACCEPTED);
     expect(res.end).toHaveBeenCalledOnce();

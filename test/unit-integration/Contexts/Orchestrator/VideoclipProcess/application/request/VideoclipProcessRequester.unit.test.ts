@@ -62,7 +62,12 @@ describe('VideoclipProcessRequester', () => {
     repository.searchActiveBySongId.mockResolvedValue(null);
 
     const command = new RequestVideoclipCommand(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, [
-      { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar', startTimeMs: 0 }
+      {
+        songInstrumentId: SONG_INSTRUMENT_ID,
+        videoUrl: 'gs://bucket/video.mp4',
+        instrumentName: 'Guitar',
+        startTimeMs: 0
+      }
     ]);
 
     await requester.run(command);
@@ -95,7 +100,12 @@ describe('VideoclipProcessRequester', () => {
     repository.searchActiveBySongId.mockResolvedValue(null);
 
     const command = new RequestVideoclipCommand(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, [
-      { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar', startTimeMs: 0 }
+      {
+        songInstrumentId: SONG_INSTRUMENT_ID,
+        videoUrl: 'gs://bucket/video.mp4',
+        instrumentName: 'Guitar',
+        startTimeMs: 0
+      }
     ]);
 
     await requester.run(command);

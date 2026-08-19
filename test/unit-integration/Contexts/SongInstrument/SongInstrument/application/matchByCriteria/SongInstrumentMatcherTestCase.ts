@@ -5,6 +5,8 @@ import { SongInstrumentAuthorizationRepository } from '@Contexts/SongInstrument/
 import { SongInstrumentPersistenceRepository } from '@Contexts/SongInstrument/SongInstrument/domain/repository/SongInstrumentPersistenceRepository.js';
 import { MatchByCriteriaSongInstrumentResponse } from '@Contexts/SongInstrument/SongInstrument/application/matchByCriteria/MatchByCriteriaSongInstrumentResponse.js';
 import { SongInstrumentMatcher } from '@Contexts/SongInstrument/SongInstrument/application/matchByCriteria/SongInstrumentMatcher.js';
+import { SongInstrumentVideoPersistenceRepository } from '@Contexts/SongInstrument/Video/domain/repository/SongInstrumentVideoPersistenceRepository.js';
+import type { StorageRepository } from '@Contexts/Shared/domain/StorageRepository.js';
 import { Nullable } from '@Contexts/Shared/domain/Nullable.js';
 import { Criteria } from '@Contexts/Shared/domain/criteria/Criteria.js';
 import { Mock } from '@Test/utils/Mock.js';
@@ -13,6 +15,8 @@ import { TestCase } from '@Test/utils/TestCase.js';
 export class SongInstrumentMatcherTestCase extends TestCase {
   private _persistenceRepository: Nullable<MockProxy<SongInstrumentPersistenceRepository>> = null;
   private _authorizationRepository: Nullable<MockProxy<SongInstrumentAuthorizationRepository>> = null;
+  private _videoRepository: Nullable<MockProxy<SongInstrumentVideoPersistenceRepository>> = null;
+  private _storageRepository: Nullable<MockProxy<StorageRepository>> = null;
   private persistenceRepositoryMock: Mock = new Mock();
 
   shouldAuthorize(songId: string, musicianId: string, isBandMember: boolean): void {
@@ -77,5 +81,19 @@ export class SongInstrumentMatcherTestCase extends TestCase {
       this._persistenceRepository = mock<SongInstrumentPersistenceRepository>();
     }
     return this._persistenceRepository;
+  }
+
+  videoRepository(): MockProxy<SongInstrumentVideoPersistenceRepository> {
+    if (!this._videoRepository) {
+      this._videoRepository = mock<SongInstrumentVideoPersistenceRepository>();
+    }
+    return this._videoRepository;
+  }
+
+  storageRepository(): MockProxy<StorageRepository> {
+    if (!this._storageRepository) {
+      this._storageRepository = mock<StorageRepository>();
+    }
+    return this._storageRepository;
   }
 }

@@ -77,7 +77,9 @@ describe('VideoclipProcessPrismaRepository', () => {
         songId,
         aiPayload: {
           originalVideoclipUrl: ORIGINAL_VIDEOCLIP_URL,
-          instruments: [{ songInstrumentId, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar', startTimeMs: 0 }]
+          instruments: [
+            { songInstrumentId, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar', startTimeMs: 0 }
+          ]
         },
         aiResponse: null,
         finalGcsPath: null
@@ -123,7 +125,11 @@ describe('VideoclipProcessPrismaRepository', () => {
         id,
         status: 'SUCCESS',
         songId,
-        aiPayload: { instruments: [{ songInstrumentId, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar', startTimeMs: 0 }] },
+        aiPayload: {
+          instruments: [
+            { songInstrumentId, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar', startTimeMs: 0 }
+          ]
+        },
         aiResponse: null,
         finalGcsPath: 'gs://bucket/final.mp4',
         startedAt: new Date(),
@@ -146,7 +152,11 @@ describe('VideoclipProcessPrismaRepository', () => {
         id: firstId,
         status: 'FAILED',
         songId,
-        aiPayload: { instruments: [{ songInstrumentId, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar', startTimeMs: 0 }] },
+        aiPayload: {
+          instruments: [
+            { songInstrumentId, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar', startTimeMs: 0 }
+          ]
+        },
         aiResponse: null,
         finalGcsPath: null,
         startedAt: new Date(),

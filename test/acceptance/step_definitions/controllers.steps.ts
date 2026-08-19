@@ -157,20 +157,17 @@ When('I send a DELETE request to {string}', async function (this: MybandnowWorld
   this.response = await req;
 });
 
-When(
-  'I request a song instrument upload url for {string}',
-  async function (this: MybandnowWorld, route: string) {
-    route = this.dataUtil.replaceTokensWithCustomOrFakerValues(route) as string;
-    const req = this.request.post(route);
-    attachAuthHeader(this, req);
-    this.response = await req;
+When('I request a song instrument upload url for {string}', async function (this: MybandnowWorld, route: string) {
+  route = this.dataUtil.replaceTokensWithCustomOrFakerValues(route) as string;
+  const req = this.request.post(route);
+  attachAuthHeader(this, req);
+  this.response = await req;
 
-    const uploadId = (this.response.body as { uploadId?: string }).uploadId;
-    if (uploadId) {
-      this.dataUtil.addPersonalizedParameterAndValue('uploadId', uploadId);
-    }
+  const uploadId = (this.response.body as { uploadId?: string }).uploadId;
+  if (uploadId) {
+    this.dataUtil.addPersonalizedParameterAndValue('uploadId', uploadId);
   }
-);
+});
 
 When('I upload a valid MP4 video to the requested upload url', async function (this: MybandnowWorld) {
   const uploadUrl = (this.response.body as { uploadUrl?: string }).uploadUrl;
@@ -200,15 +197,12 @@ When(
   }
 );
 
-When(
-  'I cancel the requested song instrument upload at {string}',
-  async function (this: MybandnowWorld, route: string) {
-    route = this.dataUtil.replaceTokensWithCustomOrFakerValues(route) as string;
-    const req = this.request.post(route);
-    attachAuthHeader(this, req);
-    this.response = await req;
-  }
-);
+When('I cancel the requested song instrument upload at {string}', async function (this: MybandnowWorld, route: string) {
+  route = this.dataUtil.replaceTokensWithCustomOrFakerValues(route) as string;
+  const req = this.request.post(route);
+  attachAuthHeader(this, req);
+  this.response = await req;
+});
 
 Then('the response status code should be {int}', function (this: MybandnowWorld, status: number) {
   if (this.response.status !== status) {

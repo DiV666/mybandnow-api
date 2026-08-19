@@ -18,7 +18,12 @@ describe('VideoclipProcess', () => {
   describe('request', () => {
     it('creates a process with PENDING status and the given songId', () => {
       const instruments = [
-        { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar', startTimeMs: 0 }
+        {
+          songInstrumentId: SONG_INSTRUMENT_ID,
+          videoUrl: 'gs://bucket/video.mp4',
+          instrumentName: 'Guitar',
+          startTimeMs: 0
+        }
       ];
 
       const process = VideoclipProcess.request(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, instruments);
@@ -33,7 +38,12 @@ describe('VideoclipProcess', () => {
 
     it('records a VideoclipRequestedDomainEvent with the songId and instruments', () => {
       const instruments = [
-        { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar', startTimeMs: 0 }
+        {
+          songInstrumentId: SONG_INSTRUMENT_ID,
+          videoUrl: 'gs://bucket/video.mp4',
+          instrumentName: 'Guitar',
+          startTimeMs: 0
+        }
       ];
 
       const process = VideoclipProcess.request(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, instruments);
@@ -53,7 +63,12 @@ describe('VideoclipProcess', () => {
   describe('cancel', () => {
     it('cancels a PENDING process, setting status to CANCELLED and updating updatedAt', () => {
       const instruments = [
-        { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar', startTimeMs: 0 }
+        {
+          songInstrumentId: SONG_INSTRUMENT_ID,
+          videoUrl: 'gs://bucket/video.mp4',
+          instrumentName: 'Guitar',
+          startTimeMs: 0
+        }
       ];
       const process = VideoclipProcess.request(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, instruments);
 
@@ -67,7 +82,12 @@ describe('VideoclipProcess', () => {
 
     it('records a VideoclipCancelledDomainEvent with the songId', () => {
       const instruments = [
-        { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar', startTimeMs: 0 }
+        {
+          songInstrumentId: SONG_INSTRUMENT_ID,
+          videoUrl: 'gs://bucket/video.mp4',
+          instrumentName: 'Guitar',
+          startTimeMs: 0
+        }
       ];
       const process = VideoclipProcess.request(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, instruments);
       process.pullDomainEvents();
@@ -104,7 +124,12 @@ describe('VideoclipProcess', () => {
   describe('complete', () => {
     it('completes an active process, setting status to SUCCESS and storing the finalGcsPath', () => {
       const instruments = [
-        { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar', startTimeMs: 0 }
+        {
+          songInstrumentId: SONG_INSTRUMENT_ID,
+          videoUrl: 'gs://bucket/video.mp4',
+          instrumentName: 'Guitar',
+          startTimeMs: 0
+        }
       ];
       const process = VideoclipProcess.request(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, instruments);
       const finalGcsPath = 'songs/final/video.mp4';
@@ -120,7 +145,12 @@ describe('VideoclipProcess', () => {
 
     it('records a VideoclipCompletedDomainEvent with the songId and finalGcsPath', () => {
       const instruments = [
-        { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar', startTimeMs: 0 }
+        {
+          songInstrumentId: SONG_INSTRUMENT_ID,
+          videoUrl: 'gs://bucket/video.mp4',
+          instrumentName: 'Guitar',
+          startTimeMs: 0
+        }
       ];
       const process = VideoclipProcess.request(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, instruments);
       process.pullDomainEvents();
@@ -159,7 +189,12 @@ describe('VideoclipProcess', () => {
   describe('fail', () => {
     it('fails an active process, setting status to FAILED and storing error details in aiResponse', () => {
       const instruments = [
-        { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar', startTimeMs: 0 }
+        {
+          songInstrumentId: SONG_INSTRUMENT_ID,
+          videoUrl: 'gs://bucket/video.mp4',
+          instrumentName: 'Guitar',
+          startTimeMs: 0
+        }
       ];
       const process = VideoclipProcess.request(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, instruments);
 
@@ -176,7 +211,12 @@ describe('VideoclipProcess', () => {
 
     it('sets status to TIMEOUT when errorCode is SLA_TIMEOUT', () => {
       const instruments = [
-        { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar', startTimeMs: 0 }
+        {
+          songInstrumentId: SONG_INSTRUMENT_ID,
+          videoUrl: 'gs://bucket/video.mp4',
+          instrumentName: 'Guitar',
+          startTimeMs: 0
+        }
       ];
       const process = VideoclipProcess.request(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, instruments);
 
@@ -187,7 +227,12 @@ describe('VideoclipProcess', () => {
 
     it('records a VideoclipFailedDomainEvent with the songId and error details', () => {
       const instruments = [
-        { songInstrumentId: SONG_INSTRUMENT_ID, videoUrl: 'gs://bucket/video.mp4', instrumentName: 'Guitar', startTimeMs: 0 }
+        {
+          songInstrumentId: SONG_INSTRUMENT_ID,
+          videoUrl: 'gs://bucket/video.mp4',
+          instrumentName: 'Guitar',
+          startTimeMs: 0
+        }
       ];
       const process = VideoclipProcess.request(ID, SONG_ID, ORIGINAL_VIDEOCLIP_URL, instruments);
       process.pullDomainEvents();
