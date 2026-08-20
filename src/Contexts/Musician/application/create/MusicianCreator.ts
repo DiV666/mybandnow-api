@@ -53,6 +53,6 @@ export class MusicianCreator {
     const musician = Musician.create({ id, username, name, userId }, this.clock);
     await this.persistenceRepository.save(musician);
     await this.eventBus.publish(musician.pullDomainEvents());
-    this.logger.info({ id }, 'moat.musician.create.success');
+    this.logger.info({ id }, 'mybandnow.musician.create.success');
   }
 }

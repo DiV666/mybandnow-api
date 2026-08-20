@@ -37,7 +37,7 @@ describe('SongOriginalVideoClipDurationEnricher', () => {
     );
     expect(logger.info).toHaveBeenCalledWith(
       { songId: '12345678-1234-4234-8234-123456789012', durationInSeconds: 213 },
-      'moat.song.original_video_clip_duration.enriched'
+      'mybandnow.song.original_video_clip_duration.enriched'
     );
   });
 
@@ -73,7 +73,7 @@ describe('SongOriginalVideoClipDurationEnricher', () => {
     expect(repository.updateOriginalVideoClipDurationSeconds).not.toHaveBeenCalled();
     expect(logger.warn).toHaveBeenCalledWith(
       { songId: '12345678-1234-4234-8234-123456789012', errorName: 'Error' },
-      'moat.song.original_video_clip_duration.enrichment_failed'
+      'mybandnow.song.original_video_clip_duration.enrichment_failed'
     );
   });
 });

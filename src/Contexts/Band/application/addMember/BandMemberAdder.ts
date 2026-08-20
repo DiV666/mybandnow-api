@@ -52,6 +52,6 @@ export class BandMemberAdder {
 
     await this.repository.save(updatedBand);
     await this.eventBus.publish(domainEvents);
-    this.logger.info({ bandId: command.bandId, musicianId: command.musicianId }, 'moat.band.member.add.success');
+    this.logger.info({ bandId: command.bandId, musicianId: command.musicianId }, 'mybandnow.band.member.add.success');
   }
 }

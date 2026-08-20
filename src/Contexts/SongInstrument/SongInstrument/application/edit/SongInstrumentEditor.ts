@@ -44,7 +44,7 @@ export class SongInstrumentEditor {
         songInstrumentId: command.songInstrumentId,
         instrumentId: command.instrumentId
       },
-      'moat.songinstrument.edit.success'
+      'mybandnow.songinstrument.edit.success'
     );
   }
 }

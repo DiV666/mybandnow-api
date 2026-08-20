@@ -54,6 +54,6 @@ export class BandCreator {
     await this.persistenceRepository.save(band);
     await this.eventBus.publish(band.pullDomainEvents());
 
-    this.logger.info({ id }, 'moat.band.create.success');
+    this.logger.info({ id }, 'mybandnow.band.create.success');
   }
 }

@@ -37,6 +37,6 @@ export class BandRemover {
 
     await this.persistenceRepository.remove(model);
     await this.eventBus.publish(model.pullDomainEvents());
-    this.logger.info({ id }, 'moat.band.remove.success');
+    this.logger.info({ id }, 'mybandnow.band.remove.success');
   }
 }

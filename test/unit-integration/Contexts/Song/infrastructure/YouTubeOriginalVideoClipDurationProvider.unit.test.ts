@@ -57,7 +57,7 @@ describe('YouTubeOriginalVideoClipDurationProvider', () => {
         provider: 'youtube',
         url: 'https://www.youtube.com/watch?redacted'
       }),
-      'moat.song.original_video_clip_duration.unavailable'
+      'mybandnow.song.original_video_clip_duration.unavailable'
     );
   });
 });

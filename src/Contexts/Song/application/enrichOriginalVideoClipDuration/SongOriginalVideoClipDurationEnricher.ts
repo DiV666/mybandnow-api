@@ -25,7 +25,7 @@ export class SongOriginalVideoClipDurationEnricher {
       );
       this.logger.info(
         { songId: command.songId, durationInSeconds },
-        'moat.song.original_video_clip_duration.enriched'
+        'mybandnow.song.original_video_clip_duration.enriched'
       );
     } catch (error: unknown) {
       this.logger.warn(
@@ -33,7 +33,7 @@ export class SongOriginalVideoClipDurationEnricher {
           songId: command.songId,
           errorName: error instanceof Error ? error.name : 'UnknownError'
         },
-        'moat.song.original_video_clip_duration.enrichment_failed'
+        'mybandnow.song.original_video_clip_duration.enrichment_failed'
       );
     }
   }

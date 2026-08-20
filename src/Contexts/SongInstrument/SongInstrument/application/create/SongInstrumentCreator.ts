@@ -49,6 +49,6 @@ export class SongInstrumentCreator {
 
     await this.persistenceRepository.save(songinstrument);
     await this.eventBus.publish(songinstrument.pullDomainEvents());
-    this.logger.info({ id }, 'moat.songinstrument.create.success');
+    this.logger.info({ id }, 'mybandnow.songinstrument.create.success');
   }
 }

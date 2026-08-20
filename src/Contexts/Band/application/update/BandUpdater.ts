@@ -52,6 +52,6 @@ export class BandUpdater {
 
     await this.persistenceRepository.save(modelUpdated);
     await this.eventBus.publish(domainEvents);
-    this.logger.info({ id }, 'moat.band.update.success');
+    this.logger.info({ id }, 'mybandnow.band.update.success');
   }
 }

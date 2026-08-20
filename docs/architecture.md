@@ -16,15 +16,13 @@ infrastructure/  -> Prisma, RabbitMQ, GCS, ffprobe, JWT y adaptadores
 ```text
 src/
 ├── apps/
-│   ├── mybandnow/backend/
-│   │   ├── config/
-│   │   ├── controllers/
-│   │   ├── middlewares/
-│   │   ├── routes/
-│   │   ├── runtime/
-│   │   └── subscribers/
-│   └── moat/backend/
-│       └── config/dependency-injection/use-cases/
+│   └── mybandnow/backend/
+│       ├── config/
+│       ├── controllers/
+│       ├── middlewares/
+│       ├── routes/
+│       ├── runtime/
+│       └── subscribers/
 └── Contexts/
     ├── Identity/
     ├── Band/
@@ -37,7 +35,7 @@ src/
     └── Shared/
 ```
 
-`apps/mybandnow` y `apps/moat` son nombres de aplicación (quién consume cada endpoint), no de bounded context — no confundirlos con los contextos de negocio bajo `Contexts/`.
+`apps/mybandnow` es un nombre de aplicación (quién consume cada endpoint), no de bounded context — no confundirlo con los contextos de negocio bajo `Contexts/`.
 
 Cada carpeta de primer nivel bajo `Contexts/` es un bounded context independiente: ningún contexto puede importar el código de otro directamente (lo impone `eslint.config.js`, regla `no-restricted-imports` por contexto). La única tierra común es `Shared`; la coordinación entre contextos pasa por el query/command bus (composición en `apps/`) o por eventos de dominio (`apps/**/subscribers`).
 

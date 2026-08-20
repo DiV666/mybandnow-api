@@ -141,6 +141,6 @@ export class SongInstrumentVideoCreator {
     }
 
     await this.eventBus.publish(songInstrumentVideo.pullDomainEvents());
-    this.logger.info({ id }, 'moat.songinstrumentvideo.create.success');
+    this.logger.info({ id }, 'mybandnow.songinstrumentvideo.create.success');
   }
 }

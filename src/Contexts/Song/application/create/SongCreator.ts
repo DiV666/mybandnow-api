@@ -29,6 +29,6 @@ export class SongCreator {
     await this.persistenceRepository.save(song);
     await this.eventBus.publish(song.pullDomainEvents());
 
-    this.logger.info({ id: command.id, bandId: command.bandId }, 'moat.song.create.success');
+    this.logger.info({ id: command.id, bandId: command.bandId }, 'mybandnow.song.create.success');
   }
 }

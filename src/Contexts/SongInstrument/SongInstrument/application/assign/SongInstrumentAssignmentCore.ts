@@ -55,7 +55,7 @@ export class SongInstrumentAssignmentCore {
         songInstrumentId: command.songInstrumentId,
         musicianId: command.musicianId
       },
-      'moat.songinstrument.assign.success'
+      'mybandnow.songinstrument.assign.success'
     );
   }
 }

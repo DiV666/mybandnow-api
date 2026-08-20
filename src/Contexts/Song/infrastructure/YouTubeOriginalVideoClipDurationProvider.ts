@@ -46,7 +46,7 @@ export class YouTubeOriginalVideoClipDurationProvider implements OriginalVideoCl
         provider: 'youtube',
         url: this.sanitizeUrlForLogging(normalizedUrl)
       },
-      'moat.song.original_video_clip_duration.unavailable'
+      'mybandnow.song.original_video_clip_duration.unavailable'
     );
 
     return null;

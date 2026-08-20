@@ -27,7 +27,7 @@ export class SongInstrumentBandMemberReassigner {
         newMusicianId: command.newMusicianId,
         reassignedCount
       },
-      'moat.songinstrument.reassignBandMember.success'
+      'mybandnow.songinstrument.reassignBandMember.success'
     );
   }
 }

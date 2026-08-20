@@ -77,7 +77,7 @@ describe('SongInstrumentVideoCreator should', () => {
     expect(calls).toEqual(['save', 'publish', 'log']);
     expect(testCase.logger().info).toHaveBeenCalledWith(
       { id: songinstrumentvideo.id.value },
-      'moat.songinstrumentvideo.create.success'
+      'mybandnow.songinstrumentvideo.create.success'
     );
   });
 
