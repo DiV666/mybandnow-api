@@ -58,6 +58,9 @@ export class BandMemberRemover {
       command.musicianId,
       band.ownerId.value
     );
-    this.logger.info({ bandId: command.bandId, musicianId: command.musicianId }, 'mybandnow.band.member.remove.success');
+    this.logger.info(
+      { bandId: command.bandId, musicianId: command.musicianId },
+      'mybandnow.band.member.remove.success'
+    );
   }
 }
